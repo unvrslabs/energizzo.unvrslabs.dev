@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 215 35% 12%;
+    --foreground: 0 0% 98%;
+    --card: 215 30% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 215 30% 15%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 158 64% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 25% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 215 25% 18%;
+    --muted-foreground: 215 20% 60%;
+    --accent: 158 64% 42%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 25% 22%;
+    --input: 215 25% 20%;
+    --ring: 158 64% 42%;
+    --radius: 1rem;
+    --glass-bg: 0 0% 100% / 0.08;
+    --glass-border: 0 0% 100% / 0.12;
+    --glass-glow: 158 64% 42% / 0.2;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    background-image:
+      radial-gradient(at 40% 20%, hsl(158 64% 42% / 0.12) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsl(180 50% 45% / 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 80%, hsl(180 50% 50% / 0.06) 0px, transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+}
+
+@layer components {
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+  .glow-primary {
+    box-shadow: 0 0 40px hsl(var(--glass-glow));
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(158 64% 55%), hsl(180 60% 55%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Leaflet overrides for dark theme */
+.leaflet-container {
+  background: hsl(215 35% 10%);
+  font-family: var(--font-sans);
+}
+.leaflet-tile {
+  filter: brightness(0.7) invert(1) contrast(0.9) hue-rotate(180deg) saturate(0.4) brightness(0.9);
+}
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.6) !important;
+  color: rgba(255,255,255,0.6) !important;
+}
+.leaflet-control-attribution a {
+  color: hsl(158 64% 55%) !important;
+}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: hsl(215 30% 15%);
+  color: hsl(0 0% 98%);
+  border: 1px solid hsl(215 25% 22%);
+}
+.marker-cluster {
+  background: hsla(158, 64%, 42%, 0.35) !important;
+}
+.marker-cluster div {
+  background: hsla(158, 64%, 42%, 0.8) !important;
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(215 25% 22%); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(215 25% 28%); }
