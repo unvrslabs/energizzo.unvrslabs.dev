@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { Search, X, MapPin, Check, ChevronDown, Activity } from "lucide-react";
+import { Search, X, MapPin, Check, ChevronDown, Activity, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -51,13 +51,10 @@ export function FilterBar({ provinces }: Props) {
     return () => clearTimeout(id);
   }, [qLocal, q, router, pathname, search]);
 
-  const toggleIn = (arr: string[], v: string) =>
-    arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
-
   const totalFilters = currentStatus.length + currentTipo.length + currentProv.length + (q ? 1 : 0);
 
   return (
-    <div className="glass rounded-lg p-3 space-y-2.5">
+    <div className="glass rounded-lg p-3">
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[260px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -68,6 +65,11 @@ export function FilterBar({ provinces }: Props) {
             onChange={(e) => setQLocal(e.target.value)}
           />
         </div>
+
+        <TipoPicker
+          selected={currentTipo}
+          onChange={(arr) => updateParam("tipo", arr)}
+        />
 
         <StatusPicker
           selected={currentStatus}
@@ -95,47 +97,109 @@ export function FilterBar({ provinces }: Props) {
           </button>
         )}
       </div>
-
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 mr-1">
-          Tipo
-        </span>
-        {TIPO_SERVIZIO_VALUES.map((t) => (
-          <Chip
-            key={t}
-            active={currentTipo.includes(t)}
-            onClick={() => updateParam("tipo", toggleIn(currentTipo, t))}
-          >
-            {t === "Dual (Ele+Gas)" ? "Dual" : t.replace("Solo ", "")}
-          </Chip>
-        ))}
-      </div>
     </div>
   );
 }
 
-function Chip({
-  active,
-  children,
-  onClick,
+const TIPO_ACCENT: Record<TipoServizio, string> = {
+  "Dual (Ele+Gas)": "#10b981",
+  "Solo Elettrico": "#eab308",
+  "Solo Gas": "#3b82f6",
+};
+
+const TIPO_SHORT: Record<TipoServizio, string> = {
+  "Dual (Ele+Gas)": "Dual",
+  "Solo Elettrico": "Elettrico",
+  "Solo Gas": "Gas",
+};
+
+function TipoPicker({
+  selected,
+  onChange,
 }: {
-  active: boolean;
-  children: React.ReactNode;
-  onClick: () => void;
+  selected: TipoServizio[];
+  onChange: (next: TipoServizio[]) => void;
 }) {
+  const [open, setOpen] = useState(false);
+
+  const label =
+    selected.length === 0
+      ? "Tutti i tipi"
+      : selected.length === 1
+        ? TIPO_SHORT[selected[0]]
+        : `${selected.length} tipi`;
+
+  const activeColor = selected.length === 1 ? TIPO_ACCENT[selected[0]] : undefined;
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all whitespace-nowrap",
-        active
-          ? "border-primary bg-primary/20 text-foreground shadow-sm shadow-primary/30"
-          : "border-border/60 bg-background/40 text-muted-foreground hover:border-primary/50 hover:text-foreground",
-      )}
-    >
-      {children}
-    </button>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-md border bg-background/40 px-3 h-10 text-sm transition-colors whitespace-nowrap max-w-[200px]",
+            selected.length > 0
+              ? "border-primary text-foreground shadow-sm shadow-primary/20"
+              : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",
+          )}
+        >
+          {activeColor ? (
+            <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: activeColor }} />
+          ) : (
+            <Zap className="h-4 w-4 shrink-0" />
+          )}
+          <span className="truncate">{label}</span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[220px] p-0" align="start">
+        {selected.length > 0 && (
+          <div className="border-b border-border/60 px-2 py-1.5 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {selected.length} selezionati
+            </span>
+            <button
+              type="button"
+              onClick={() => onChange([])}
+              className="text-[11px] text-primary hover:underline"
+            >
+              Cancella
+            </button>
+          </div>
+        )}
+        <div className="py-1">
+          {TIPO_SERVIZIO_VALUES.map((t) => {
+            const active = selected.includes(t);
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() =>
+                  onChange(active ? selected.filter((x) => x !== t) : [...selected, t])
+                }
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-colors text-left",
+                  active
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-3.5 w-3.5 items-center justify-center rounded-sm border shrink-0",
+                    active ? "bg-primary border-primary" : "border-border/60",
+                  )}
+                >
+                  {active && <Check className="h-3 w-3 text-primary-foreground" />}
+                </span>
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: TIPO_ACCENT[t] }} />
+                <span className="truncate">{t}</span>
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
