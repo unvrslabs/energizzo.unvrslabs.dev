@@ -15,6 +15,7 @@ import { StatusSelect } from "./status-select";
 import { SurveyBadge } from "./survey-badge";
 import { enrichContacts } from "@/actions/enrich-contacts";
 import { markSurveySent } from "@/actions/survey";
+import { SurveyEmailComposer } from "./survey-email-composer";
 import type { Lead, Note, ActivityEvent, LeadContact, SurveyResponse } from "@/lib/types";
 import { STATUS_CONFIG, type Status } from "@/lib/status-config";
 import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-questions";
@@ -387,6 +388,14 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                     Completata {formatDistanceToNow(new Date(lead.survey_completed_at), { locale: it, addSuffix: true })}
                   </p>
                 )}
+              </div>
+
+              <div className="liquid-glass-card-sm p-4 mt-3">
+                <SurveyEmailComposer
+                  leadId={lead.id}
+                  companyName={lead.ragione_sociale}
+                  defaultRecipientName={contacts.find((c) => c.is_legal_rep)?.full_name}
+                />
               </div>
 
               {survey && Object.keys(survey.answers).length > 0 && (
