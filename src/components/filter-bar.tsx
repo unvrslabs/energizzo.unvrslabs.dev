@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { Search, X, MapPin, Check, ChevronDown, Filter } from "lucide-react";
+import { Search, X, MapPin, Check, ChevronDown, Activity } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -58,8 +58,8 @@ export function FilterBar({ provinces }: Props) {
 
   return (
     <div className="glass rounded-lg p-3 space-y-2.5">
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[260px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9 h-10"
@@ -68,6 +68,11 @@ export function FilterBar({ provinces }: Props) {
             onChange={(e) => setQLocal(e.target.value)}
           />
         </div>
+
+        <StatusPicker
+          selected={currentStatus}
+          onChange={(arr) => updateParam("status", arr)}
+        />
 
         <ProvincePicker
           all={provinces}
@@ -91,51 +96,20 @@ export function FilterBar({ provinces }: Props) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Group label="Tipo">
-          {TIPO_SERVIZIO_VALUES.map((t) => (
-            <Chip
-              key={t}
-              active={currentTipo.includes(t)}
-              onClick={() => updateParam("tipo", toggleIn(currentTipo, t))}
-            >
-              {t === "Dual (Ele+Gas)" ? "Dual" : t.replace("Solo ", "")}
-            </Chip>
-          ))}
-        </Group>
-
-        <span className="text-border/60 hidden sm:inline">|</span>
-
-        <Group label="Stato">
-          {STATUSES_IN_ORDER.map((s) => {
-            const cfg = STATUS_CONFIG[s];
-            return (
-              <Chip
-                key={s}
-                active={currentStatus.includes(s)}
-                onClick={() => updateParam("status", toggleIn(currentStatus, s))}
-              >
-                <span
-                  className="h-2 w-2 rounded-full mr-1.5 inline-block shrink-0"
-                  style={{ backgroundColor: cfg.color }}
-                />
-                {cfg.label}
-              </Chip>
-            );
-          })}
-        </Group>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 mr-1">
+          Tipo
+        </span>
+        {TIPO_SERVIZIO_VALUES.map((t) => (
+          <Chip
+            key={t}
+            active={currentTipo.includes(t)}
+            onClick={() => updateParam("tipo", toggleIn(currentTipo, t))}
+          >
+            {t === "Dual (Ele+Gas)" ? "Dual" : t.replace("Solo ", "")}
+          </Chip>
+        ))}
       </div>
-    </div>
-  );
-}
-
-function Group({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-1.5 flex-wrap">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80">
-        {label}
-      </span>
-      {children}
     </div>
   );
 }
@@ -162,6 +136,98 @@ function Chip({
     >
       {children}
     </button>
+  );
+}
+
+function StatusPicker({
+  selected,
+  onChange,
+}: {
+  selected: Status[];
+  onChange: (next: Status[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const label =
+    selected.length === 0
+      ? "Tutti gli stati"
+      : selected.length === 1
+        ? STATUS_CONFIG[selected[0]].label
+        : `${selected.length} stati`;
+
+  const activeColor =
+    selected.length === 1 ? STATUS_CONFIG[selected[0]].color : undefined;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-md border bg-background/40 px-3 h-10 text-sm transition-colors whitespace-nowrap max-w-[240px]",
+            selected.length > 0
+              ? "border-primary text-foreground shadow-sm shadow-primary/20"
+              : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",
+          )}
+        >
+          {activeColor ? (
+            <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: activeColor }} />
+          ) : (
+            <Activity className="h-4 w-4 shrink-0" />
+          )}
+          <span className="truncate">{label}</span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[260px] p-0" align="start">
+        {selected.length > 0 && (
+          <div className="border-b border-border/60 px-2 py-1.5 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {selected.length} selezionati
+            </span>
+            <button
+              type="button"
+              onClick={() => onChange([])}
+              className="text-[11px] text-primary hover:underline"
+            >
+              Cancella
+            </button>
+          </div>
+        )}
+        <div className="max-h-[320px] overflow-y-auto py-1">
+          {STATUSES_IN_ORDER.map((s) => {
+            const cfg = STATUS_CONFIG[s];
+            const active = selected.includes(s);
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() =>
+                  onChange(active ? selected.filter((x) => x !== s) : [...selected, s])
+                }
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-colors text-left",
+                  active
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-3.5 w-3.5 items-center justify-center rounded-sm border shrink-0",
+                    active ? "bg-primary border-primary" : "border-border/60",
+                  )}
+                >
+                  {active && <Check className="h-3 w-3 text-primary-foreground" />}
+                </span>
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: cfg.color }} />
+                <span className="truncate">{cfg.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -207,7 +273,7 @@ function ProvincePicker({
           <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[280px] p-0" align="end">
+      <PopoverContent className="w-[280px] p-0" align="start">
         <div className="border-b border-border/60 p-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
