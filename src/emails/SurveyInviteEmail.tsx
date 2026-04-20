@@ -23,7 +23,10 @@ type Props = {
   customMessage?: string;
   videoUrl?: string;
   videoThumbnailUrl?: string;
+  logoUrl?: string;
 };
+
+const DEFAULT_LOGO = "https://energizzo.unvrslabs.dev/logo-energizzo.png";
 
 export default function SurveyInviteEmail({
   recipientName,
@@ -34,6 +37,7 @@ export default function SurveyInviteEmail({
   customMessage,
   videoUrl,
   videoThumbnailUrl,
+  logoUrl = DEFAULT_LOGO,
 }: Props) {
   const greeting = recipientName ? `Ciao ${recipientName},` : `Ciao team ${companyName},`;
 
@@ -60,38 +64,29 @@ export default function SurveyInviteEmail({
           >
             {/* Logo + brand */}
             <Section style={{ textAlign: "center", padding: "16px 0 8px" }}>
-              <div
+              <Img
+                src={logoUrl}
+                alt="Energizzo"
+                width="72"
+                height="72"
                 style={{
-                  display: "inline-block",
-                  padding: "12px 20px",
-                  borderRadius: "14px",
-                  background: "linear-gradient(135deg, #10b981, #0d9668)",
-                  boxShadow: "0 6px 20px rgba(16,185,129,0.35)",
+                  display: "block",
+                  margin: "0 auto",
+                  borderRadius: "18px",
+                  boxShadow: "0 8px 24px rgba(16,185,129,0.35)",
                 }}
-              >
-                <Text
-                  style={{
-                    margin: 0,
-                    color: "#fff",
-                    fontSize: "18px",
-                    fontWeight: 900,
-                    letterSpacing: "0.15em",
-                    fontFamily: "'Orbitron', sans-serif",
-                  }}
-                >
-                  ⚡ ENERGIZZO
-                </Text>
-              </div>
+              />
               <Text
                 style={{
-                  fontSize: "10px",
-                  letterSpacing: "0.2em",
+                  fontSize: "11px",
+                  letterSpacing: "0.25em",
                   textTransform: "uppercase",
-                  color: "#64748b",
-                  marginTop: "8px",
+                  color: "#94a3b8",
+                  marginTop: "12px",
+                  fontWeight: 600,
                 }}
               >
-                Piattaforma AI per i Reseller Energia
+                Piattaforma AI · Reseller Energia
               </Text>
             </Section>
 

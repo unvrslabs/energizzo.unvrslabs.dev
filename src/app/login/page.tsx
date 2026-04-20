@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
-import { Zap, LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,9 +46,15 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="liquid-glass-card w-full max-w-md p-10 animate-pulse-glow">
         <div className="mb-8 flex flex-col items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/50">
-            <Zap className="h-8 w-8 text-primary-foreground" strokeWidth={2.5} />
-          </div>
+          <Image
+            src="/logo-energizzo.png"
+            alt="Energizzo"
+            width={80}
+            height={80}
+            priority
+            className="rounded-2xl shadow-lg shadow-primary/40"
+          />
+
           <div className="text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-glass mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
