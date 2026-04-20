@@ -54,12 +54,12 @@ export function FilterBar({ provinces }: Props) {
   const totalFilters = currentStatus.length + currentTipo.length + currentProv.length + (q ? 1 : 0);
 
   return (
-    <div className="glass rounded-lg p-3">
+    <div className="liquid-glass-card rounded-[1.5rem] p-3">
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[260px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="pl-9 h-10"
+            className="pl-11 h-11 rounded-full"
             placeholder="Cerca per ragione sociale, P.IVA, dominio..."
             value={qLocal}
             onChange={(e) => setQLocal(e.target.value)}
@@ -89,7 +89,7 @@ export function FilterBar({ provinces }: Props) {
               setQLocal("");
               router.replace(pathname);
             }}
-            className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background/40 px-3 h-10 text-xs text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
+            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-white/5 backdrop-blur-md px-4 h-11 text-xs text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
           >
             <X className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Pulisci</span>
@@ -137,7 +137,7 @@ function TipoPicker({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-2 rounded-md border bg-background/40 px-3 h-10 text-sm transition-colors whitespace-nowrap max-w-[200px]",
+            "inline-flex items-center gap-2 rounded-full border bg-white/5 backdrop-blur-md px-4 h-11 text-sm transition-all whitespace-nowrap max-w-[200px]",
             selected.length > 0
               ? "border-primary text-foreground shadow-sm shadow-primary/20"
               : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",
@@ -228,7 +228,7 @@ function StatusPicker({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-2 rounded-md border bg-background/40 px-3 h-10 text-sm transition-colors whitespace-nowrap max-w-[240px]",
+            "inline-flex items-center gap-2 rounded-full border bg-white/5 backdrop-blur-md px-4 h-11 text-sm transition-all whitespace-nowrap max-w-[240px]",
             selected.length > 0
               ? "border-primary text-foreground shadow-sm shadow-primary/20"
               : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",
@@ -326,7 +326,7 @@ function ProvincePicker({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-2 rounded-md border bg-background/40 px-3 h-10 text-sm transition-colors whitespace-nowrap max-w-[240px]",
+            "inline-flex items-center gap-2 rounded-full border bg-white/5 backdrop-blur-md px-4 h-11 text-sm transition-all whitespace-nowrap max-w-[240px]",
             selected.length > 0
               ? "border-primary text-foreground shadow-sm shadow-primary/20"
               : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",

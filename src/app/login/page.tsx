@@ -43,13 +43,23 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="glass w-full max-w-md rounded-lg p-8 glow-primary">
-        <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-primary shadow-lg shadow-primary/40">
-            <Zap className="h-7 w-7 text-primary-foreground" strokeWidth={2.5} />
+      <div className="liquid-glass-card w-full max-w-md p-10 animate-pulse-glow">
+        <div className="mb-8 flex flex-col items-center gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/50">
+            <Zap className="h-8 w-8 text-primary-foreground" strokeWidth={2.5} />
           </div>
-          <h1 className="font-display text-3xl font-bold gradient-text">ENERGIZZO CRM</h1>
-          <p className="text-sm text-muted-foreground">Accedi al pannello reseller</p>
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-glass mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="text-[10px] font-semibold text-primary tracking-[0.15em] uppercase">
+                Reseller Italia
+              </span>
+            </div>
+            <h1 className="font-display text-4xl font-black tracking-tight gradient-text">
+              ENERGIZZO CRM
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">Accedi al pannello</p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,7 +85,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading} size="lg" className="w-full">
             {mode === "login" ? (
               <>
                 <LogIn /> {loading ? "Accesso..." : "Accedi"}
@@ -91,7 +101,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-5 w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {mode === "login" ? "Crea il tuo account" : "Hai già un account? Accedi"}
         </button>

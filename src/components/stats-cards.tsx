@@ -9,24 +9,34 @@ type Stats = {
 
 export function StatsCards({ stats }: { stats: Stats }) {
   const items = [
-    { label: "Totale lead", value: stats.total, icon: Users, color: "from-blue-500/20 to-blue-500/5", iconColor: "text-blue-400" },
-    { label: "In pipeline", value: stats.inPipeline, icon: Activity, color: "from-purple-500/20 to-purple-500/5", iconColor: "text-purple-400" },
-    { label: "Demo effettuate", value: stats.demoDone, icon: Calendar, color: "from-pink-500/20 to-pink-500/5", iconColor: "text-pink-400" },
-    { label: "Chiusi vinti", value: stats.won, icon: Trophy, color: "from-emerald-500/20 to-emerald-500/5", iconColor: "text-emerald-400" },
+    { label: "Totale lead", value: stats.total, icon: Users, accent: "from-blue-400/30 to-blue-400/0" },
+    { label: "In pipeline", value: stats.inPipeline, icon: Activity, accent: "from-purple-400/30 to-purple-400/0" },
+    { label: "Demo effettuate", value: stats.demoDone, icon: Calendar, accent: "from-pink-400/30 to-pink-400/0" },
+    { label: "Chiusi vinti", value: stats.won, icon: Trophy, accent: "from-emerald-400/30 to-emerald-400/0" },
   ];
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {items.map((it) => (
         <div
           key={it.label}
-          className={`glass rounded-lg p-4 bg-gradient-to-br ${it.color} relative overflow-hidden`}
+          className="liquid-glass-hover rounded-[1.5rem] p-5 relative overflow-hidden group"
         >
+          <div
+            className={`absolute -top-8 -right-8 h-32 w-32 rounded-full bg-gradient-to-br ${it.accent} blur-2xl opacity-60 group-hover:opacity-100 transition-opacity`}
+            aria-hidden
+          />
           <div className="relative flex items-start justify-between">
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground">{it.label}</p>
-              <p className="mt-1 font-display text-3xl font-bold">{it.value.toLocaleString("it-IT")}</p>
+              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+                {it.label}
+              </p>
+              <p className="mt-1.5 text-4xl font-black tracking-tight tabular-nums">
+                {it.value.toLocaleString("it-IT")}
+              </p>
             </div>
-            <it.icon className={`h-5 w-5 ${it.iconColor}`} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/10">
+              <it.icon className="h-4 w-4 text-foreground/80" />
+            </div>
           </div>
         </div>
       ))}

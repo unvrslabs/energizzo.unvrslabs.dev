@@ -26,6 +26,7 @@
     --radius: 1rem;
     --glass-bg: 0 0% 100% / 0.08;
     --glass-border: 0 0% 100% / 0.12;
+    --glass-shadow: 0 0% 0% / 0.3;
     --glass-glow: 158 64% 42% / 0.2;
   }
 }
@@ -38,11 +39,14 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    background-image:
-      radial-gradient(at 40% 20%, hsl(158 64% 42% / 0.12) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, hsl(180 50% 45% / 0.08) 0px, transparent 50%),
-      radial-gradient(at 0% 80%, hsl(180 50% 50% / 0.06) 0px, transparent 50%);
+    @apply bg-background text-foreground antialiased font-sans;
+    background:
+      radial-gradient(ellipse at 30% 20%, hsl(158 60% 45% / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 10%, hsl(170 50% 50% / 0.1) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 50%, hsl(158 64% 42% / 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, hsl(180 50% 40% / 0.12) 0%, transparent 45%),
+      radial-gradient(ellipse at 20% 80%, hsl(170 40% 45% / 0.1) 0%, transparent 50%),
+      linear-gradient(180deg, hsl(215 35% 18%) 0%, hsl(215 35% 12%) 50%, hsl(215 35% 8%) 100%);
     background-attachment: fixed;
     min-height: 100vh;
   }
@@ -52,30 +56,144 @@
   .font-mono {
     font-family: var(--font-mono), ui-monospace, monospace;
   }
+  section, main {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
 }
 
 @layer components {
-  .glass {
-    background: hsl(var(--glass-bg));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--glass-border));
+  /* Apple Liquid Glass — base material */
+  .liquid-glass {
+    @apply relative overflow-hidden;
+    background: linear-gradient(
+      135deg,
+      hsl(0 0% 100% / 0.12) 0%,
+      hsl(0 0% 100% / 0.06) 50%,
+      hsl(0 0% 100% / 0.03) 100%
+    );
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid hsl(0 0% 100% / 0.18);
+    box-shadow:
+      0 8px 32px hsl(0 0% 0% / 0.12),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.15),
+      inset 0 -1px 0 0 hsl(0 0% 0% / 0.05);
   }
+
+  .liquid-glass-card {
+    @apply liquid-glass rounded-[2rem];
+  }
+
+  .liquid-glass-card-sm {
+    @apply liquid-glass rounded-[1.25rem];
+  }
+
+  .liquid-glass-hover {
+    @apply liquid-glass transition-all duration-500 ease-out;
+  }
+
+  .liquid-glass-hover:hover {
+    background: linear-gradient(
+      135deg,
+      hsl(0 0% 100% / 0.18) 0%,
+      hsl(0 0% 100% / 0.1) 50%,
+      hsl(0 0% 100% / 0.05) 100%
+    );
+    border-color: hsl(0 0% 100% / 0.25);
+    box-shadow:
+      0 16px 48px hsl(0 0% 0% / 0.2),
+      0 0 0 1px hsl(158 64% 42% / 0.15),
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Floating navigation layer */
+  .liquid-glass-nav {
+    @apply liquid-glass;
+    background: linear-gradient(135deg, hsl(0 0% 100% / 0.08) 0%, hsl(0 0% 100% / 0.04) 100%);
+    backdrop-filter: blur(60px) saturate(200%);
+    -webkit-backdrop-filter: blur(60px) saturate(200%);
+    border: 1px solid hsl(0 0% 100% / 0.12);
+  }
+
+  /* Legacy alias — old components still use .glass */
+  .glass {
+    @apply liquid-glass;
+  }
+
   .glow-primary {
     box-shadow: 0 0 40px hsl(var(--glass-glow));
   }
+
+  /* Gradient text */
   .gradient-text {
     background: linear-gradient(135deg, hsl(158 64% 55%), hsl(180 60% 55%));
     -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
   }
+
+  .gradient-text-primary {
+    background: linear-gradient(135deg, hsl(158 64% 50%), hsl(160 70% 38%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Premium button */
+  .btn-premium {
+    @apply relative overflow-hidden px-6 py-2.5 rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center gap-2;
+    background: linear-gradient(135deg, hsl(158 64% 42%), hsl(160 70% 36%));
+    color: hsl(0 0% 100%);
+    box-shadow:
+      0 4px 20px hsl(158 64% 42% / 0.35),
+      0 0 0 1px hsl(158 64% 42% / 0.1) inset;
+  }
+
+  .btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 30px hsl(158 64% 42% / 0.45),
+      0 0 0 1px hsl(158 64% 42% / 0.2) inset;
+  }
+
+  .btn-premium:disabled {
+    opacity: 0.6;
+    transform: none;
+  }
+
+  /* Animations */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px hsl(158 64% 42% / 0.2); }
+    50% { box-shadow: 0 0 40px hsl(158 64% 42% / 0.4); }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .section-divider {
+    @apply w-full h-px;
+    background: linear-gradient(90deg, transparent, hsl(var(--border)), transparent);
+  }
 }
 
-/* Leaflet overrides for dark theme */
+/* Leaflet dark theme */
 .leaflet-container {
   background: hsl(215 35% 10%);
   font-family: var(--font-sans);
+  border-radius: 1.25rem;
+  overflow: hidden;
 }
 .leaflet-tile {
   filter: brightness(0.7) invert(1) contrast(0.9) hue-rotate(180deg) saturate(0.4) brightness(0.9);
@@ -102,7 +220,7 @@
   font-weight: 700 !important;
 }
 
-/* Custom scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: hsl(215 25% 22%); border-radius: 6px; }
