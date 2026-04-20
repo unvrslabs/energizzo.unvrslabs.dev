@@ -1,4 +1,5 @@
 import type { Status, TipoServizio } from "./status-config";
+import type { SurveyStatus } from "./survey-questions";
 
 export type Lead = {
   id: string;
@@ -28,6 +29,23 @@ export type Lead = {
   contacts_error: string | null;
   notes_count?: number;
   contacts_count?: number;
+  survey_token: string;
+  survey_status: SurveyStatus;
+  survey_sent_at: string | null;
+  survey_completed_at: string | null;
+  survey_last_step_at: string | null;
+};
+
+export type SurveyResponse = {
+  id: string;
+  lead_id: string;
+  token: string;
+  answers: Record<string, string | string[] | null>;
+  current_step: number;
+  completed: boolean;
+  started_at: string;
+  completed_at: string | null;
+  updated_at: string;
 };
 
 export type LeadContact = {

@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { ExternalLink, Mail, Phone, Users } from "lucide-react";
 import { StatusBadge } from "./status-badge";
+import { SurveyBadge } from "./survey-badge";
 import { EnrichButton } from "./enrich-button";
 import { firstPhone, cn } from "@/lib/utils";
 import type { Lead } from "@/lib/types";
@@ -23,6 +24,7 @@ export function LeadsTable({ leads, onSelect }: Props) {
             <tr className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-3">Ragione sociale</th>
               <th className="px-4 py-3 w-[150px]">Stato</th>
+              <th className="px-4 py-3 w-[130px]">Survey</th>
               <th className="px-4 py-3 w-[140px]">Tipo servizio</th>
               <th className="px-4 py-3 w-[140px]">Comune</th>
               <th className="px-4 py-3 w-[100px]">Prov.</th>
@@ -47,6 +49,9 @@ export function LeadsTable({ leads, onSelect }: Props) {
                 </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={l.status} />
+                </td>
+                <td className="px-4 py-3">
+                  <SurveyBadge status={l.survey_status} />
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -126,7 +131,7 @@ export function LeadsTable({ leads, onSelect }: Props) {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-16 text-center text-muted-foreground">
+                <td colSpan={10} className="py-16 text-center text-muted-foreground">
                   Nessun lead corrisponde ai filtri.
                 </td>
               </tr>

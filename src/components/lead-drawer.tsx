@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
 import { toast } from "sonner";
-import { ExternalLink, Globe, Mail, Phone, Save, Building2, MapPin, Hash, Users2, Tag, Send, Linkedin, UserSearch, Loader2 } from "lucide-react";
+import { ExternalLink, Globe, Mail, Phone, Save, Building2, MapPin, Hash, Users2, Tag, Send, Linkedin, UserSearch, Loader2, Copy, ClipboardList, Check } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,13 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { StatusBadge } from "./status-badge";
 import { StatusSelect } from "./status-select";
+import { SurveyBadge } from "./survey-badge";
 import { enrichContacts } from "@/actions/enrich-contacts";
-import type { Lead, Note, ActivityEvent, LeadContact } from "@/lib/types";
+import { markSurveySent } from "@/actions/survey";
+import type { Lead, Note, ActivityEvent, LeadContact, SurveyResponse } from "@/lib/types";
 import { STATUS_CONFIG, type Status } from "@/lib/status-config";
+import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-questions";
 import { firstPhone, cn } from "@/lib/utils";
 import { updateLeadEmail } from "@/actions/update-lead";
 import { addNote } from "@/actions/add-note";
 import { createClient } from "@/lib/supabase/client";
+
+const SURVEY_BASE_URL =
+  process.env.NEXT_PUBLIC_SURVEY_BASE_URL ?? "https://report.unvrslabs.dev";
 
 type Props = {
   lead: Lead | null;
@@ -32,24 +38,30 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
   const [contacts, setContacts] = useState<LeadContact[]>([]);
+  const [survey, setSurvey] = useState<SurveyResponse | null>(null);
+  const [copied, setCopied] = useState(false);
   const [savingEmail, startEmailTransition] = useTransition();
   const [savingNote, startNoteTransition] = useTransition();
   const [enriching, startEnrichTransition] = useTransition();
+  const [markingSent, startMarkSentTransition] = useTransition();
 
   useEffect(() => {
     setEmail(lead?.email ?? "");
     setNoteBody("");
+    setCopied(false);
     if (!lead) return;
     const supabase = createClient();
     void (async () => {
-      const [n, a, c] = await Promise.all([
+      const [n, a, c, s] = await Promise.all([
         supabase.from("notes").select("*").eq("lead_id", lead.id).order("created_at", { ascending: false }),
         supabase.from("activity_log").select("*").eq("lead_id", lead.id).order("created_at", { ascending: false }).limit(50),
         supabase.from("lead_contacts").select("*").eq("lead_id", lead.id).order("created_at", { ascending: true }),
+        supabase.from("survey_responses").select("*").eq("lead_id", lead.id).maybeSingle(),
       ]);
       setNotes((n.data as Note[]) ?? []);
       setActivity((a.data as ActivityEvent[]) ?? []);
       setContacts((c.data as LeadContact[]) ?? []);
+      setSurvey((s.data as SurveyResponse | null) ?? null);
     })();
   }, [lead]);
 
@@ -84,6 +96,29 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
         .eq("lead_id", lead.id)
         .order("created_at", { ascending: true });
       setContacts((data as LeadContact[]) ?? []);
+    });
+  }
+
+  const surveyLink = lead ? `${SURVEY_BASE_URL}/s/${lead.survey_token}` : "";
+
+  async function copySurveyLink() {
+    if (!surveyLink) return;
+    try {
+      await navigator.clipboard.writeText(surveyLink);
+      setCopied(true);
+      toast.success("Link survey copiato");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Impossibile copiare il link");
+    }
+  }
+
+  function markSent() {
+    if (!lead) return;
+    startMarkSentTransition(async () => {
+      const res = await markSurveySent({ lead_id: lead.id });
+      if (!res.ok) toast.error(`Errore: ${res.error}`);
+      else toast.success("Survey marcata come inviata");
     });
   }
 
@@ -312,6 +347,81 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                 </section>
               </>
             )}
+
+            <Separator />
+
+            <section className="space-y-3">
+              <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center justify-between">
+                <span className="inline-flex items-center gap-2">
+                  <ClipboardList className="h-3.5 w-3.5" /> Survey 2026
+                </span>
+                <SurveyBadge status={lead.survey_status} />
+              </h3>
+
+              <div className="glass rounded-md p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 min-w-0 truncate rounded-sm bg-background/40 border border-border/40 px-2 py-1.5 text-[11px] font-mono text-muted-foreground">
+                    {surveyLink}
+                  </code>
+                  <Button size="sm" variant="outline" onClick={copySurveyLink}>
+                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? "Copiato" : "Copia"}
+                  </Button>
+                </div>
+                {lead.survey_status === "not_sent" && (
+                  <Button size="sm" variant="outline" onClick={markSent} disabled={markingSent}>
+                    <Send className="h-3.5 w-3.5" />
+                    {markingSent ? "Salvo..." : "Segna come inviata"}
+                  </Button>
+                )}
+                {lead.survey_sent_at && lead.survey_status !== "completed" && (
+                  <p className="text-[10px] text-muted-foreground">
+                    Inviata {formatDistanceToNow(new Date(lead.survey_sent_at), { locale: it, addSuffix: true })}
+                    {lead.survey_last_step_at && (
+                      <> · ultima attività {formatDistanceToNow(new Date(lead.survey_last_step_at), { locale: it, addSuffix: true })}</>
+                    )}
+                  </p>
+                )}
+                {lead.survey_completed_at && (
+                  <p className="text-[10px] text-emerald-300">
+                    Completata {formatDistanceToNow(new Date(lead.survey_completed_at), { locale: it, addSuffix: true })}
+                  </p>
+                )}
+              </div>
+
+              {survey && Object.keys(survey.answers).length > 0 && (
+                <div className="space-y-2">
+                  {SURVEY_QUESTION_ORDER.map((qid) => {
+                    const v = survey.answers[qid];
+                    if (v === undefined || v === null || v === "") return null;
+                    const label = SURVEY_QUESTION_LABELS[qid] ?? qid;
+                    return (
+                      <div key={qid} className="glass rounded-md p-3 text-sm">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          <span className="font-mono text-primary">{qid}</span> · {label}
+                        </p>
+                        <div className="mt-1 text-sm">
+                          {Array.isArray(v) ? (
+                            <ul className="list-disc list-inside space-y-0.5">
+                              {v.map((item, i) => (
+                                <li key={i}>{item}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="whitespace-pre-wrap break-words">{v}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {(!survey || Object.keys(survey.answers).length === 0) && (
+                <p className="text-xs text-muted-foreground italic">
+                  Nessuna risposta ancora. Copia il link e invialo al lead.
+                </p>
+              )}
+            </section>
 
             <Separator />
 
