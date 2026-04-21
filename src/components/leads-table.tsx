@@ -32,7 +32,7 @@ export function LeadsTable({ leads, onSelect }: Props) {
 
   return (
     <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
-      <div className="max-h-[72vh] overflow-auto">
+      <div className="max-h-[72vh] overflow-auto scroll-contained">
         <div className="min-w-[1400px]">
           {/* Header */}
           <div

@@ -67,7 +67,7 @@ export function KanbanBoard({ leads, onSelect }: Props) {
         }}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-3 overflow-x-auto pb-4">
+        <div className="flex gap-3 overflow-x-auto pb-4 scroll-x-contained">
           {columns.map((s) => {
             const cfg = STATUS_CONFIG[s];
             const items = withOverrides.filter((l) => l.status === s);

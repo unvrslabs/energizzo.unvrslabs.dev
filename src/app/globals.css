@@ -63,6 +63,21 @@
   }
 }
 
+@layer utilities {
+  /* Contains horizontal/vertical scroll inside the element on iPad/iOS:
+     prevents Safari back-gesture and page scroll stealing the swipe. */
+  .scroll-contained {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+  .scroll-x-contained {
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+}
+
 @layer components {
   /* Apple Liquid Glass — base material */
   .liquid-glass {
