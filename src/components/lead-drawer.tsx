@@ -409,30 +409,6 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
               </div>
             </section>
 
-            {lead.telefoni && (
-              <>
-                <Separator />
-                <section className="space-y-2">
-                  <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground">Telefoni</h3>
-                  <div className="flex flex-col gap-1">
-                    {lead.telefoni.split(",").map((t, i) => {
-                      const raw = t.trim();
-                      const digits = raw.replace(/\D/g, "");
-                      return (
-                        <a
-                          key={i}
-                          href={`tel:${digits}`}
-                          className="inline-flex items-center gap-2 text-sm hover:text-primary transition-colors"
-                        >
-                          <Phone className="h-3.5 w-3.5" /> {raw}
-                        </a>
-                      );
-                    })}
-                  </div>
-                </section>
-              </>
-            )}
-
             <Separator />
 
             <section className="space-y-3">
