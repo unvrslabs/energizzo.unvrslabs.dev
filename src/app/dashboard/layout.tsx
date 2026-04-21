@@ -21,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               { href: "/dashboard", label: "Lead", icon: "users" },
               { href: "/dashboard/strategia", label: "Strategia", icon: "target" },
               { href: "/dashboard/podcast", label: "Podcast", icon: "mic" },
+              { href: "/dashboard/agent", label: "Assistente", icon: "sparkles" },
             ]}
           />
           <div className="flex items-center gap-2">
