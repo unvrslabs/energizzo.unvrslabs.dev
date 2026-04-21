@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users2, Target } from "lucide-react";
+import { Users2, Target, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS = {
   users: Users2,
   target: Target,
+  mic: Mic,
 } as const;
 
 type Item = { href: string; label: string; icon: keyof typeof ICONS };
