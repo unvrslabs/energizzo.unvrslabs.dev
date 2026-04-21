@@ -27,19 +27,17 @@ type Props = {
 export function GuestsPipeline({ guests, leads }: Props) {
   const [view, setView] = useState<"tabella" | "kanban">("kanban");
   const [query, setQuery] = useState("");
-  const [tierFilter, setTierFilter] = useState<number | null>(null);
   const [addLeadOpen, setAddLeadOpen] = useState(false);
   const [addExternalOpen, setAddExternalOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return guests.filter((g) => {
-      if (tierFilter !== null && g.tier !== tierFilter) return false;
       if (!q) return true;
       const name = g.lead?.ragione_sociale ?? g.external_company ?? g.external_name ?? "";
       return name.toLowerCase().includes(q);
     });
-  }, [guests, query, tierFilter]);
+  }, [guests, query]);
 
   return (
     <div className="space-y-4">
@@ -69,16 +67,6 @@ export function GuestsPipeline({ guests, leads }: Props) {
           onChange={(e) => setQuery(e.target.value)}
           className="flex-1 min-w-[200px] bg-transparent outline-none text-sm px-3"
         />
-        <select
-          value={tierFilter ?? ""}
-          onChange={(e) => setTierFilter(e.target.value ? Number(e.target.value) : null)}
-          className="bg-transparent text-sm border border-white/10 rounded-full px-3 h-9"
-        >
-          <option value="">Tutti i tier</option>
-          <option value="1">Tier 1</option>
-          <option value="2">Tier 2</option>
-          <option value="3">Tier 3</option>
-        </select>
         <div className="flex rounded-full border border-white/10 p-0.5">
           {(["tabella", "kanban"] as const).map((v) => (
             <button
@@ -233,11 +221,6 @@ function GuestsKanban({ guests }: { guests: PodcastGuest[] }) {
                               className="block rounded-lg bg-white/5 p-3 text-sm hover:bg-white/10 transition-colors space-y-1"
                             >
                               <div className="font-semibold truncate">{name}</div>
-                              {g.tier && (
-                                <div className="text-[10px] text-muted-foreground">
-                                  Tier {g.tier}
-                                </div>
-                              )}
                               {g.response_name && (
                                 <div className="flex items-center gap-1 text-[11px] text-emerald-300">
                                   <User className="h-3 w-3 shrink-0" />
