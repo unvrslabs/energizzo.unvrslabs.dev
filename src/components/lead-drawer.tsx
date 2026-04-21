@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
 import { toast } from "sonner";
-import { ExternalLink, Globe, Mail, Phone, Save, Building2, MapPin, Hash, Users2, Tag, Send, Linkedin, UserSearch, Loader2, Copy, ClipboardList, Check } from "lucide-react";
+import { ExternalLink, Globe, Mail, Phone, Save, Building2, MapPin, Hash, Users2, Tag, Send, Linkedin, UserSearch, Loader2, Copy, ClipboardList, Check, MessageCircle, FileText, Mic } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +21,7 @@ import type { Lead, Note, ActivityEvent, LeadContact, SurveyResponse } from "@/l
 import { STATUS_CONFIG, type Status } from "@/lib/status-config";
 import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-questions";
 import { firstPhone, cn } from "@/lib/utils";
-import { updateLeadEmail } from "@/actions/update-lead";
+import { updateLeadEmail, updateLeadContacts } from "@/actions/update-lead";
 import { addNote } from "@/actions/add-note";
 import { createClient } from "@/lib/supabase/client";
 
@@ -36,6 +36,8 @@ type Props = {
 
 export function LeadDrawer({ lead, open, onClose }: Props) {
   const [email, setEmail] = useState(lead?.email ?? "");
+  const [phone, setPhone] = useState(lead?.telefoni ?? "");
+  const [whatsapp, setWhatsapp] = useState(lead?.whatsapp ?? "");
   const [noteBody, setNoteBody] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
@@ -43,12 +45,15 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
   const [survey, setSurvey] = useState<SurveyResponse | null>(null);
   const [copied, setCopied] = useState(false);
   const [savingEmail, startEmailTransition] = useTransition();
+  const [savingContacts, startContactsTransition] = useTransition();
   const [savingNote, startNoteTransition] = useTransition();
   const [enriching, startEnrichTransition] = useTransition();
   const [markingSent, startMarkSentTransition] = useTransition();
 
   useEffect(() => {
     setEmail(lead?.email ?? "");
+    setPhone(lead?.telefoni ?? "");
+    setWhatsapp(lead?.whatsapp ?? "");
     setNoteBody("");
     setCopied(false);
     if (!lead) return;
@@ -81,6 +86,18 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     });
   }
 
+  function saveContacts() {
+    if (!lead) return;
+    startContactsTransition(async () => {
+      const res = await updateLeadContacts({
+        id: lead.id,
+        patch: { telefoni: phone, whatsapp },
+      });
+      if (!res.ok) toast.error(`Errore: ${res.error}`);
+      else toast.success("Contatti aggiornati");
+    });
+  }
+
   function runEnrich() {
     if (!lead) return;
     startEnrichTransition(async () => {
@@ -108,7 +125,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     try {
       await navigator.clipboard.writeText(surveyLink);
       setCopied(true);
-      toast.success("Link survey copiato");
+      toast.success("Link report copiato");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Impossibile copiare il link");
@@ -120,7 +137,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     startMarkSentTransition(async () => {
       const res = await markSurveySent({ lead_id: lead.id });
       if (!res.ok) toast.error(`Errore: ${res.error}`);
-      else toast.success("Survey marcata come inviata");
+      else toast.success("Report marcato come inviato");
     });
   }
 
@@ -217,7 +234,9 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
             <Separator />
 
             <section className="space-y-3">
-              <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground">Email verificata</h3>
+              <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5" /> Email verificata
+              </h3>
               <div className="space-y-2">
                 <Input
                   type="email"
@@ -251,6 +270,51 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                 </Button>
               </div>
             </section>
+
+            <section className="space-y-3">
+              <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5" /> Telefono
+              </h3>
+              <Input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+39 ..."
+              />
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <MessageCircle className="h-3.5 w-3.5" /> WhatsApp verificato
+              </h3>
+              <Input
+                type="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="+39 ..."
+              />
+              {lead.whatsapp && (
+                <a
+                  href={`https://wa.me/${lead.whatsapp.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-emerald-300 hover:underline"
+                >
+                  <MessageCircle className="h-3 w-3" /> Apri chat WhatsApp
+                </a>
+              )}
+            </section>
+
+            <Button
+              size="sm"
+              onClick={saveContacts}
+              disabled={
+                savingContacts ||
+                (phone === (lead.telefoni ?? "") && whatsapp === (lead.whatsapp ?? ""))
+              }
+            >
+              <Save className="h-4 w-4" /> {savingContacts ? "Salvo..." : "Salva telefono + whatsapp"}
+            </Button>
 
             <Separator />
 
@@ -355,7 +419,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
             <section className="space-y-3">
               <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center justify-between">
                 <span className="inline-flex items-center gap-2">
-                  <ClipboardList className="h-3.5 w-3.5" /> Survey 2026
+                  <ClipboardList className="h-3.5 w-3.5" /> Report 2026
                 </span>
                 <SurveyBadge status={lead.survey_status} />
               </h3>
@@ -547,35 +611,125 @@ function ActionButton({
   );
 }
 
+const EPISODE_LABELS: Record<string, string> = {
+  "01-transizione-stg-mercato-libero": "01 · STG verso libero",
+  "02-aste-stg-aggressive": "02 · Aste STG aggressive",
+  "03-concentrazione-m-and-a": "03 · Concentrazione & M&A",
+  "04-nuova-bolletta-2025": "04 · Nuova bolletta 2025",
+  "05-ai-leva-di-margine": "05 · AI leva di margine",
+  "06-recupero-crediti-post-2022": "06 · Recupero crediti post-2022",
+  "07-cer-comunita-energetiche": "07 · CER",
+  "08-telemarketing-teleselling": "08 · Telemarketing",
+  "09-unbundling-marchio": "09 · Unbundling marchio",
+  "10-smart-meter-gas": "10 · Smart meter gas",
+};
+
+const GUEST_STATUS_LABEL: Record<string, string> = {
+  target: "Target",
+  invited: "Invitato",
+  confirmed: "Confermato",
+  recorded: "Registrato",
+  published: "Pubblicato",
+  rejected: "Rifiutato",
+};
+
 function ActivityItem({ event }: { event: ActivityEvent }) {
   const when = formatDistanceToNow(new Date(event.created_at), { locale: it, addSuffix: true });
+
+  const wrap = (dotClass: string, icon: React.ReactNode, body: React.ReactNode) => (
+    <div className="relative text-xs">
+      <span
+        className={cn(
+          "absolute -left-[1.38rem] top-0.5 h-4 w-4 rounded-full flex items-center justify-center",
+          dotClass,
+        )}
+      >
+        {icon}
+      </span>
+      {body}
+      <p className="text-[10px] text-muted-foreground">{when}</p>
+    </div>
+  );
+
   if (event.event_type === "status_change" && event.from_value && event.to_value) {
     const from = STATUS_CONFIG[event.from_value as Status]?.label ?? event.from_value;
     const to = STATUS_CONFIG[event.to_value as Status]?.label ?? event.to_value;
-    return (
-      <div className="relative text-xs">
-        <span className="absolute -left-[1.38rem] top-1 h-2.5 w-2.5 rounded-full bg-primary shadow shadow-primary/50" />
-        <p>
-          Stato: <span className="text-muted-foreground">{from}</span> → <strong>{to}</strong>
-        </p>
-        <p className="text-[10px] text-muted-foreground">{when}</p>
-      </div>
+    return wrap(
+      "bg-primary/80",
+      <div className="h-1.5 w-1.5 rounded-full bg-background" />,
+      <p>
+        Stato lead: <span className="text-muted-foreground">{from}</span> → <strong>{to}</strong>
+      </p>,
     );
   }
   if (event.event_type === "email_updated") {
-    return (
-      <div className="relative text-xs">
-        <span className="absolute -left-[1.38rem] top-1 h-2.5 w-2.5 rounded-full bg-blue-400" />
-        <p>Email aggiornata {event.to_value ? `→ ${event.to_value}` : ""}</p>
-        <p className="text-[10px] text-muted-foreground">{when}</p>
-      </div>
+    return wrap(
+      "bg-blue-500/80",
+      <Mail className="h-2.5 w-2.5 text-background" />,
+      <p>Email aggiornata {event.to_value ? `→ ${event.to_value}` : ""}</p>,
     );
   }
-  return (
-    <div className="relative text-xs">
-      <span className="absolute -left-[1.38rem] top-1 h-2.5 w-2.5 rounded-full bg-muted-foreground" />
-      <p>{event.event_type}</p>
-      <p className="text-[10px] text-muted-foreground">{when}</p>
-    </div>
+  if (event.event_type === "note_added") {
+    return wrap(
+      "bg-slate-500",
+      <FileText className="h-2.5 w-2.5 text-background" />,
+      <p>Nota aggiunta</p>,
+    );
+  }
+  if (event.event_type === "podcast_guest_added") {
+    return wrap(
+      "bg-fuchsia-500/80",
+      <Mic className="h-2.5 w-2.5 text-background" />,
+      <p>Aggiunto a pipeline podcast</p>,
+    );
+  }
+  if (event.event_type === "podcast_invite_sent") {
+    const ep = event.to_value ? EPISODE_LABELS[event.to_value] ?? event.to_value : null;
+    return wrap(
+      "bg-fuchsia-500/80",
+      <Send className="h-2.5 w-2.5 text-background" />,
+      <p>
+        Invito podcast inviato{ep && <> · <strong>{ep}</strong></>}
+      </p>,
+    );
+  }
+  if (event.event_type === "podcast_invite_confirmed") {
+    return wrap(
+      "bg-emerald-500",
+      <Check className="h-2.5 w-2.5 text-background" />,
+      <p>
+        Invito podcast confermato{event.to_value && <> da <strong>{event.to_value}</strong></>}
+      </p>,
+    );
+  }
+  if (event.event_type === "podcast_status_change") {
+    const from = GUEST_STATUS_LABEL[event.from_value ?? ""] ?? event.from_value;
+    const to = GUEST_STATUS_LABEL[event.to_value ?? ""] ?? event.to_value;
+    return wrap(
+      "bg-fuchsia-500/60",
+      <Mic className="h-2.5 w-2.5 text-background" />,
+      <p>
+        Stato ospite: <span className="text-muted-foreground">{from}</span> → <strong>{to}</strong>
+      </p>,
+    );
+  }
+  if (event.event_type === "report_link_sent") {
+    return wrap(
+      "bg-amber-500/80",
+      <Send className="h-2.5 w-2.5 text-background" />,
+      <p>Link report inviato</p>,
+    );
+  }
+  if (event.event_type === "report_completed") {
+    return wrap(
+      "bg-emerald-500",
+      <Check className="h-2.5 w-2.5 text-background" />,
+      <p>Report completato</p>,
+    );
+  }
+  return wrap(
+    "bg-muted-foreground/60",
+    null,
+    <p>{event.event_type}</p>,
   );
 }

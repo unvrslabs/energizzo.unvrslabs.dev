@@ -41,3 +41,29 @@ export async function updateLeadEmail(input: unknown) {
   revalidatePath("/dashboard");
   return { ok: true as const };
 }
+
+const ContactsSchema = z.object({
+  id: z.string().uuid(),
+  patch: z.object({
+    telefoni: z.string().nullable().optional(),
+    whatsapp: z.string().nullable().optional(),
+  }),
+});
+
+export async function updateLeadContacts(input: unknown) {
+  const parsed = ContactsSchema.parse(input);
+  const supabase = await createClient();
+  const patch: Record<string, string | null> = {};
+  if ("telefoni" in parsed.patch) {
+    const v = parsed.patch.telefoni;
+    patch.telefoni = v && v.trim() ? v.trim() : null;
+  }
+  if ("whatsapp" in parsed.patch) {
+    const v = parsed.patch.whatsapp;
+    patch.whatsapp = v && v.trim() ? v.trim() : null;
+  }
+  const { error } = await supabase.from("leads").update(patch).eq("id", parsed.id);
+  if (error) return { ok: false as const, error: error.message };
+  revalidatePath("/dashboard");
+  return { ok: true as const };
+}

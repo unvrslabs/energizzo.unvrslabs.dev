@@ -34,6 +34,7 @@ export type Lead = {
   survey_sent_at: string | null;
   survey_completed_at: string | null;
   survey_last_step_at: string | null;
+  whatsapp: string | null;
 };
 
 export type SurveyResponse = {
@@ -78,7 +79,17 @@ export type Note = {
 export type ActivityEvent = {
   id: string;
   lead_id: string;
-  event_type: "status_change" | "email_updated" | "note_added";
+  event_type:
+    | "status_change"
+    | "email_updated"
+    | "note_added"
+    | "podcast_guest_added"
+    | "podcast_invite_sent"
+    | "podcast_invite_confirmed"
+    | "podcast_status_change"
+    | "report_link_sent"
+    | "report_completed"
+    | (string & Record<never, never>);
   from_value: string | null;
   to_value: string | null;
   author_id: string | null;
