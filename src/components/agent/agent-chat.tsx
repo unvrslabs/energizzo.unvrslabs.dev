@@ -68,7 +68,7 @@ function toolLabel(name: string) {
   }
 }
 
-export function AgentChat() {
+export function AgentChat({ compact = false }: { compact?: boolean } = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -111,27 +111,37 @@ export function AgentChat() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-180px)] gap-3">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="font-display text-2xl tracking-wide flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" /> Assistente Claude Sonnet 4.6
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Accesso completo a DB (SQL) + lettura codice. Esempi: &quot;elimina tutti gli ospiti
-            podcast tranne OK ENERGIA&quot; · &quot;trova i 10 lead con tipo_servizio Dual in
-            Lombardia candidati per l&apos;episodio STG&quot;
-          </p>
+    <div className="flex flex-col h-full gap-3">
+      {!compact && (
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h1 className="font-display text-2xl tracking-wide flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" /> Assistente Claude Sonnet 4.6
+            </h1>
+            <p className="text-xs text-muted-foreground mt-1">
+              Accesso completo a DB (SQL) + lettura codice.
+            </p>
+          </div>
+          {messages.length > 0 && (
+            <button
+              onClick={reset}
+              className="text-xs text-muted-foreground hover:text-foreground px-3 h-8 rounded-full bg-white/5"
+            >
+              Nuova chat
+            </button>
+          )}
         </div>
-        {messages.length > 0 && (
+      )}
+      {compact && messages.length > 0 && (
+        <div className="flex items-center justify-end">
           <button
             onClick={reset}
-            className="text-xs text-muted-foreground hover:text-foreground px-3 h-8 rounded-full bg-white/5"
+            className="text-xs text-muted-foreground hover:text-foreground px-3 h-7 rounded-full bg-white/5"
           >
             Nuova chat
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div
         ref={scrollRef}
@@ -163,7 +173,7 @@ export function AgentChat() {
               send();
             }
           }}
-          placeholder="Chiedi all'agente... (Enter per inviare, Shift+Enter per nuova riga)"
+          placeholder="Chiedi all'agente..."
           rows={2}
           className="flex-1 bg-transparent outline-none resize-none px-3 py-2 text-sm"
           disabled={loading}
@@ -174,7 +184,6 @@ export function AgentChat() {
           className="inline-flex items-center gap-2 rounded-full px-4 h-10 text-sm font-semibold bg-primary text-primary-foreground disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          Invia
         </button>
       </form>
     </div>
