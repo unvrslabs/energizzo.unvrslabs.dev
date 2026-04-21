@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Radio, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { upsertTerm, updateTerm, deleteTerm } from "@/actions/podcast-glossary";
 import {
@@ -16,7 +16,6 @@ export function GlossaryView({ terms }: { terms: PodcastGlossaryTerm[] }) {
   const [q, setQ] = useState("");
   const [cats, setCats] = useState<Set<GlossaryCategory>>(new Set());
   const [selectedId, setSelectedId] = useState<string | null>(terms[0]?.id ?? null);
-  const [live, setLive] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -32,60 +31,47 @@ export function GlossaryView({ terms }: { terms: PodcastGlossaryTerm[] }) {
   const selected = terms.find((t) => t.id === selectedId) ?? filtered[0] ?? null;
 
   return (
-    <div className={live ? "fixed inset-0 z-50 bg-background p-4 overflow-auto" : "space-y-4"}>
+    <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="font-display text-2xl tracking-wide">Glossario</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLive((v) => !v)}
-            className={`inline-flex items-center gap-2 rounded-full px-3 h-9 text-xs font-semibold ${
-              live ? "bg-destructive text-destructive-foreground" : "bg-white/5"
-            }`}
-          >
-            <Radio className="h-3.5 w-3.5" /> {live ? "Esci live" : "Modalità live"}
-          </button>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full px-4 h-9 text-sm font-semibold bg-primary text-primary-foreground"
-          >
-            <Plus className="h-4 w-4" /> Nuovo
-          </button>
-        </div>
+        <button
+          onClick={() => setAddOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full px-4 h-9 text-sm font-semibold bg-primary text-primary-foreground"
+        >
+          <Plus className="h-4 w-4" /> Nuovo
+        </button>
       </div>
 
       <input
-        autoFocus={live}
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="Cerca termine o definizione…"
         className="w-full bg-white/5 rounded-lg px-4 py-3 text-lg outline-none border border-white/10"
       />
 
-      {!live && (
-        <div className="flex flex-wrap gap-2">
-          {GLOSSARY_CATEGORIES.map((c) => {
-            const on = cats.has(c);
-            return (
-              <button
-                key={c}
-                onClick={() =>
-                  setCats((p) => {
-                    const n = new Set(p);
-                    if (on) n.delete(c);
-                    else n.add(c);
-                    return n;
-                  })
-                }
-                className={`px-3 h-7 rounded-full text-xs ${
-                  on ? "bg-primary/20 text-primary" : "bg-white/5 text-muted-foreground"
-                }`}
-              >
-                {GLOSSARY_CATEGORY_LABEL[c]}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-2">
+        {GLOSSARY_CATEGORIES.map((c) => {
+          const on = cats.has(c);
+          return (
+            <button
+              key={c}
+              onClick={() =>
+                setCats((p) => {
+                  const n = new Set(p);
+                  if (on) n.delete(c);
+                  else n.add(c);
+                  return n;
+                })
+              }
+              className={`px-3 h-7 rounded-full text-xs ${
+                on ? "bg-primary/20 text-primary" : "bg-white/5 text-muted-foreground"
+              }`}
+            >
+              {GLOSSARY_CATEGORY_LABEL[c]}
+            </button>
+          );
+        })}
+      </div>
 
       <div className="grid md:grid-cols-[320px_1fr] gap-4">
         <div className="liquid-glass rounded-2xl p-2 max-h-[60vh] overflow-auto">
@@ -113,24 +99,22 @@ export function GlossaryView({ terms }: { terms: PodcastGlossaryTerm[] }) {
             <>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-display text-xl">{selected.term}</h2>
-                {!live && (
-                  <div className="flex gap-2">
-                    <button onClick={() => setEditOpen(true)} className="text-xs text-primary">
-                      Modifica
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (!confirm(`Eliminare "${selected.term}"?`)) return;
-                        const r = await deleteTerm({ id: selected.id });
-                        if (!r.ok) toast.error(r.error ?? "Errore");
-                        else toast.success("Eliminato");
-                      }}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <button onClick={() => setEditOpen(true)} className="text-xs text-primary">
+                    Modifica
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`Eliminare "${selected.term}"?`)) return;
+                      const r = await deleteTerm({ id: selected.id });
+                      if (!r.ok) toast.error(r.error ?? "Errore");
+                      else toast.success("Eliminato");
+                    }}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
                 {GLOSSARY_CATEGORY_LABEL[selected.category]}
