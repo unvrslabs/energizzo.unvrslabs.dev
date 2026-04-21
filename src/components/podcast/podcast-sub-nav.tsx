@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users2, HelpCircle, Flame, BookOpen, Mic } from "lucide-react";
+import { Home, Users2, HelpCircle, Flame, BookOpen, Mic, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/dashboard/podcast", label: "Home", icon: Home, exact: true },
+  { href: "/dashboard/podcast/episodi", label: "Episodi", icon: Radio },
   { href: "/dashboard/podcast/ospiti", label: "Ospiti", icon: Users2 },
   { href: "/dashboard/podcast/domande", label: "Domande", icon: HelpCircle },
   { href: "/dashboard/podcast/temi-caldi", label: "Temi caldi", icon: Flame },
