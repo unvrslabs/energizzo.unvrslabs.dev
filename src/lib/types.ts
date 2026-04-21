@@ -91,3 +91,88 @@ export type Filters = {
   provincia?: string[];
   tipo_servizio?: TipoServizio[];
 };
+
+import type {
+  GuestStatus,
+  GuestTier,
+  GuestCategory,
+  QuestionTheme,
+  QuestionPhase,
+  HotTopicIntensity,
+  GlossaryCategory,
+} from "./podcast-config";
+
+export type PodcastGuest = {
+  id: string;
+  lead_id: string | null;
+  external_name: string | null;
+  external_company: string | null;
+  external_role: string | null;
+  external_email: string | null;
+  external_linkedin: string | null;
+  tier: GuestTier | null;
+  category: GuestCategory | null;
+  status: GuestStatus;
+  invited_at: string | null;
+  recorded_at: string | null;
+  published_at: string | null;
+  episode_url: string | null;
+  episode_title: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  lead?: Pick<Lead, "ragione_sociale" | "piva" | "email" | "telefoni" | "provincia"> | null;
+};
+
+export type PodcastQuestion = {
+  id: string;
+  theme: QuestionTheme;
+  phase: QuestionPhase;
+  body: string;
+  order_idx: number;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PodcastGuestQuestion = {
+  guest_id: string;
+  question_id: string;
+  asked: boolean;
+  order_idx: number;
+  question?: PodcastQuestion;
+};
+
+export type PodcastHotTopic = {
+  id: string;
+  title: string;
+  body: string | null;
+  intensity: HotTopicIntensity;
+  suggested_questions: string[];
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PodcastGlossaryTerm = {
+  id: string;
+  term: string;
+  category: GlossaryCategory;
+  definition: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PodcastSessionNotes = {
+  id: string;
+  guest_id: string;
+  duration_min: number | null;
+  key_insights: string | null;
+  new_terms: string[];
+  new_hot_topics: string[];
+  referrals: string | null;
+  quote_highlight: string | null;
+  energizzo_opportunity: string | null;
+  created_at: string;
+  updated_at: string;
+};
