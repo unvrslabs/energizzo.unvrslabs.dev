@@ -220,6 +220,17 @@
   font-weight: 700 !important;
 }
 
+/* Safari fallback: Tailwind backdrop-blur utilities emit only
+   `backdrop-filter`; without -webkit-backdrop-filter Safari <18 renders
+   nothing. Duplicate here explicitly so Safari sees a supported property. */
+.backdrop-blur-sm { -webkit-backdrop-filter: blur(4px); }
+.backdrop-blur,
+.backdrop-blur-md { -webkit-backdrop-filter: blur(12px); }
+.backdrop-blur-lg { -webkit-backdrop-filter: blur(16px); }
+.backdrop-blur-xl { -webkit-backdrop-filter: blur(24px); }
+.backdrop-blur-2xl { -webkit-backdrop-filter: blur(40px); }
+.backdrop-blur-3xl { -webkit-backdrop-filter: blur(64px); }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
