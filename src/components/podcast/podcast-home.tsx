@@ -1,17 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Users2,
-  MailCheck,
-  CalendarCheck2,
-  Podcast,
-  ArrowRight,
-  Flame,
-  Mic,
-  BookOpen,
-  HelpCircle,
-} from "lucide-react";
+import { Users2, MailCheck, CalendarCheck2, Podcast, ArrowRight, Flame } from "lucide-react";
 import type { PodcastGuest, PodcastHotTopic, PodcastGuestQuestion } from "@/lib/types";
 
 type Stats = { total: number; invited: number; confirmed: number; published: number };
@@ -40,14 +30,6 @@ export function PodcastHome({
     nextGuest?.external_name ??
     null;
 
-  const quickLinks = [
-    { href: "/dashboard/podcast/ospiti", label: "Pipeline ospiti", icon: Users2 },
-    { href: "/dashboard/podcast/domande", label: "Banca domande", icon: HelpCircle },
-    { href: "/dashboard/podcast/temi-caldi", label: "Temi caldi", icon: Flame },
-    { href: "/dashboard/podcast/glossario", label: "Glossario", icon: Mic },
-    { href: "/dashboard/podcast/knowledge", label: "Knowledge", icon: BookOpen },
-  ];
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -68,18 +50,6 @@ export function PodcastHome({
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {quickLinks.map((q) => (
-          <Link
-            key={q.href}
-            href={q.href}
-            className="inline-flex items-center gap-2 rounded-full px-4 h-9 text-sm font-semibold bg-white/5 hover:bg-white/10 transition-colors"
-          >
-            <q.icon className="h-4 w-4" /> {q.label}
-          </Link>
         ))}
       </div>
 
