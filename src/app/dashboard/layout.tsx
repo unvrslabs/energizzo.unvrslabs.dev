@@ -20,8 +20,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <NavLinks
             items={[
               { href: "/dashboard", label: "Lead", icon: "users" },
-              { href: "/dashboard/strategia", label: "Strategia", icon: "target" },
               { href: "/dashboard/podcast", label: "Podcast", icon: "mic" },
+              { href: "/dashboard/report", label: "Report", icon: "clipboard" },
+              { href: "/dashboard/strategia", label: "Strategia", icon: "target" },
             ]}
           />
           <div className="flex items-center gap-2">
