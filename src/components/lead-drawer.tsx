@@ -16,6 +16,7 @@ import { SurveyBadge } from "./survey-badge";
 import { enrichContacts } from "@/actions/enrich-contacts";
 import { markSurveySent } from "@/actions/survey";
 import { SurveyEmailComposer } from "./survey-email-composer";
+import { LeadPodcastInvite } from "./lead-podcast-invite";
 import type { Lead, Note, ActivityEvent, LeadContact, SurveyResponse } from "@/lib/types";
 import { STATUS_CONFIG, type Status } from "@/lib/status-config";
 import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-questions";
@@ -431,6 +432,10 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                 </p>
               )}
             </section>
+
+            <Separator />
+
+            <LeadPodcastInvite leadId={lead.id} />
 
             <Separator />
 

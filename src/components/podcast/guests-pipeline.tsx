@@ -132,7 +132,7 @@ function GuestsTable({ guests }: { guests: PodcastGuest[] }) {
         return (
           <Link
             key={g.id}
-            href={`/dashboard/podcast/ospiti/${g.id}`}
+            href={g.lead_id ? `/dashboard/leads/${g.lead_id}` : `#external-${g.id}`}
             className={cn(
               "grid grid-cols-[24px_1.5fr_100px_120px_140px_140px] items-center gap-0 border-b border-white/5 hover:bg-primary/5 transition-colors text-sm",
               i % 2 === 0 ? "bg-white/[0.015]" : "bg-transparent",
@@ -226,7 +226,7 @@ function GuestsKanban({ guests }: { guests: PodcastGuest[] }) {
                         <Draggable key={g.id} draggableId={g.id} index={idx}>
                           {(d) => (
                             <Link
-                              href={`/dashboard/podcast/ospiti/${g.id}`}
+                              href={g.lead_id ? `/dashboard/leads/${g.lead_id}` : `#external-${g.id}`}
                               ref={d.innerRef}
                               {...d.draggableProps}
                               {...d.dragHandleProps}
