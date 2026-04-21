@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { Plus, Building2, UserSquare2 } from "lucide-react";
+import { Plus, Building2, UserSquare2, MessageCircle, User } from "lucide-react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { cn } from "@/lib/utils";
@@ -221,6 +221,7 @@ function GuestsKanban({ guests }: { guests: PodcastGuest[] }) {
                         g.external_company ??
                         g.external_name ??
                         "—";
+                      const waDigits = (g.response_whatsapp ?? "").replace(/\D/g, "");
                       return (
                         <Draggable key={g.id} draggableId={g.id} index={idx}>
                           {(d) => (
@@ -229,13 +230,34 @@ function GuestsKanban({ guests }: { guests: PodcastGuest[] }) {
                               ref={d.innerRef}
                               {...d.draggableProps}
                               {...d.dragHandleProps}
-                              className="block rounded-lg bg-white/5 p-3 text-sm hover:bg-white/10 transition-colors"
+                              className="block rounded-lg bg-white/5 p-3 text-sm hover:bg-white/10 transition-colors space-y-1"
                             >
                               <div className="font-semibold truncate">{name}</div>
                               {g.tier && (
-                                <div className="text-[10px] text-muted-foreground mt-1">
+                                <div className="text-[10px] text-muted-foreground">
                                   Tier {g.tier}
                                 </div>
+                              )}
+                              {g.response_name && (
+                                <div className="flex items-center gap-1 text-[11px] text-emerald-300">
+                                  <User className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{g.response_name}</span>
+                                </div>
+                              )}
+                              {g.response_whatsapp && (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (waDigits) {
+                                      window.open(`https://wa.me/${waDigits}`, "_blank");
+                                    }
+                                  }}
+                                  className="flex items-center gap-1 text-[11px] text-emerald-300 hover:text-emerald-200"
+                                >
+                                  <MessageCircle className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{g.response_whatsapp}</span>
+                                </button>
                               )}
                             </Link>
                           )}

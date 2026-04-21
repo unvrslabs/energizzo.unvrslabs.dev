@@ -25,7 +25,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             ]}
           />
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden lg:block">{user.email}</span>
             <form action={signOut}>
               <button
                 type="submit"
