@@ -36,13 +36,17 @@ export function LeadsTable({ leads, onSelect }: Props) {
         <div className="min-w-[1400px]">
           {/* Header */}
           <div
-            className="sticky top-0 z-10 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
+            className="sticky top-0 z-20 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
             style={{ gridTemplateColumns: gridTemplate }}
           >
-            {COLS.map((c) => (
+            {COLS.map((c, idx) => (
               <div
                 key={c.key}
-                className="px-4 py-3.5 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground whitespace-nowrap"
+                className={cn(
+                  "px-4 py-3.5 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground whitespace-nowrap",
+                  idx === 0 &&
+                    "sticky left-0 z-30 bg-[hsl(215_35%_14%)] shadow-[2px_0_8px_-4px_rgba(0,0,0,0.6)]",
+                )}
               >
                 {c.label}
               </div>
@@ -62,7 +66,13 @@ export function LeadsTable({ leads, onSelect }: Props) {
               )}
               style={{ gridTemplateColumns: gridTemplate }}
             >
-              <div className="px-4 py-3 min-w-0 group-hover:text-primary transition-colors">
+              <div
+                className={cn(
+                  "sticky left-0 z-10 px-4 py-3 min-w-0 group-hover:text-primary transition-colors shadow-[2px_0_8px_-4px_rgba(0,0,0,0.6)]",
+                  i % 2 === 0 ? "bg-[hsl(215_32%_14%)]" : "bg-[hsl(215_33%_13%)]",
+                  "group-hover:bg-[hsl(158_40%_18%)]",
+                )}
+              >
                 <div className="flex flex-col">
                   <span className="font-semibold truncate">{l.ragione_sociale}</span>
                   <span className="font-mono text-[10px] text-muted-foreground">{l.piva}</span>
