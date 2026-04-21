@@ -12,7 +12,16 @@ const INTENSITY_META: Record<string, { label: string; emoji: string; color: stri
   freddo: { label: "Freddo", emoji: "❄️", color: "#38bdf8" },
 };
 
-const INTENSITY_ORDER = ["bollente", "medio", "freddo"] as const;
+const PRODUCTION_STATUS_META: Record<
+  "da_registrare" | "registrata" | "pubblicata",
+  { label: string; emoji: string; color: string }
+> = {
+  da_registrare: { label: "Da registrare", emoji: "📝", color: "#64748b" },
+  registrata: { label: "Registrata", emoji: "🎙️", color: "#a78bfa" },
+  pubblicata: { label: "Pubblicata", emoji: "🚀", color: "#22c55e" },
+};
+
+const PRODUCTION_ORDER = ["da_registrare", "registrata", "pubblicata"] as const;
 
 type Props = { episodes: EpisodePreview[] };
 
@@ -116,9 +125,9 @@ function TimelineView({ episodes }: Props) {
 function KanbanView({ episodes }: Props) {
   return (
     <div className="flex gap-3 overflow-x-auto pb-4 scroll-x-contained">
-      {INTENSITY_ORDER.map((key) => {
-        const meta = INTENSITY_META[key];
-        const items = episodes.filter((e) => e.intensity === key);
+      {PRODUCTION_ORDER.map((key) => {
+        const meta = PRODUCTION_STATUS_META[key];
+        const items = episodes.filter((e) => (e.production_status ?? "da_registrare") === key);
         return (
           <div
             key={key}
@@ -134,27 +143,40 @@ function KanbanView({ episodes }: Props) {
               <span className="text-xs text-muted-foreground">{items.length}</span>
             </div>
             <div className="space-y-2">
-              {items.map((ep) => (
-                <Link
-                  key={ep.slug}
-                  href={`/dashboard/podcast/episodi/${ep.slug}`}
-                  className="block rounded-lg bg-white/5 p-3 text-sm hover:bg-white/10 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    {ep.numero !== null && (
-                      <span className="font-display text-xs font-black text-primary shrink-0">
-                        {String(ep.numero).padStart(2, "0")}
-                      </span>
+              {items.map((ep) => {
+                const intensityMeta = ep.intensity ? INTENSITY_META[ep.intensity] : null;
+                return (
+                  <Link
+                    key={ep.slug}
+                    href={`/dashboard/podcast/episodi/${ep.slug}`}
+                    className="block rounded-lg bg-white/5 p-3 text-sm hover:bg-white/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      {ep.numero !== null && (
+                        <span className="font-display text-xs font-black text-primary shrink-0">
+                          {String(ep.numero).padStart(2, "0")}
+                        </span>
+                      )}
+                      <span className="font-semibold truncate flex-1">{ep.title}</span>
+                      {intensityMeta && (
+                        <span className="text-xs shrink-0" title={intensityMeta.label}>
+                          {intensityMeta.emoji}
+                        </span>
+                      )}
+                    </div>
+                    {ep.subtitle && (
+                      <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">
+                        {ep.subtitle}
+                      </p>
                     )}
-                    <span className="font-semibold truncate">{ep.title}</span>
-                  </div>
-                  {ep.subtitle && (
-                    <p className="text-[11px] text-muted-foreground mt-1 line-clamp-3">
-                      {ep.subtitle}
-                    </p>
-                  )}
-                </Link>
-              ))}
+                    {typeof ep.guests_count === "number" && ep.guests_count > 0 && (
+                      <div className="text-[10px] text-muted-foreground mt-1.5 uppercase tracking-wider">
+                        {ep.guests_count} {ep.guests_count === 1 ? "ospite" : "ospiti"}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
               {items.length === 0 && (
                 <div className="text-xs text-muted-foreground italic p-2">
                   Nessun episodio.

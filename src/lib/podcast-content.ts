@@ -29,12 +29,16 @@ export function loadDoc(slug: string): KnowledgeDoc | null {
   return { slug: safe, title: titleLine?.replace(/^#\s*/, "") ?? safe, body };
 }
 
+export type EpisodeProductionStatus = "da_registrare" | "registrata" | "pubblicata";
+
 export type EpisodePreview = {
   slug: string;
   title: string;
   subtitle: string | null;
   intensity: string | null;
   numero: number | null;
+  production_status?: EpisodeProductionStatus;
+  guests_count?: number;
 };
 
 function parseFrontmatter(raw: string): { meta: Record<string, string>; body: string } {
