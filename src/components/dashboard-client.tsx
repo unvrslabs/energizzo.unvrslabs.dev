@@ -1,8 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter, usePathname } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Table2, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { LeadsTable } from "./leads-table";
@@ -25,8 +24,6 @@ type Props = {
 };
 
 export function DashboardClient({ leads, initialLeadId }: Props) {
-  const router = useRouter();
-  const pathname = usePathname();
   const [selectedId, setSelectedId] = useState<string | null>(initialLeadId);
   const [tab, setTab] = useState<"tabella" | "pipeline" | "mappa">("tabella");
 
@@ -35,22 +32,36 @@ export function DashboardClient({ leads, initialLeadId }: Props) {
     [selectedId, leads],
   );
 
-  const onSelect = useCallback(
-    (id: string) => {
-      setSelectedId(id);
-      if (pathname !== `/dashboard/leads/${id}`) {
-        router.push(`/dashboard/leads/${id}`, { scroll: false });
-      }
-    },
-    [router, pathname],
-  );
+  // Update URL via History API (no RSC refetch) so the drawer doesn't
+  // unmount/remount during open animation.
+  const onSelect = useCallback((id: string) => {
+    setSelectedId(id);
+    const target = `/dashboard/leads/${id}`;
+    if (typeof window !== "undefined" && window.location.pathname !== target) {
+      window.history.pushState(null, "", target);
+    }
+  }, []);
 
   const onClose = useCallback(() => {
     setSelectedId(null);
-    if (pathname.startsWith("/dashboard/leads/")) {
-      router.push("/dashboard", { scroll: false });
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname.startsWith("/dashboard/leads/")
+    ) {
+      window.history.pushState(null, "", "/dashboard");
     }
-  }, [router, pathname]);
+  }, []);
+
+  // Support browser back/forward buttons
+  useEffect(() => {
+    const handler = () => {
+      if (typeof window === "undefined") return;
+      const match = window.location.pathname.match(/^\/dashboard\/leads\/([^/?#]+)/);
+      setSelectedId(match?.[1] ?? null);
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, []);
 
   return (
     <>
