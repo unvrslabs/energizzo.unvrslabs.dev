@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { ExternalLink, Mail, Phone, Users } from "lucide-react";
 import { StatusBadge } from "./status-badge";
 import { SurveyBadge } from "./survey-badge";
+import { PodcastStatusBadge } from "./podcast-status-badge";
 import { EnrichButton } from "./enrich-button";
 import { firstPhone, cn } from "@/lib/utils";
 import type { Lead } from "@/lib/types";
@@ -16,7 +17,8 @@ type Props = {
 const COLS = [
   { key: "ragione", label: "Ragione sociale", width: "minmax(240px, 1.6fr)" },
   { key: "stato", label: "Stato", width: "150px" },
-  { key: "survey", label: "Survey", width: "130px" },
+  { key: "report", label: "Report", width: "130px" },
+  { key: "podcast", label: "Podcast", width: "130px" },
   { key: "tipo", label: "Tipo", width: "110px" },
   { key: "comune", label: "Comune", width: "140px" },
   { key: "prov", label: "Prov.", width: "100px" },
@@ -33,7 +35,7 @@ export function LeadsTable({ leads, onSelect }: Props) {
   return (
     <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
       <div className="max-h-[72vh] overflow-auto scroll-contained">
-        <div className="min-w-[1400px] w-full">
+        <div className="min-w-[1530px] w-full">
           {/* Header */}
           <div
             className="sticky top-0 z-10 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
@@ -76,6 +78,9 @@ export function LeadsTable({ leads, onSelect }: Props) {
               </div>
               <div className="px-4 py-3">
                 <SurveyBadge status={l.survey_status} />
+              </div>
+              <div className="px-4 py-3">
+                <PodcastStatusBadge status={l.podcast_status ?? null} />
               </div>
               <div className="px-4 py-3">
                 <span

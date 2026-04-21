@@ -52,7 +52,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
 
   useEffect(() => {
     setEmail(lead?.email ?? "");
-    setPhone(lead?.telefoni ?? "");
+    setPhone(lead?.telefono ?? "");
     setWhatsapp(lead?.whatsapp ?? "");
     setNoteBody("");
     setCopied(false);
@@ -74,7 +74,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
 
   if (!lead) return null;
 
-  const tel = firstPhone(lead.telefoni);
+  const tel = lead.telefono ?? firstPhone(lead.telefoni);
   const emailToUse = lead.email || lead.email_info;
 
   function saveEmail() {
@@ -91,7 +91,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     startContactsTransition(async () => {
       const res = await updateLeadContacts({
         id: lead.id,
-        patch: { telefoni: phone, whatsapp },
+        patch: { telefono: phone, whatsapp },
       });
       if (!res.ok) toast.error(`Errore: ${res.error}`);
       else toast.success("Contatti aggiornati");
@@ -273,7 +273,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
 
             <section className="space-y-3">
               <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5" /> Telefono
+                <Phone className="h-3.5 w-3.5" /> Telefono verificato
               </h3>
               <Input
                 type="tel"
@@ -281,6 +281,25 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+39 ..."
               />
+              {lead.telefoni && (
+                <div className="flex flex-wrap gap-1.5 text-xs">
+                  <span className="text-muted-foreground">Proposte:</span>
+                  {lead.telefoni
+                    .split(/[;,\n]/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((n, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setPhone(n)}
+                        className="text-primary hover:underline font-mono"
+                      >
+                        {n}
+                      </button>
+                    ))}
+                </div>
+              )}
             </section>
 
             <section className="space-y-3">
@@ -310,7 +329,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
               onClick={saveContacts}
               disabled={
                 savingContacts ||
-                (phone === (lead.telefoni ?? "") && whatsapp === (lead.whatsapp ?? ""))
+                (phone === (lead.telefono ?? "") && whatsapp === (lead.whatsapp ?? ""))
               }
             >
               <Save className="h-4 w-4" /> {savingContacts ? "Salvo..." : "Salva telefono + whatsapp"}

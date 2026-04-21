@@ -45,7 +45,7 @@ export async function updateLeadEmail(input: unknown) {
 const ContactsSchema = z.object({
   id: z.string().uuid(),
   patch: z.object({
-    telefoni: z.string().nullable().optional(),
+    telefono: z.string().nullable().optional(),
     whatsapp: z.string().nullable().optional(),
   }),
 });
@@ -54,9 +54,9 @@ export async function updateLeadContacts(input: unknown) {
   const parsed = ContactsSchema.parse(input);
   const supabase = await createClient();
   const patch: Record<string, string | null> = {};
-  if ("telefoni" in parsed.patch) {
-    const v = parsed.patch.telefoni;
-    patch.telefoni = v && v.trim() ? v.trim() : null;
+  if ("telefono" in parsed.patch) {
+    const v = parsed.patch.telefono;
+    patch.telefono = v && v.trim() ? v.trim() : null;
   }
   if ("whatsapp" in parsed.patch) {
     const v = parsed.patch.whatsapp;

@@ -35,6 +35,9 @@ export type Lead = {
   survey_completed_at: string | null;
   survey_last_step_at: string | null;
   whatsapp: string | null;
+  telefono: string | null;
+  podcast_status?: string | null;
+  podcast_confirmed_at?: string | null;
 };
 
 export type SurveyResponse = {
