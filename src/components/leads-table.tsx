@@ -23,7 +23,7 @@ const COLS = [
   { key: "sito", label: "Sito web", width: "170px" },
   { key: "email", label: "Email", width: "220px" },
   { key: "tel", label: "Telefono", width: "140px" },
-  { key: "titolari", label: "Titolari", width: "130px" },
+  { key: "titolari", label: "Titolari", width: "minmax(130px, 0.3fr)" },
 ] as const;
 
 export function LeadsTable({ leads, onSelect }: Props) {
@@ -33,7 +33,7 @@ export function LeadsTable({ leads, onSelect }: Props) {
   return (
     <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
       <div className="max-h-[72vh] overflow-auto scroll-contained">
-        <div className="min-w-[1400px]">
+        <div className="min-w-[1400px] w-full">
           {/* Header */}
           <div
             className="sticky top-0 z-10 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"

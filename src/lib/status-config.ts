@@ -32,5 +32,15 @@ export const ACTIVE_PIPELINE_STATUSES: Status[] = [
   "negoziazione",
 ];
 
+// Lead who demoed: still on demo_effettuata, or advanced to any later stage
+// (proposta, negoziazione, chiuso_vinto). Excludes chiuso_perso /
+// non_interessato since we can't infer whether the demo actually happened.
+export const DEMO_DONE_STATUSES: Status[] = [
+  "demo_effettuata",
+  "proposta_inviata",
+  "negoziazione",
+  "chiuso_vinto",
+];
+
 export const TIPO_SERVIZIO_VALUES = ["Dual (Ele+Gas)", "Solo Elettrico", "Solo Gas"] as const;
 export type TipoServizio = (typeof TIPO_SERVIZIO_VALUES)[number];

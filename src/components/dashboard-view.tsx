@@ -3,7 +3,12 @@ import { StatsCards } from "@/components/stats-cards";
 import { FilterBar } from "@/components/filter-bar";
 import { DashboardClient } from "@/components/dashboard-client";
 import type { Lead } from "@/lib/types";
-import { ACTIVE_PIPELINE_STATUSES, type Status, type TipoServizio } from "@/lib/status-config";
+import {
+  ACTIVE_PIPELINE_STATUSES,
+  DEMO_DONE_STATUSES,
+  type Status,
+  type TipoServizio,
+} from "@/lib/status-config";
 
 type SearchParams = {
   q?: string;
@@ -71,7 +76,7 @@ export async function DashboardView({
   const stats = {
     total: leads.length,
     inPipeline: leads.filter((l) => ACTIVE_PIPELINE_STATUSES.includes(l.status)).length,
-    demoDone: leads.filter((l) => l.status === "demo_effettuata").length,
+    demoDone: leads.filter((l) => DEMO_DONE_STATUSES.includes(l.status)).length,
     won: leads.filter((l) => l.status === "chiuso_vinto").length,
   };
 
