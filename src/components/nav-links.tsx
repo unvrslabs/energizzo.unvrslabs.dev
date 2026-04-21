@@ -15,7 +15,7 @@ type Item = { href: string; label: string; icon: keyof typeof ICONS };
 export function NavLinks({ items }: { items: Item[] }) {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center gap-1 flex-1 justify-center">
+    <nav className="flex items-center gap-1">
       {items.map((it) => {
         const Icon = ICONS[it.icon];
         const active =

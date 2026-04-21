@@ -1,7 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import { LogOut } from "lucide-react";
 import { signOut } from "@/actions/auth";
 import { NavLinks } from "@/components/nav-links";
@@ -18,24 +16,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="min-h-screen">
       <div className="sticky top-4 z-40 px-4 md:px-6 pt-4 pb-2">
         <header className="liquid-glass-nav mx-auto max-w-[1600px] rounded-full px-4 md:px-6 h-14 flex items-center justify-between gap-4">
-          <Link href="/dashboard" className="flex items-center gap-2.5 shrink-0">
-            <Image
-              src="/logo-energizzo.png"
-              alt="Energizzo"
-              width={36}
-              height={36}
-              priority
-              className="rounded-xl shadow-md shadow-primary/30"
-            />
-            <div className="hidden md:block">
-              <h1 className="font-display text-sm font-black tracking-[0.1em] gradient-text leading-none">
-                ENERGIZZO
-              </h1>
-              <p className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground leading-none mt-1">
-                CRM Reseller
-              </p>
-            </div>
-          </Link>
           <NavLinks
             items={[
               { href: "/dashboard", label: "Lead", icon: "users" },
