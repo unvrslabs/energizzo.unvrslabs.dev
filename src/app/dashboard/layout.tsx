@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen">
       <div className="sticky top-4 z-40 px-4 md:px-6 pt-4 pb-2">
-        <header className="liquid-glass-nav mx-auto max-w-[1600px] rounded-full px-4 md:px-6 h-14 flex items-center justify-between gap-4">
+        <header className="liquid-glass-nav mx-auto w-fit max-w-full rounded-full px-3 md:px-4 h-12 flex items-center justify-center gap-2 overflow-x-auto scroll-x-contained">
           <NavLinks
             items={[
               { href: "/dashboard", label: "Lead", icon: "users" },

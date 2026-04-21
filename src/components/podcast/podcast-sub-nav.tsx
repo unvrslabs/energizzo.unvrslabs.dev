@@ -19,7 +19,7 @@ export function PodcastSubNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="liquid-glass rounded-full px-2 py-1.5 flex items-center gap-1 overflow-x-auto scroll-x-contained">
+    <nav className="liquid-glass rounded-full px-2 py-1.5 flex items-center gap-1 mx-auto w-fit max-w-full overflow-x-auto scroll-x-contained">
       {ITEMS.map((it) => {
         const active = it.exact
           ? pathname === it.href
