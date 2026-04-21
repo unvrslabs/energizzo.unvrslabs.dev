@@ -8,7 +8,7 @@ export function InviteConfirmForm({
   defaultName,
 }: {
   token: string;
-  defaultName: string;
+  defaultName?: string;
 }) {
   const [name, setName] = useState(defaultName ?? "");
   const [whatsapp, setWhatsapp] = useState("");
@@ -63,12 +63,13 @@ export function InviteConfirmForm({
     <form onSubmit={submit} className="space-y-3">
       <label className="block text-sm space-y-1">
         <span className="text-xs text-muted-foreground uppercase tracking-wide">
-          Nome e cognome *
+          Nome e cognome di chi partecipa *
         </span>
         <input
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
+          placeholder="Es. Mario Rossi"
           className="w-full bg-white/5 rounded-lg px-3 py-2 border border-white/10"
         />
       </label>

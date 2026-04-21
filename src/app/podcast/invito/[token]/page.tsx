@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadEpisode } from "@/lib/podcast-content";
-import { KnowledgeRenderer } from "@/components/podcast/knowledge-renderer";
+import { PublicEpisodeRenderer } from "@/components/podcast/public-episode-renderer";
 import { InviteConfirmForm } from "@/components/podcast/invite-confirm-form";
+import { WelcomeHero } from "@/components/podcast/welcome-hero";
 import type { PodcastGuest } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,6 @@ export default async function InvitoPage({
 }) {
   const { token } = await params;
 
-  // validate UUID shape before hitting DB
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)) {
     notFound();
   }
@@ -25,78 +25,109 @@ export default async function InvitoPage({
   if (!guest) notFound();
 
   const g = guest as PodcastGuest;
-  const displayName =
-    g.lead?.ragione_sociale ?? g.external_company ?? g.external_name ?? "Ospite";
   const episode = g.selected_episode_slug ? loadEpisode(g.selected_episode_slug) : null;
   const alreadyConfirmed = !!g.response_confirmed_at;
 
   return (
     <div className="min-h-screen py-10 px-4 md:px-6">
       <div className="mx-auto max-w-3xl space-y-6">
-        <header className="liquid-glass rounded-[1.5rem] p-8 text-center space-y-3">
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            Podcast &quot;Il Reseller&quot;
+        <WelcomeHero />
+
+        <section className="liquid-glass rounded-2xl p-6 space-y-3">
+          <h2 className="font-display text-xl tracking-wide">Di cosa si tratta</h2>
+          <p className="text-sm leading-relaxed">
+            <strong>&quot;Il Reseller&quot;</strong> è un podcast settimanale dedicato
+            agli amministratori delegati e ai COO dei reseller energetici italiani. In
+            ogni puntata affrontiamo un tema caldo del settore — margini, switching,
+            regolazione ARERA, AI, M&amp;A — attraverso una conversazione 1-a-1 di circa
+            20 minuti con un protagonista del mercato.
           </p>
-          <h1 className="font-display text-3xl md:text-4xl tracking-tight">
-            Sei stato selezionato 🎙️
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
-            Grazie per aver scansionato la card di invito. Questa pagina è stata preparata
-            solo per {displayName}: trovi il tema della conversazione, le domande che ti
-            faremo e i materiali per prepararti. In fondo puoi confermarci la tua
-            disponibilità.
+          <p className="text-sm leading-relaxed">
+            La puntata viene <strong>registrata in call via Zoom o Riverside</strong>{" "}
+            (audio + video), poi montata e pubblicata su Spotify, Apple Podcasts e
+            YouTube. Zero script, zero domande a sorpresa: il briefing completo che
+            trovi sotto è esattamente ciò di cui parleremo.
           </p>
-        </header>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Ti ringraziamo per aver scansionato la nostra card di invito e per il tempo
+            che vorrai dedicarci. La tua voce arricchisce il confronto tra peer del
+            settore.
+          </p>
+        </section>
 
         {!episode ? (
           <div className="liquid-glass rounded-2xl p-6 text-center">
             <p className="text-sm text-muted-foreground">
-              Il tema della tua puntata è ancora in definizione. Ti ricontatteremo a breve.
+              Il tema della tua puntata è ancora in definizione. Ti ricontatteremo a
+              breve.
             </p>
           </div>
         ) : (
           <>
             <section className="liquid-glass rounded-2xl p-6 space-y-2">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                Argomento della puntata
+                Argomento della tua puntata
               </p>
               <h2 className="font-display text-2xl tracking-wide">{episode.title}</h2>
             </section>
 
-            <section className="liquid-glass rounded-2xl p-6">
-              <div className="prose prose-invert prose-sm max-w-none prose-headings:font-display prose-a:text-primary prose-table:text-xs">
-                <h2 className="!mt-0">Come prepararti</h2>
-                <p className="text-sm">
-                  Sotto trovi tre cose utili: (1) un <strong>briefing</strong> introduttivo
-                  sul tema, (2) tutte le <strong>domande</strong> che ti faremo (sia quelle
-                  di presentazione sia le strutturate), (3) <strong>link</strong> alle
-                  fonti ARERA e sintesi operative per avere i dati in tasca. Non serve
-                  imparare a memoria: l&apos;obiettivo è una conversazione, non un esame.
-                </p>
-                <h2>Suggerimenti per le risposte</h2>
-                <ul>
-                  <li>
-                    <strong>Parla in prima persona</strong>: la tua esperienza concreta vale
-                    più della teoria.
-                  </li>
-                  <li>
-                    <strong>Numeri se li hai</strong>, aneddoti se li ricordi. Un &quot;non
-                    lo so esattamente&quot; è meglio di un dato inventato.
-                  </li>
-                  <li>
+            <section className="liquid-glass rounded-2xl p-6 space-y-4">
+              <h2 className="font-display text-xl tracking-wide !mt-0">Come prepararti</h2>
+              <ul className="space-y-2 text-sm">
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
+                    <strong>Leggi il briefing</strong> qui sotto: primer sul tema,
+                    domande di apertura, 15 domande strutturate con talking points.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
+                    <strong>Apri i link di approfondimento</strong>: rimandano alle
+                    sintesi ARERA per avere i numeri in tasca durante la call.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
+                    <strong>Parla in prima persona</strong>: la tua esperienza concreta
+                    vale più della teoria.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
+                    <strong>Numeri se li hai, aneddoti se li ricordi</strong>. Un
+                    &quot;non lo so esattamente&quot; vale più di un dato inventato.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
                     <strong>Dissenso ok</strong>: se un dato o una domanda non ti
-                    convincono, dillo. Aggiunge valore alla puntata.
-                  </li>
-                  <li>
+                    convincono, dillo. Rende la puntata migliore.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
                     <strong>20 minuti complessivi</strong>: taglia quando senti che la
-                    risposta è completa, non serve esaurire ogni sottotema.
-                  </li>
-                </ul>
-              </div>
+                    risposta è completa, non serve esaurire tutto.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-primary shrink-0">✓</span>
+                  <span>
+                    <strong>Non devi imparare a memoria</strong>: è una conversazione,
+                    non un esame.
+                  </span>
+                </li>
+              </ul>
             </section>
 
             <section className="liquid-glass rounded-2xl p-6">
-              <KnowledgeRenderer body={episode.body} />
+              <PublicEpisodeRenderer body={episode.body} token={token} />
             </section>
           </>
         )}
@@ -105,8 +136,8 @@ export default async function InvitoPage({
           <div className="space-y-1">
             <h2 className="font-display text-xl tracking-wide">Confermi la disponibilità?</h2>
             <p className="text-sm text-muted-foreground">
-              Lascia il tuo recapito WhatsApp e il nome: ti contatteremo per fissare la data
-              di registrazione.
+              Lascia il tuo nome e un recapito WhatsApp: ti contatteremo per fissare la
+              data di registrazione.
             </p>
           </div>
 
@@ -122,13 +153,12 @@ export default async function InvitoPage({
               </p>
             </div>
           ) : (
-            <InviteConfirmForm token={token} defaultName={displayName} />
+            <InviteConfirmForm token={token} />
           )}
         </section>
 
         <footer className="text-center text-xs text-muted-foreground py-4">
-          Prodotto da <span className="text-primary font-semibold">UNVRS Labs</span> ·
-          energizzo.unvrslabs.dev
+          Prodotto da <span className="text-primary font-semibold">UNVRS Labs</span>
         </footer>
       </div>
     </div>
