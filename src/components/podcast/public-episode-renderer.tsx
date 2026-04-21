@@ -11,10 +11,15 @@ type Props = {
 export function PublicEpisodeRenderer({ body, token }: Props) {
   // Rewrite internal dashboard knowledge links to the public invite-scoped
   // knowledge viewer so the guest doesn't hit the login wall.
-  // Also strip the speaker-notes section ("## Apertura — presentazione e warm-up"):
-  // those are prompts for the interviewer, not material the guest should see.
+  // Strip ONLY the interviewer speaker-notes paragraph that sits between
+  // "## Apertura — presentazione e warm-up" and "### Domande di riscaldamento":
+  // those are notes for Emanuele. Keep the warm-up questions (promoted to
+  // an H2 so they flow naturally for the guest).
   const rewritten = body
-    .replace(/\n##\s+Apertura[^\n]*\n[\s\S]*?(?=\n##\s)/m, "\n")
+    .replace(
+      /##\s+Apertura[^\n]*\n[\s\S]*?###\s+Domande di riscaldamento/m,
+      "## Domande introduttive",
+    )
     .replace(
       /\(\/dashboard\/podcast\/knowledge\/([a-z0-9-]+)\)/g,
       `(/podcast/invito/${token}/k/$1)`,
