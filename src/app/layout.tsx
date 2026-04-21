@@ -16,8 +16,23 @@ const jakarta = Plus_Jakarta_Sans({
 const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "Energizzo CRM",
-  description: "CRM per la vendita di Energizzo ai reseller di energia italiani.",
+  title: {
+    default: "Energizzo CRM",
+    template: "%s · Energizzo CRM",
+  },
+  description: "CRM UNVRS per la vendita di Energizzo ai reseller di energia italiani.",
+  applicationName: "Energizzo CRM",
+  authors: [{ name: "UNVRS Labs" }],
+  creator: "UNVRS Labs",
+  publisher: "UNVRS Labs",
+  robots: { index: false, follow: false },
+  openGraph: {
+    title: "Energizzo CRM",
+    description: "Dashboard 819 reseller energia italiani · UNVRS Labs",
+    type: "website",
+    siteName: "Energizzo CRM",
+    locale: "it_IT",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
