@@ -267,6 +267,112 @@ function DatiTab({ guest }: { guest: PodcastGuest }) {
           className="w-full bg-white/5 rounded-lg px-3 py-2 border border-white/10 text-sm"
         />
       </div>
+
+      <InvitoPodcastBox guest={guest} />
+    </div>
+  );
+}
+
+function InvitoPodcastBox({ guest }: { guest: PodcastGuest }) {
+  async function saveField(patch: Record<string, unknown>) {
+    const res = await updateGuest({ id: guest.id, patch });
+    if (!res.ok) toast.error(res.error ?? "Errore");
+    else toast.success("Salvato");
+  }
+
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://energizzo.unvrslabs.dev";
+  const inviteUrl = guest.invite_token
+    ? `${origin}/podcast/invito/${guest.invite_token}`
+    : null;
+
+  return (
+    <div className="liquid-glass rounded-2xl p-5 space-y-3 md:col-span-2">
+      <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
+        Invito podcast
+      </h2>
+
+      <label className="block text-sm">
+        <span className="text-xs text-muted-foreground">Episodio assegnato</span>
+        <select
+          defaultValue={guest.selected_episode_slug ?? ""}
+          onChange={(e) => saveField({ selected_episode_slug: e.target.value || null })}
+          className="block w-full bg-white/5 rounded-lg px-3 py-2 border border-white/10 mt-1"
+        >
+          <option value="">— Nessuno —</option>
+          <option value="01-transizione-stg-mercato-libero">01 · STG verso libero</option>
+          <option value="02-aste-stg-aggressive">02 · Aste STG aggressive</option>
+          <option value="03-concentrazione-m-and-a">03 · Concentrazione & M&amp;A</option>
+          <option value="04-nuova-bolletta-2025">04 · Nuova bolletta 2025</option>
+          <option value="05-ai-leva-di-margine">05 · AI leva di margine</option>
+          <option value="06-recupero-crediti-post-2022">06 · Recupero crediti post-2022</option>
+          <option value="07-cer-comunita-energetiche">07 · CER</option>
+          <option value="08-telemarketing-teleselling">08 · Telemarketing</option>
+          <option value="09-unbundling-marchio">09 · Unbundling marchio</option>
+          <option value="10-smart-meter-gas">10 · Smart meter gas</option>
+        </select>
+      </label>
+
+      {inviteUrl && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={inviteUrl}
+              className="flex-1 bg-white/5 rounded-lg px-3 py-2 text-xs font-mono border border-white/10"
+            />
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(inviteUrl);
+                toast.success("Link copiato");
+              }}
+              className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground px-3 h-9 text-xs font-semibold"
+            >
+              <Copy className="h-3 w-3" /> Copia
+            </button>
+            <a
+              href={inviteUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center rounded-full bg-white/5 px-3 h-9 text-xs font-semibold"
+            >
+              Apri
+            </a>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Invia questo link (WhatsApp, QR code su card fisica, email). La pagina è
+            pubblica, no login richiesto.
+          </p>
+        </div>
+      )}
+
+      {guest.response_confirmed_at ? (
+        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 text-sm space-y-1">
+          <p className="font-semibold text-emerald-300">
+            ✓ Confermato il{" "}
+            {new Date(guest.response_confirmed_at).toLocaleString("it-IT", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </p>
+          <p className="text-xs text-emerald-200/80">
+            <span className="text-emerald-300/80">{guest.response_name}</span> ·{" "}
+            <a href={`https://wa.me/${(guest.response_whatsapp ?? "").replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="underline">
+              {guest.response_whatsapp}
+            </a>
+          </p>
+          {guest.response_availability && (
+            <p className="text-xs text-emerald-200/80 italic">
+              &ldquo;{guest.response_availability}&rdquo;
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground italic">
+          In attesa di conferma. Lo stato dell&apos;ospite si aggiornerà a &quot;Confermato&quot;
+          quando invia il form.
+        </p>
+      )}
     </div>
   );
 }

@@ -119,6 +119,12 @@ export type PodcastGuest = {
   episode_url: string | null;
   episode_title: string | null;
   notes: string | null;
+  invite_token: string | null;
+  selected_episode_slug: string | null;
+  response_name: string | null;
+  response_whatsapp: string | null;
+  response_availability: string | null;
+  response_confirmed_at: string | null;
   created_at: string;
   updated_at: string;
   lead?: Pick<Lead, "ragione_sociale" | "piva" | "email" | "telefoni" | "provincia"> | null;

@@ -29,7 +29,12 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isLogin = pathname === "/login";
-  const isPublic = isLogin || pathname.startsWith("/_next") || pathname.startsWith("/favicon");
+  const isPublic =
+    isLogin ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/podcast/invito") ||
+    pathname.startsWith("/api/podcast-invite");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

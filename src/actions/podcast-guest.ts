@@ -101,6 +101,7 @@ const UpdateGuestSchema = z.object({
     external_role: z.string().nullable().optional(),
     external_email: z.string().email().nullable().optional(),
     external_linkedin: z.string().url().nullable().optional(),
+    selected_episode_slug: z.string().nullable().optional(),
   }),
 });
 
