@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # Aste STG, chi ha vinto troppo? Dentro i parametri negativi del 2024
 
+## Cosa devi sapere (primer)
+
+In Italia, fino al 2024, i clienti domestici che non avevano mai firmato un contratto di mercato libero stavano in **Maggior Tutela (MT)**: un regime a prezzo amministrato, gestito da un venditore designato dal regolatore ARERA. Dal 1° luglio 2024 questo regime è finito per i clienti "non vulnerabili" (gli altri, ad esempio gli over-75 o chi ha disagi economici, sono rimasti in tutela). I 3,7 milioni di clienti usciti dalla MT sono stati assegnati automaticamente al **Servizio a Tutele Graduali (STG)**: una fase ponte di 33 mesi che scadrà il 31 marzo 2027.
+
+L'assegnazione è avvenuta tramite aste pubbliche bandite il 6 febbraio 2024 da **Acquirente Unico (AU)**, la società pubblica che gestisce gli approvvigionamenti regolati. Il territorio italiano è stato suddiviso in 26 aree STG per i clienti domestici, ciascuna aggiudicata a un singolo operatore, con un tetto di 7 aree per concorrente (per evitare eccessiva concentrazione). Le offerte economiche sono state formulate tramite due parametri tecnici: **γ (gamma)** per il domestico e **α / β (alfa / beta)** per le piccole imprese. Sono sconti sul prezzo di riferimento: più basso il γ, più aggressiva l'offerta. In alcune aree il γ è stato negativo, cioè il venditore si è preso il cliente accettando un prezzo più basso del proprio costo di fornitura — una scommessa sul futuro.
+
+Chi ha vinto queste aste: quasi tutti i grandi nomi italiani — **Enel Energia, Eni Plenitude, Edison, A2A, Hera Comm, Iren Mercato, Acea Energia, Illumia**. Chi NON ha vinto: la stragrande maggioranza dei 741 venditori elettrici attivi in Italia, in particolare i reseller medi (30-100k clienti) che non avevano la solidità finanziaria per reggere 33 mesi sotto costo. Loro sono i destinatari di questa puntata.
+
+La scommessa degli aggiudicatari è quella del funnel post-2027: il 31 marzo 2027 il cliente STG che non ha firmato un contratto di mercato libero (ML) resta automaticamente con l'ex-aggiudicatario, che applica la "offerta più favorevole" del proprio catalogo. Tradotto: 3 milioni di clienti acquisiti a costo zero, pronti per essere monetizzati con piani di mercato libero che potrebbero salire di prezzo con i preavvisi previsti dal **Codice di Condotta Commerciale (CCC)** di ARERA (art. 13: preavviso 3 mesi per variazione unilaterale).
+
+Per un reseller che non si è aggiudicato nulla, la finestra 2025-2027 è l'ultima occasione utile per strappare clienti STG prima che il muro di aprile 2027 si chiuda. Gli strumenti: la vetrina pubblica del **Portale Offerte** di ARERA, la nuova **bolletta 2.0** (dal 1° luglio 2025) con QR code che porta al Portale, e la capacità di costruire offerte comparabili zona per zona. Sigle ricorrenti da ricordare: **PUN** (Prezzo Unico Nazionale, il prezzo dell'energia all'ingrosso), **POD** (Point of Delivery, il codice del contatore), **TIV** (Testo Integrato Vendita, il regolamento ARERA), **TIVG** (Testo Integrato Vendita Gas), **PLACET** (Prezzo Libero a Condizioni Equiparate di Tutela, offerta standard ML), **UR** (Unpaid Ratio, tasso di morosità), **TIMOE** (Testo Integrato Morosità Elettrica).
+
 ## Perché questa puntata ora
 
 Siamo ad aprile 2026. Mancano esattamente undici mesi alla fine dello STG (31 marzo 2027) e il settore ha avuto quasi due anni per guardare dentro i numeri delle aste del 6 febbraio 2024. Alcuni parametri γ sulle 26 aree STG domestici sono risultati negativi e i β sulle piccole imprese sono stati tagliati in modo competitivo. La domanda che circola in ogni board del retail è la stessa: chi ha vinto a quelle condizioni sta gestendo le forniture in perdita?
@@ -31,11 +43,22 @@ Questa puntata parla a chi non si è aggiudicato nulla, per capire come sta legg
 
 ## Argomenti collegati da ripassare
 
-- **02-stg.md** — aree, parametri, condizioni PLACET, meccanismo 31 marzo 2027
-- **03-timeline.md** — Legge 124/2017, rinvii post-2022, road map 2023-2027
-- **05-dati-mercato.md** — PUN 108,5, prezzi MT vs STG, quote 92,6% volumi ML
-- **04-operativita-retail.md** — switching, diritto ripensamento 14 gg, Portale Offerte come leva di conquest
-- **01-testi-integrati.md** — TIV Titolo 3 (art. 33-53 STG), CCC art. 13 e 14 su preavvisi e indennizzi
+- [**02-stg.md** — aree, parametri, condizioni PLACET, meccanismo 31 marzo 2027](/dashboard/podcast/knowledge/02-stg)
+- [**03-timeline.md** — Legge 124/2017, rinvii post-2022, road map 2023-2027](/dashboard/podcast/knowledge/03-timeline)
+- [**05-dati-mercato.md** — PUN 108,5, prezzi MT vs STG, quote 92,6% volumi ML](/dashboard/podcast/knowledge/05-dati-mercato)
+- [**04-operativita-retail.md** — switching, diritto ripensamento 14 gg, Portale Offerte come leva di conquest](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**01-testi-integrati.md** — TIV Titolo 3 (art. 33-53 STG), CCC art. 13 e 14 su preavvisi e indennizzi](/dashboard/podcast/knowledge/01-testi-integrati)
+
+## Apertura — presentazione e warm-up
+
+**Come presentare l'ospite** (template speaker notes): "Oggi con noi c'è [nome], [AD/COO] di [azienda], reseller energetico italiano con circa [N] clienti tra elettrico e gas. [Azienda] non si è aggiudicata aree STG nelle aste del febbraio 2024 ed è quindi oggi in prima fila a guardare come si stanno muovendo i grandi aggiudicatari. [Nome] ha [dato 2: anni nel settore, esperienza precedente, caratteristica distintiva]. Benvenuto, ti chiederemo di raccontarci la partita vista dal lato di chi non ha vinto."
+
+### Domande di riscaldamento
+
+1. **Ti ricordi dov'eri il 6 febbraio 2024, il giorno delle aste STG?** — Aneddoto iniziale, aiuta a far emergere la reazione "a caldo" degli operatori medi.
+2. **In una parola, come descriveresti il clima nel retail energia oggi?** — Misura tono e mood, utile per calibrare le domande successive.
+3. **Prima ancora di parlare di STG, da quanto tempo sei nel settore e cosa ti ha portato qui?** — Contesto biografico leggero.
+4. **Qual è il pregiudizio più comune che i clienti hanno sui reseller medi rispetto alle big utility?** — Rompe il ghiaccio, apre il registro "voce del mercato".
 
 ## Le 15 domande
 

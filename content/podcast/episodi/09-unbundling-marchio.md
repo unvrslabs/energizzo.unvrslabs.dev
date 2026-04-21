@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # Unbundling di marchio e personale commerciale — quando il gruppo integrato deve separarsi
 
+## Cosa devi sapere (primer)
+
+Nel mercato elettrico italiano convivono due tipi di attività molto diverse: la distribuzione (l'infrastruttura di rete, regolata e monopolistica per area geografica) e la vendita (la commercializzazione al cliente finale, liberalizzata e competitiva). Il cliente identificato dal POD (Point Of Delivery, il codice che individua un'utenza elettrica) e dal PDR per il gas si vede comparire in bolletta due soggetti: il distributore, che ha sempre lo stesso volto sul territorio, e il venditore, che può cambiare ogni volta che il cliente fa switching. Il problema nasce quando distributore e venditore appartengono allo stesso gruppo — tipico delle multiutility locali (A2A, Hera, Iren, Acea e decine di utility municipali più piccole).
+
+Per evitare che il distributore, che ha informazioni privilegiate sui clienti (consumi, pagamenti, contatti), dia un vantaggio indebito al venditore collegato, ARERA ha imposto l'unbundling. Si declina in tre livelli: contabile (bilanci separati, disciplinati dal TIUC, Testo Integrato Unbundling Contabile, delibera 296/2015), funzionale (separazione operativa di personale, sistemi, processi), di marchio (il distributore e il venditore devono essere riconoscibili come soggetti distinti dal cliente, con brand, comunicazione e agenti diversi). La legge 124/2017 all'art. 1 co. 60 ha rafforzato l'obbligo di separazione. Il CCC (Codice di Condotta Commerciale), aggiornato dalla delibera 395/2024 in vigore dal 1° gennaio 2025, impone che ogni agente commerciale esibisca documento con nome, ruolo "Agente di vendita", nome venditore rappresentato e recapito verificabile, dichiarando la finalità di vendita prima ancora di chiedere dati.
+
+Il contesto è stato ridisegnato dalla fine della Maggior Tutela domestica il 1° luglio 2024. Fino a quella data, circa 3,7 milioni di clienti "non vulnerabili" erano serviti in regime amministrato da esercenti ex-MT, molti dei quali parte di gruppi integrati. Questi clienti sono passati agli STG (Servizi a Tutele Graduali), regime ponte di 33 mesi fino al 31 marzo 2027, assegnato tramite aste a 7 esercenti aggiudicatari. Il TIV (Testo Integrato Vendita, delibera 362/2023/R/eel) contiene strumenti riservati agli ex-esercenti MT societariamente separati: l'art. 19 prevede compensazione per morosità oltre certe soglie (riservata a operatori con ≤10 mln POD), l'art. 20 una compensazione per uscita clienti verso il libero, l'art. 21bis un adeguamento one-off dei costi operativi 2024. Chi non è societariamente separato, questi strumenti non li vede.
+
+I numeri. A fine 2024 ci sono 741 venditori elettrici attivi, in contrazione, con concentrazione in crescita sui primi 5. Il 78,2% dei POD è sul libero, il 92,6% dei volumi. Il PUN (Prezzo Unico Nazionale) medio 2024 è 108,5 €/MWh, il più caro dei grandi mercati UE. La componente energia media del libero domestico 2024 è 237,18 €/MWh. Il prezzo MT vulnerabili gennaio 2025 (28,21 c€/kWh netto) è più caro del 21% rispetto allo STG (22,33 c€/kWh). I clienti MT storici, spesso i più affezionati al brand territoriale della vecchia municipalizzata, ora sono "ex-tutelati" arrabbiati o disorientati, da riconquistare con strumenti di mercato.
+
+L'urgenza. Chi ha un gruppo integrato deve decidere oggi: separazione societaria completa (con costi di struttura duplicata ma accesso ai tool TIV 19/20/21bis, pulizia regolatoria e valutazione M&A più alta), oppure mantenimento del modello integrato con rischi crescenti di sanzione ARERA/AGCM man mano che il regolatore mette in produzione controlli automatizzati di anomalie. Il tempo per decidere è corto: i 24 mesi verso il 31 marzo 2027 determinano chi arriva preparato alla fine STG con entità pulite e chi verrà intercettato dalle nuove procedure ispettive.
+
 ## Perché questa puntata ora
 
 La separazione tra distribuzione e vendita non è un tema nuovo — la legge 124/2017 art. 1 co. 60 l'ha ribadita e la delibera 296/2015 ha fissato le regole di unbundling funzionale e di marchio per gli operatori integrati. Ma con la fine della Maggior Tutela al 1° luglio 2024 e l'introduzione di STG domestici + piccole imprese, il perimetro operativo di chi è "venditore ex-MT societariamente separato" è cambiato. Diverse multiutility locali stanno ristrutturando: chi teneva insieme distributore e venditore con lo stesso brand, gli stessi consulenti commerciali e lo stesso front-office sta ripensando tutto. Il TIV 2023 (delibera 362/2023/R/eel) e l'art. 21bis hanno creato tool specifici per chi è separato societariamente. Chi non lo è, li perde.
@@ -26,12 +38,25 @@ La separazione tra distribuzione e vendita non è un tema nuovo — la legge 124
 
 ## Argomenti collegati da ripassare
 
-- Delibera 296/2015/R/com — TIUC e unbundling contabile/funzionale
-- Legge 124/2017 art. 1 comma 60 — separazione obbligatoria
-- TIV delibera 362/2023/R/eel — articoli 19, 20, 21bis
-- CCC delibera 395/2024 art. 8 — riconoscibilità personale commerciale
-- Switching e SII — delibera 487/2015 per elettrico
-- Timeline fine MT → 31 marzo 2027 fine STG
+- [Delibera 296/2015/R/com — TIUC e unbundling contabile/funzionale](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Legge 124/2017 art. 1 comma 60 — separazione obbligatoria](/dashboard/podcast/knowledge/03-timeline)
+- [TIV delibera 362/2023/R/eel — articoli 19, 20, 21bis](/dashboard/podcast/knowledge/01-testi-integrati)
+- [CCC delibera 395/2024 art. 8 — riconoscibilità personale commerciale](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Switching e SII — delibera 487/2015 per elettrico](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Timeline fine MT → 31 marzo 2027 fine STG](/dashboard/podcast/knowledge/03-timeline)
+
+## Apertura — presentazione e warm-up
+
+Speaker notes per la presentazione ospite: "Oggi con noi c'è [nome], AD di [azienda], multiutility locale/ex-esercente Maggior Tutela che serve [territorio] con [X] POD tra distribuzione e vendita. [Dato 1 sull'azienda: anni di attività sul territorio, eventuale storico municipalizzata, perimetro distribuzione e vendita]. [Dato 2 sul percorso: background — gestione regolata, trading, vendita, top management industriale]. Benvenuto [nome], entriamo in un tema che sta ridisegnando l'identità stessa di chi fa utility in Italia."
+
+### Domande di riscaldamento
+
+1. **Il tuo gruppo esiste da decenni: come presentavate il brand a un nuovo dipendente dieci anni fa rispetto a oggi?** — Apre il tema identità senza andare subito sul regolatorio.
+2. **Descrivi in una parola cosa vuol dire gestire una multiutility nel 2026.** — Leggera, di solito emergono parole come "equilibrio", "conformità", "complessità".
+3. **C'è stato un momento in cui ti sei accorto che separare distributore e venditore non era solo un tema di compliance ma una scelta di business?** — Aneddoto che apre il dialogo strategico.
+4. **Se oggi ti chiedessero di costituire da zero una nuova multiutility in Italia, useresti lo stesso modello organizzativo o qualcosa di radicalmente diverso?** — Prospettiva di visione, utile per scaldare prima delle domande tecniche.
+
+---
 
 ## Le 15 domande
 

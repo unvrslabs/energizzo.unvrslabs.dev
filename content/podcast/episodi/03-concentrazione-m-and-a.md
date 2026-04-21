@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # Sparire, vendere, resistere. Il middle market energetico italiano nel 2026
 
+## Cosa devi sapere (primer)
+
+Il mercato elettrico retail italiano era storicamente dominato dal monopolio ENEL: milioni di clienti domestici in "Maggior Tutela" (MT), cioè a prezzo amministrato dal regolatore **ARERA** (Autorità di Regolazione per Energia Reti e Ambiente). Dal 2007 il mercato è stato aperto alla concorrenza: chiunque potesse ottenere un accreditamento poteva diventare "venditore" — tecnicamente un **reseller**, perché compra energia all'ingrosso (dal mercato elettrico, dal **PUN** = Prezzo Unico Nazionale) e la rivende al cliente finale. Nel tempo si sono create centinaia di società: nel 2024 ARERA ne conta 741 attive nell'elettrico. La maggior parte sono piccole (meno di 100 mila clienti), una ventina sono grandi (Enel Energia, Eni Plenitude, Edison, A2A, Hera Comm, Iren Mercato, Acea, Sorgenia, Illumia e pochi altri).
+
+Nel 2024 sono successe due cose nuove: (1) la MT elettrica si è chiusa per i clienti "non vulnerabili" e 3,7 milioni di clienti sono transitati al **Servizio a Tutele Graduali (STG)** — fase ponte di 33 mesi, fine 31 marzo 2027, gestita dagli operatori vincitori delle aste **Acquirente Unico (AU)** del 6 febbraio 2024 su 26 aree territoriali; (2) nei 36 mesi precedenti il settore è stato invaso da fondi di **private equity (PE)** internazionali — KKR, Macquarie, F2i — che hanno comprato reseller italiani a multipli altissimi (fino a 350 euro per cliente). Questa combinazione ha innescato una corsa al consolidamento: i grandi comprano i medi, i medi vendono o si fondono, i piccoli cercano nicchie.
+
+Il cuore del problema per chi ha 20-200 mila clienti (il "middle market"): i costi fissi di compliance sono esplosi dopo la delibera ARERA 395/2024 sul **Codice di Condotta Commerciale (CCC)**, che rende il venditore direttamente responsabile per il comportamento del personale commerciale, inclusi agenti di terzi. Formazione obbligatoria, registrazione chiamate, tracciabilità agenti, ispezioni: tutto questo costa in modo indipendente dal numero di clienti, quindi schiaccia i margini degli operatori sotto scala. Allo stesso tempo la nuova **bolletta 2.0** dal 1° luglio 2025 (delibera 315/2024) obbliga a stampare un QR code che rimanda al **Portale Offerte** di ARERA, dove il cliente confronta istantaneamente tutte le offerte disponibili: la barriera allo switching è vicina a zero.
+
+Sigle da ricordare: **POD** (Point of Delivery, il codice del contatore di ogni cliente), **CAC** (Customer Acquisition Cost), **LTV** (Lifetime Value), **EBITDA** (margine operativo aziendale), **EV** (Enterprise Value, il valore d'impresa usato per calcolare i multipli M&A), **UR** (Unpaid Ratio, percentuale di crediti non incassati), **TIV** (Testo Integrato Vendita, regolamento ARERA per l'elettrico), **TIVG** (idem per il gas), **TIMOE/TIMG** (processi per gestire la morosità), **FDD** (Fornitore Default, chi subentra sui morosi), **FUI** (Fornitore Ultima Istanza gas), **PE** (private equity), **SII** (Sistema Informativo Integrato, l'infrastruttura dati di Acquirente Unico), **ATL** (Above The Line, comunicazione di massa), **PPA** (Power Purchase Agreement, contratto di fornitura diretta da produttore), **CER** (Comunità Energetiche Rinnovabili). I grandi player cui si fa riferimento: Enel Energia, Eni Plenitude, Edison (EDF), Hera Comm, A2A, Iren Mercato, Acea Energia, Illumia, Sorgenia.
+
+L'urgenza della puntata: a 11 mesi dalla fine STG la finestra per vendere ancora a multipli decenti si sta chiudendo, il 2027 ridefinirà chi esiste e chi sparisce, e nessuna categoria di operatore ha piano B facile.
+
 ## Perche' questa puntata ora
 
 Aprile 2026. Siamo a 11 mesi esatti dalla fine dello STG (31 marzo 2027). I numeri ARERA 2024 dicono che i venditori elettrici attivi sono scesi a 741 e la contrazione continua. Nel gas, Eni Plenitude nel 2024 e' stato superato per quote dal primo concorrente — un dato che 5 anni fa sarebbe stato impensabile. Nei 36 mesi precedenti KKR, Macquarie, F2i hanno fatto la spesa: valutazioni sui reseller italiani mai viste, multipli EBITDA a doppia cifra per asset con portafogli 100-300k clienti. Adesso il rubinetto PE si stringe, gli aggiudicatari STG stanno monetizzando i 3,7 milioni di clienti post-fine MT, e il middle market 20-200k clienti e' il pezzo di mercato che sta letteralmente scomparendo. Chi vende adesso ottiene ancora multipli accettabili. Chi aspetta il 2027 potrebbe trovare un mercato di compratori che non hanno piu' urgenza. Questa puntata serve a capire come si muovono quelli dentro la trincea.
@@ -28,13 +40,24 @@ Aprile 2026. Siamo a 11 mesi esatti dalla fine dello STG (31 marzo 2027). I nume
 
 ## Argomenti collegati da ripassare
 
-- Timeline fine tutela: Legge 124/2017, rinvii 2022, fine MT gas 1 gen 2024, fine MT elettrica 1 lug 2024, fine STG 31 mar 2027
-- Parametri asta STG: γ (domestici), α+β (piccole imprese), δ (microimprese). Parametri γ negativi spiegano la razionalita' dei bid aggressivi
-- Art. 21bis TIV 2024 — adeguamento costi operativi one-off per esercenti MT societariamente separati (salvagente chi esce dalla MT)
-- Cessione credito FDD art. 44 TIVG: venditore entrante obbligato a comprare il credito al 100% entro 45gg → cambia la valutazione del portafoglio morosi in un'acquisizione
-- Delibera 395/2024 CCC: responsabilita' diretta del venditore su personale commerciale (inclusi terzi) — alza la barriera operativa per chi ha reti esterne
-- Benchmark UR: domestico ML 2-4%, PMI 4-8%, salvaguardia 10-20%, FUI gas 15-25% — la qualita' del portafoglio morosi fa il prezzo in un deal M&A
-- AI e regolatore: ARERA sta sviluppando analisi anomalie comportamentali venditori — aumenta il rischio compliance per chi resta sotto scala
+- [Timeline fine tutela: Legge 124/2017, rinvii 2022, fine MT gas 1 gen 2024, fine MT elettrica 1 lug 2024, fine STG 31 mar 2027](/dashboard/podcast/knowledge/03-timeline)
+- [Parametri asta STG: γ (domestici), α+β (piccole imprese), δ (microimprese). Parametri γ negativi spiegano la razionalita' dei bid aggressivi](/dashboard/podcast/knowledge/02-stg)
+- [Art. 21bis TIV 2024 — adeguamento costi operativi one-off per esercenti MT societariamente separati (salvagente chi esce dalla MT)](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Cessione credito FDD art. 44 TIVG: venditore entrante obbligato a comprare il credito al 100% entro 45gg → cambia la valutazione del portafoglio morosi in un'acquisizione](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Delibera 395/2024 CCC: responsabilita' diretta del venditore su personale commerciale (inclusi terzi) — alza la barriera operativa per chi ha reti esterne](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Benchmark UR: domestico ML 2-4%, PMI 4-8%, salvaguardia 10-20%, FUI gas 15-25% — la qualita' del portafoglio morosi fa il prezzo in un deal M&A](/dashboard/podcast/knowledge/05-dati-mercato)
+- [AI e regolatore: ARERA sta sviluppando analisi anomalie comportamentali venditori — aumenta il rischio compliance per chi resta sotto scala](/dashboard/podcast/knowledge/05-dati-mercato)
+
+## Apertura — presentazione e warm-up
+
+**Come presentare l'ospite** (template speaker notes): "Oggi con noi [nome], [AD/COO/ex-AD] di [azienda], reseller elettrico italiano con circa [N] clienti. [Azienda] è [aggiudicataria STG / non aggiudicataria / recentemente uscita dopo un'operazione M&A / indipendente per scelta]. Nel 2024 [azienda] ha [dato 1: performance, acquisizione, cambio di assetto]. [Nome] ha guidato [azienda] attraverso [dato 2: fine tutela, deal M&A, ristrutturazione] e oggi parla da una posizione unica di osservatore del middle market. Benvenuto."
+
+### Domande di riscaldamento
+
+1. **Da quanto sei nel settore energia e come ci sei arrivato?** — Contesto biografico, aiuta ad aprire sul tema consolidamento in modo umano.
+2. **Una parola per descrivere il clima nel middle market energia oggi.** — Termometro del mood, si riaggancia bene alla prima delle 15.
+3. **Sei mai stato a un evento di settore dove si è parlato apertamente di chi sta vendendo a chi?** — Icebreaker sul tema M&A senza chiedere ancora numeri.
+4. **Cosa ti ha sorpreso di più del 2024 — le aste STG, i multipli PE, o altro?** — Apre il registro "anno che è stato" prima di entrare nelle domande tecniche.
 
 ## Le 15 domande
 

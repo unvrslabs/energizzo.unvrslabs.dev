@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # Teleselling dopo 395/2024 — quando il call center esterno diventa un problema tuo
 
+## Cosa devi sapere (primer)
+
+In Italia l'energia elettrica e il gas al cliente finale vengono venduti da reseller (venditori), circa 741 nell'elettrico a fine 2024. I reseller acquistano le commodity all'ingrosso (il prezzo di riferimento elettrico è il PUN, Prezzo Unico Nazionale) e le rivendono ai clienti identificati dal POD (codice utenza elettrica) e dal PDR (codice utenza gas). Per acquisire clienti, i reseller usano reti di vendita: call center (teleselling outbound/inbound), agenti diretti porta a porta, sportelli, canali digitali, comparatori, partnership. La vendita è regolata dal CCC (Codice di Condotta Commerciale) emanato da ARERA (l'autorità di regolazione del settore energia).
+
+Il CCC attuale è stato aggiornato dalla delibera 395/2024, in vigore dal 1° gennaio 2025. Le novità principali: il venditore è responsabile del personale commerciale proprio e di terzi (cioè i call center e le agenzie esterne); la formazione del personale è obbligatoria; l'agente deve dichiarare finalità di vendita e identità prima di chiedere dati; per contratti a distanza la richiesta di avvio fornitura prima dei 14 giorni di ripensamento deve essere fatta su "supporto durevole" (documento tracciabile: email, SMS, PEC, area riservata). L'indennizzo per mancato preavviso sulle variazioni contrattuali è di 30 €. Il preavviso minimo per variazioni unilaterali è 3 mesi, per "evoluzioni automatiche" dell'offerta è 2 mesi.
+
+Il contesto di mercato. Il 78,2% dei POD è già sul mercato libero (92,6% dei volumi), quindi la fase di conquista "a volume" sta finendo. La tutela di prezzo domestica è stata chiusa il 1° luglio 2024: i clienti domestici "non vulnerabili" sono stati assegnati a STG (Servizi a Tutele Graduali) per 33 mesi, fino al 31 marzo 2027, data oltre la quale dovranno scegliere sul libero. Il margine unitario è sceso: la componente energia media del libero domestico 2024 vale 237,18 €/MWh, in calo di circa 22 €/MWh rispetto al 2023. Lo switching rate 2024 è circa 19% sul domestico elettrico, 25-30% sulle PMI. Dal 2025 la bolletta contiene un codice offerta RCU (Riferimento Commerciale Univoco) e un QR code che porta al Portale Offerte ARERA, dove il cliente confronta le offerte in cinque minuti.
+
+I soggetti in campo oltre al reseller sono ARERA (regola e sanziona), AGCM (Antitrust, persegue pratiche commerciali scorrette), il Sistema Informativo Integrato (SII) che gestisce operativamente gli switching. Nel 2024 ARERA ha registrato un aumento dei reclami per "vendita scorretta" legati a teleselling aggressivo. La Relazione Annuale ARERA 2025 preannuncia controlli automatizzati e analisi di anomalie comportamentali sui venditori: pattern come tasso di ripensamento alto, picchi di switching su aree geografiche, spike di reclami verranno intercettati in modo sistematico.
+
+L'urgenza è duplice. Primo: il reseller non può più scaricare sulla rete esterna la responsabilità di pratiche scorrette — paga lui, in sanzioni ARERA/AGCM e in reputazione di categoria. Secondo: il canale telefonico, storicamente il più efficiente per volume, sta diventando strutturalmente più caro per compliance e più rischioso per reputazione, proprio mentre il cliente ha accesso diretto al confronto pubblico via bolletta. Chi non rivede il mix canali ora arriva al 2027 senza struttura.
+
 ## Perché questa puntata ora
 
 La delibera 395/2024/R/com è in vigore dal 1° gennaio 2025. Il CCC aggiornato ha rafforzato due punti che toccano il cuore operativo del reseller: la **responsabilità del venditore sul personale commerciale, diretta e per terzi** (punto 2 delle novità 395/2024) e la **formazione obbligatoria del personale**. Nel 2024 ARERA ha registrato un **aumento dei casi "vendita scorretta"** legati a teleselling aggressivo, e AGCM ha aperto procedure parallele. Nel frattempo il cliente finale cambia: dalla bolletta 2025 (delibera 315/2024) c'è **codice offerta RCU e QR code al Portale Offerte in bolletta**, quindi il confronto si fa in cinque minuti dal divano. Il settore è in mezzo al guado: chi spinge ancora il volume col telefono, chi investe su digitale e contenuto. Questa puntata serve a capire, con un ospite che ha rete commerciale vera, come sta cambiando il costo di acquisizione e quale pezzo della filiera è più esposto.
@@ -30,14 +42,27 @@ La delibera 395/2024/R/com è in vigore dal 1° gennaio 2025. Il CCC aggiornato 
 
 ## Argomenti collegati da ripassare
 
-- CCC 395/2024 — Titolo sul personale commerciale (art. 4 formazione, art. 8 riconoscibilità)
-- CCC art. 9 — 12 informazioni preliminari e Scheda Sintetica
-- CCC art. 13-14 — Variazioni, preavvisi, indennizzi
-- Direttiva Omnibus e contratti a distanza (supporto durevole per richiesta esecuzione prima del ripensamento)
-- Portale Offerte (04-operativita-retail.md §4.3) — il benchmark pubblico che rende confrontabili le offerte
-- Bolletta 2025 (delibera 315/2024) — QR code verso Portale Offerte
-- Switching fraudolento — la lettura ARERA/AGCM del 2024
-- Timeline fine tutela (03-timeline.md) — perché proprio ora la pressione sui canali di acquisizione è massima
+- [CCC 395/2024 — Titolo sul personale commerciale (art. 4 formazione, art. 8 riconoscibilità)](/dashboard/podcast/knowledge/04-operativita-retail)
+- [CCC art. 9 — 12 informazioni preliminari e Scheda Sintetica](/dashboard/podcast/knowledge/04-operativita-retail)
+- [CCC art. 13-14 — Variazioni, preavvisi, indennizzi](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Direttiva Omnibus e contratti a distanza (supporto durevole per richiesta esecuzione prima del ripensamento)](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Portale Offerte (04-operativita-retail.md §4.3) — il benchmark pubblico che rende confrontabili le offerte](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Bolletta 2025 (delibera 315/2024) — QR code verso Portale Offerte](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Switching fraudolento — la lettura ARERA/AGCM del 2024](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Timeline fine tutela (03-timeline.md) — perché proprio ora la pressione sui canali di acquisizione è massima](/dashboard/podcast/knowledge/03-timeline)
+
+## Apertura — presentazione e warm-up
+
+Speaker notes per la presentazione ospite: "Oggi con noi c'è [nome], Direttore Vendite/Head of Sales di [azienda], reseller energia con [X] clienti e una rete commerciale che combina [Y] diretto e [Z] call center/agenzie esterne. [Dato 1 sull'azienda: aree geografiche coperte, volumi di acquisizione annuale, target prevalente domestico/PMI]. [Dato 2 sul percorso: background — vendite in telco, finanziario, utility, consulenza]. Benvenuto [nome], entriamo subito nel cuore di un cambiamento che sta ridefinendo il costo e il rischio dell'acquisizione cliente."
+
+### Domande di riscaldamento
+
+1. **Come ci sei finito in un'azienda che fa vendita di energia? È un settore in cui sei arrivato per caso o per scelta precisa?** — Apertura che fa emergere il percorso personale e riscalda il racconto.
+2. **Descrivi la tua giornata tipo in una parola.** — Leggera, in genere escono parole come "riunioni", "QA", "numeri".
+3. **Qual è la telefonata o l'episodio con un agente che ti ha fatto capire che il modello di vendita dell'energia stava davvero cambiando?** — Aneddoto che apre il tema senza attaccare la normativa di petto.
+4. **Se non dovessi vendere energia, quale altro prodotto ti sentiresti di vendere al telefono oggi in Italia?** — Domanda ludica per alleggerire, utile prima di entrare nel vivo.
+
+---
 
 ## Le 15 domande
 

@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # Smart meter gas, la rivoluzione silenziosa del reseller
 
+## Cosa devi sapere (primer)
+
+Il mercato del gas naturale in Italia e' liberalizzato: un reseller acquista gas all'ingrosso (il prezzo di riferimento e' il PSV, Punto di Scambio Virtuale) e lo rivende ai clienti finali identificati dal PdR (Punto di Riconsegna, il codice univoco che individua un'utenza gas, equivalente al POD per l'elettrico). Il contatore misura i volumi in standard metri cubi, che poi si convertono in energia tramite coefficiente. A differenza dell'elettrico dove il contatore "smart" 2G e' ormai diffuso su quasi tutto il parco, sul gas il rollout dello smart meter e' arrivato dopo e procede per fasce di consumo prioritarie. Questo significa che la misura viene raccolta con frequenze diverse a seconda del cliente: piu' spesso per i grandi consumatori, piu' diradata per il residenziale piccolo. Quando la misura tarda, arriva il conguaglio.
+
+Il quadro regolatorio di riferimento e' il TIVG (Testo Integrato della Vendita al dettaglio del Gas), aggiornato con delibera 100/2023/R/com e valido nella versione attuale dal 1 ottobre 2025. Il Titolo 5 del TIVG (articoli 49-55) disciplina la raccolta misura e le responsabilita' del distributore. L'articolo 52 introduce un indennizzo automatico a favore del cliente quando il distributore non rispetta i tempi di lettura: 4€ per PdR piu' 0,4€ per ogni giorno di ritardo, con un tetto di 22€. La Tabella 10 del TIVG definisce gli obiettivi minimi di performance del distributore (OM1_TG, OM2_QG100, OM3_QG30), che servono come soglia per stabilire quando un ritardo e' colpa del distributore. Quando un cliente non paga, interviene il FDD (Fornitore di Default) per i clienti disalimentabili morosi e il FUI (Fornitore di Ultima Istanza) per i clienti protetti. L'art. 44 TIVG impone al venditore che acquisisce un cliente con pregresso FDD di comprare il credito FDD al 100% entro 45 giorni: una clausola antifuga forte.
+
+La tutela di prezzo sul gas e' stata rimodulata. Dal 1 gennaio 2024 i clienti domestici "non vulnerabili" sono passati a PLACET (Prezzo Libero A Condizioni Equiparate di Tutela) in deroga — circa 3,5 milioni di clienti — mentre i vulnerabili restano in tutela gas tradizionale. La fatturazione di STG e PLACET e' bimestrale, secondo criteri TIF (Testo Integrato Fatturazione). Per i clienti vulnerabili, l'identificazione avviene automaticamente via SII (Sistema Informativo Integrato), ai sensi della delibera 102/2023. Quando un cliente perde i requisiti di vulnerabilita', l'art. 3.5 TIVG impone 3 mesi di preavviso e l'applicazione dell'offerta piu' bassa del portafoglio non-vulnerabili. La bolletta e' stata rinnovata dalla delibera 315/2024 (bolletta 2.0, in vigore dal 1 luglio 2025), che introduce codice offerta RCU e QR code al Portale Offerte. Il CCC (Codice di Condotta Commerciale) aggiornato dalla delibera 395/2024, in vigore dal 1 gennaio 2025, rafforza la responsabilita' del venditore sul personale commerciale diretto e di terzi.
+
+Lo switching gas domestico nel 2024 e' stato circa il 12%. Gli indennizzi art. 52 sono una voce di costo spesso sottotracciata: non arrivano come fattura in uscita al reseller ma si traducono in accrediti automatici in bolletta o compensazioni. Ogni giorno in cui il flusso misura tarda dal distributore, il reseller sta pagando. Parallelamente il mercato si muove verso prodotti a valore aggiunto: la profilazione consumi, le diagnosi energetiche, le CER termiche in nascita richiedono dato granulare. Senza smart meter gas, tutto resta media.
+
+L'urgenza. Con la fine dello STG il 31 marzo 2027 anche la popolazione residua in regime ponte uscira' sul libero. I reseller che hanno un dato misura pulito e una pipeline billing che riduce i conguagli hanno in mano uno strumento di retention; chi accumula ritardi misura, conguagli tardivi e indennizzi art. 52 perde margine e clienti. Come indicato nella Relazione Annuale ARERA 2025, il regolatore sta sviluppando controlli automatizzati AI-driven: la tolleranza sugli scostamenti cala, le sanzioni arrivano prima.
+
 ## Perche questa puntata ora
 
 Il parco contatori gas italiano e' in ritardo strutturale sullo smart metering rispetto all'elettrico. Mentre sull'elettrico abbiamo gia' metabolizzato 2G, curve di carico orarie e profilazione, sul gas la frequenza di raccolta misura e' ancora segmentata per fasce di consumo e il TIVG — Titolo 5, articoli 49-55 — regge l'impianto. Siamo in una finestra operativa stretta: da un lato l'indennizzo automatico dell'art. 52 TIVG (4€/PdR + 0,4€/giorno di ritardo, con cap 22€) mette sotto pressione i processi di ricezione misura e fatturazione, dall'altro la qualita' dei dati distributore e SII determina direttamente conto economico del reseller. Con la fine STG al 31 marzo 2027 e il mercato libero che diventa la norma totale, chi ha profilazione consumi gas affidabile puo' costruire modelli di billing predittivi, vendere CACER e autoconsumo, gestire vulnerabilita' via SII senza scoperture. Chi no, paga indennizzi e perde clienti per conguagli tardivi.
@@ -30,14 +42,27 @@ Il parco contatori gas italiano e' in ritardo strutturale sullo smart metering r
 
 ## Argomenti collegati da ripassare
 
-- TIVG Titolo 5 — misura e disponibilita' dei dati (artt. 49-55)
-- TIVG Titolo 4 — FUI e FDD (artt. 28-48), in particolare art. 44 cessione credito FDD
-- TIMG — delibera ARG/gas 99/11 (morosita' gas)
-- Delibera 315/2024/R/com — bolletta 2.0, in vigore 1 luglio 2025
-- Delibera 395/2024/R/com — CCC aggiornato (1 gennaio 2025)
-- SII e flussi di misura distributore → venditore
-- Decreto CER e autoconsumo — implicazioni profilazione consumo gas
-- TIF — criteri fatturazione bimestrale
+- [TIVG Titolo 5 — misura e disponibilita' dei dati (artt. 49-55)](/dashboard/podcast/knowledge/01-testi-integrati)
+- [TIVG Titolo 4 — FUI e FDD (artt. 28-48), in particolare art. 44 cessione credito FDD](/dashboard/podcast/knowledge/01-testi-integrati)
+- [TIMG — delibera ARG/gas 99/11 (morosita' gas)](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Delibera 315/2024/R/com — bolletta 2.0, in vigore 1 luglio 2025](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Delibera 395/2024/R/com — CCC aggiornato (1 gennaio 2025)](/dashboard/podcast/knowledge/04-operativita-retail)
+- [SII e flussi di misura distributore → venditore](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Decreto CER e autoconsumo — implicazioni profilazione consumo gas](/dashboard/podcast/knowledge/03-timeline)
+- [TIF — criteri fatturazione bimestrale](/dashboard/podcast/knowledge/01-testi-integrati)
+
+## Apertura — presentazione e warm-up
+
+Speaker notes per la presentazione ospite: "Oggi con noi c'e' [nome], COO/Direttore Operations di [azienda], reseller energia con forte quota gas e [X] PdR attivi. [Dato 1 sull'azienda: mix gas/elettrico, geografia, specializzazione — es. 'focus domestico Nord Italia' o 'dual fuel con 40% gas']. [Dato 2 sul percorso: background — operations in utility, billing, trasformazione digitale, rete distribuzione]. Benvenuto [nome], affrontiamo un tema che per chi non e' dentro sembra noioso ma che determina ogni mese la qualita' della bolletta e del margine del reseller."
+
+### Domande di riscaldamento
+
+1. **Come sei finito a occuparti di gas e non solo di elettrico? C'e' una differenza di mentalita' tra chi fa le due cose?** — Apertura che svela la prospettiva e l'esperienza sul campo.
+2. **Descrivi in una parola cosa vuol dire gestire le operations gas nel 2026.** — Domanda leggera, in genere emergono parole come "attesa", "misura", "conguaglio".
+3. **Qual e' il momento in cui ti sei reso conto che il dato del contatore gas era un asset e non un fastidio da gestire?** — Apre il tema strategico in modo personale, prepara alle domande tecniche.
+4. **Se domani il tuo distributore ti consegnasse ogni giorno la lettura di tutti i PdR, cosa cambierebbe per primo nella tua azienda?** — Domanda immaginativa, utile per scaldare prima del vivo.
+
+---
 
 ## Le 15 domande
 

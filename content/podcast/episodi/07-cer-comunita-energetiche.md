@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # CER, la linea di frattura — il reseller diventa regista o fornitore di commodity?
 
+## Cosa devi sapere (primer)
+
+Una Comunità Energetica Rinnovabile (CER) è una configurazione in cui più soggetti — cittadini, imprese, Comuni — si mettono insieme come ente giuridico per condividere l'energia prodotta da un impianto rinnovabile (tipicamente fotovoltaico) sotto la stessa cabina primaria. La condivisione è "virtuale": l'energia fisica entra in rete e ciascun membro continua a prelevare normalmente dal proprio POD (Point Of Delivery, il codice che identifica un'utenza elettrica). Quando il consumo di un membro avviene nello stesso intervallo orario della produzione, i kWh corrispondenti si considerano "condivisi" e lo Stato paga una tariffa premio su quella quota.
+
+Il soggetto che amministra il meccanismo è il GSE (Gestore dei Servizi Energetici), l'ente pubblico che eroga gli incentivi sulle rinnovabili. Il decreto CER del 2024 ha chiuso il quadro normativo introducendo il concetto di CACER (Configurazioni di Autoconsumo per la Condivisione dell'Energia), di cui le CER sono la forma più strutturata. Esiste anche una versione più leggera, l'autoconsumo diffuso a distanza, che non richiede ente giuridico: basta un produttore e uno o più consumatori sotto la stessa cabina primaria.
+
+Il mercato retail elettrico italiano è fatto di circa 741 venditori attivi fine 2024, in contrazione. Il 78,2% dei POD è sul mercato libero, con un PUN (Prezzo Unico Nazionale) medio 2024 di 108,5 €/MWh — il più caro fra i grandi mercati UE. La componente energia media del mercato libero domestico 2024 è 237,18 €/MWh. In parallelo, ARERA ha chiuso la tutela di prezzo domestica il 1° luglio 2024: i clienti "non vulnerabili" sono stati assegnati tramite aste agli STG (Servizi a Tutele Graduali) per 33 mesi, fino al 31 marzo 2027. A quella data circa 3,7 milioni di clienti domestici dovranno scegliere un'offerta sul libero. Il TIV (Testo Integrato Vendita elettrico) resta il riferimento operativo per morosità, depositi cauzionali, rapporto con l'SII (Sistema Informativo Integrato).
+
+La CER tocca il reseller da tre lati. Primo: una quota dei kWh che fatturava a margine pieno si trasforma in kWh "condivisi", dove il beneficio economico migra in parte verso il cliente tramite il regolamento interno della CER. Secondo: il GSE diventa un interlocutore operativo, e chi sa parlare col GSE ha vantaggio competitivo. Terzo: il reseller può scegliere dove posizionarsi — fornitore neutro, service provider tecnico-amministrativo della CER, o soggetto referente della configurazione.
+
+L'urgenza è che i primi mover — tipicamente multiutility territoriali e spin-off di municipalizzate — stanno firmando oggi partnership con Comuni e consorzi industriali che vincolano per 5-10 anni. Chi arriva dopo il 2027 trova il tavolo già occupato, in un settore che sta contraendo verso 300-400 venditori nei prossimi 5 anni.
+
 ## Perché questa puntata ora
 
 Il decreto CER del 2024 ha chiuso il cerchio normativo: configurazioni operative, GSE come gestore unico degli incentivi sul punto di scambio, tariffa premio calcolata sulla quota condivisa. Siamo al secondo anno pieno di operatività, e il settore retail si è spaccato in due. Da un lato i reseller che hanno capito che la CER è un'infrastruttura di servizi B2B (governance, billing interno, rendicontazione GSE, facility) e ci stanno costruendo sopra una linea di ricavi. Dall'altro quelli che la vivono come un pezzo di Ebitda che si stacca dal contratto di fornitura ogni volta che un cliente entra in una configurazione.
@@ -29,12 +41,25 @@ Nei prossimi 12 mesi, mentre si chiude la traiettoria verso il 31 marzo 2027 (fi
 
 ## Argomenti collegati da ripassare
 
-- Timeline fine tutela (1° luglio 2024 elettrico → 31 marzo 2027 fine STG): i clienti STG sono contemporaneamente il bacino più esposto alla migrazione CER, perché già "in transito".
-- CCC art. 13 (variazione unilaterale 3 mesi, evoluzione automatica 2 mesi): come comunicare al cliente l'ingresso in configurazione CER senza incorrere in contestazioni o indennizzi da 30€.
-- TIV: il rapporto di fornitura continua anche se il cliente è in una CER — il cliente resta POD con contratto di vendita, la condivisione è una layer economica sopra il POD.
-- Switching e SII (delibera 487/2015): l'ingresso in CER non cambia il venditore, ma il perimetro dei kWh "valorizzati" dal reseller si riduce.
-- Portale Offerte + Bolletta 2025 (delibera 315/2024): il QR code in bolletta accelera il confronto — se la CER riduce la spesa del cliente, l'offerta base diventa più facile da abbandonare.
-- Morosità TIMOE/TIMG: i clienti in CER hanno un profilo di bolletta diverso, meno sensibile al PUN — impatto sul credit scoring interno.
+- [Timeline fine tutela (1° luglio 2024 elettrico → 31 marzo 2027 fine STG): i clienti STG sono contemporaneamente il bacino più esposto alla migrazione CER, perché già "in transito".](/dashboard/podcast/knowledge/03-timeline)
+- [CCC art. 13 (variazione unilaterale 3 mesi, evoluzione automatica 2 mesi): come comunicare al cliente l'ingresso in configurazione CER senza incorrere in contestazioni o indennizzi da 30€.](/dashboard/podcast/knowledge/04-operativita-retail)
+- [TIV: il rapporto di fornitura continua anche se il cliente è in una CER — il cliente resta POD con contratto di vendita, la condivisione è una layer economica sopra il POD.](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Switching e SII (delibera 487/2015): l'ingresso in CER non cambia il venditore, ma il perimetro dei kWh "valorizzati" dal reseller si riduce.](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Portale Offerte + Bolletta 2025 (delibera 315/2024): il QR code in bolletta accelera il confronto — se la CER riduce la spesa del cliente, l'offerta base diventa più facile da abbandonare.](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Morosità TIMOE/TIMG: i clienti in CER hanno un profilo di bolletta diverso, meno sensibile al PUN — impatto sul credit scoring interno.](/dashboard/podcast/knowledge/04-operativita-retail)
+
+## Apertura — presentazione e warm-up
+
+Speaker notes per la presentazione ospite: "Oggi con noi c'è [nome], AD/COO di [azienda], reseller energia con [X] POD attivi che ha già lanciato/sta valutando iniziative CER sul territorio. [Dato 1 sull'azienda: radicamento territoriale, eventuale partnership con Comuni, volume di produzione rinnovabile se esiste]. [Dato 2 sul percorso: background — trading, regolazione, sviluppo rinnovabili, retail puro]. Benvenuto [nome], facciamo luce su un tema che tutti i reseller stanno guardando con un misto di curiosità e preoccupazione."
+
+### Domande di riscaldamento
+
+1. **Quando hai sentito parlare di CER la prima volta, ci credevi o pensavi fosse l'ennesima moda regolatoria?** — Apertura che fa emergere il percorso di convinzione o scetticismo.
+2. **Descrivi il tuo rapporto con il GSE in una parola.** — Leggera ma rivelatrice del livello di confidenza istituzionale.
+3. **Qual è il momento preciso in cui ti sei reso conto che la CER non era solo un tema "verde" ma avrebbe toccato il tuo conto economico?** — Aneddoto che apre la riflessione strategica senza entrare subito nei numeri.
+4. **Se tu fossi un cittadino in un Comune sotto i 5.000 abitanti, entreresti in una CER questa settimana?** — Ribalta il punto di vista per scaldare il dialogo prima del vivo.
+
+---
 
 ## Le 15 domande
 

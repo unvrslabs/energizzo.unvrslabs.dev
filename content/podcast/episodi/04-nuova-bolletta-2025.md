@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # La bolletta che non ci lascia dormire. Dieci mesi dopo il 1° luglio 2025
 
+## Cosa devi sapere (primer)
+
+La bolletta dell'energia in Italia è un documento fiscale ma anche un campo di battaglia regolatorio. Fino al 2025 ogni venditore di luce e gas la componeva come voleva, nei limiti di alcuni requisiti minimi imposti da **ARERA** (Autorità di Regolazione per Energia Reti e Ambiente): chi metteva la componente materia prima in evidenza, chi la nascondeva; chi scriveva "spesa per la materia energia" in 5 punti diversi, chi in uno. Risultato: il cliente domestico medio non riusciva a confrontare due bollette di venditori diversi se non ingaggiando un consulente. Per l'industria questa opacità era un vantaggio, perché rendeva lo switching difficile e rallentava la concorrenza.
+
+Nel luglio 2024 ARERA ha pubblicato la **delibera 315/2024/R/com**, che ha riscritto la bolletta. Obbligatoria dal **1° luglio 2025** per tutti i 741 venditori elettrici attivi in Italia e per i loro equivalenti gas. Tre novità strutturali: (1) **frontespizio unificato** — una prima pagina identica tra venditori, con le stesse voci nello stesso ordine; (2) **sezione trasparenza** separata — componenti regolate, oneri e imposte raggruppate in modo distinto dalla parte venditore; (3) **QR code al Portale Offerte** — stampato in bolletta, inquadrato con lo smartphone porta il cliente sul portale pubblico di ARERA con il suo codice offerta **RCU** già pre-compilato, così vede in 5 minuti quanto spenderebbe con ogni altro venditore.
+
+Il cambio non è solo grafico. Per un reseller significa toccare quasi ogni sistema informatico: il **billing engine** (che calcola gli importi), il **document composition** (che genera il PDF), il CRM (che pilota messaggi e segmentazione), i flussi di stampa e postalizzazione, l'app area clienti, gli script del call center. Chi ha IT interno ha speso mesi-uomo; chi dipende da vendor esterni ha aspettato le patch. Tutto questo è avvenuto dopo il go-live dello **STG** (il 1° luglio 2024 avevano appena assorbito 3,7 milioni di clienti ex Maggior Tutela da gestire in bollettazione) e prima del picco estivo di conguagli e reclami.
+
+Sigle da tenere a mente: **RCU** (Riferimento Contratto Utente, codice di 32 caratteri unico per offerta — pensalo come "nome fiscale" dell'offerta che hai firmato, imposto dalla delibera 135/2022), **Portale Offerte** (il comparatore pubblico di ARERA, delibera 51/2018), **TIVG** (Testo Integrato Vendita Gas, regolamento ARERA per il gas), **TIV** (equivalente per l'elettrico), **CCC** (Codice di Condotta Commerciale, le regole marketing/comunicazione ARERA), **CSEA** (Cassa per i Servizi Energetici e Ambientali, la cassa pubblica che gestisce oneri e incentivi del sistema energetico), **CMOR** (Corrispettivo Morosità, meccanismo per gestire debiti lasciati dal cliente al venditore precedente), **AHT** (Average Handle Time, tempo medio di gestione chiamata nel customer care), **NPS** (Net Promoter Score, indicatore di soddisfazione cliente), **MT** (Maggior Tutela, il vecchio regime amministrato), **STG** (Servizio a Tutele Graduali, la fase ponte post-MT), **PLACET** (Prezzo Libero a Condizioni Equiparate di Tutela, offerta ML standardizzata), **SII** (Sistema Informativo Integrato gestito da Acquirente Unico).
+
+L'urgenza: dopo 10 mesi di dati veri, si vede chi è riuscito a sopravvivere al go-live e chi ha usato la delibera come leva di ripensamento più profondo, e si capisce se il QR code sta davvero accelerando lo switching come temuto dagli incumbent.
+
 ## Perché questa puntata ora
 
 Siamo ad aprile 2026. La nuova bolletta prevista dalla delibera 315/2024/R/com è live dal 1° luglio 2025: dieci mesi di dati veri, non più simulazioni. Per molti reseller l'impatto non è stato solo grafico. Frontespizio unificato, sezione trasparenza separata, QR code verso il Portale Offerte, codice offerta RCU in chiaro: ogni singolo elemento tocca billing engine, CRM, template PDF, flussi di stampa e dematerializzazione, sportello clienti. In mezzo c'è stata l'estate — la finestra dove si concentrano i conguagli sui consumi stimati — e poi l'onda di reclami di settembre-novembre. Oggi con il senno di poi possiamo dire cosa ha funzionato, cosa no, e quanto è costato davvero adeguarsi.
@@ -29,14 +41,25 @@ Siamo ad aprile 2026. La nuova bolletta prevista dalla delibera 315/2024/R/com �
 
 ## Argomenti collegati da ripassare
 
-- **Delibera 315/2024/R/com**: frontespizio unificato, sezione trasparenza, codice offerta RCU, QR code al Portale Offerte
-- **Portale Offerte** (delibera 51/2018/R/com, codice RCU 32 caratteri da 135/2022): come stima la spesa annua, quali profili usa (1.500/2.200/2.700/3.200 kWh e 120/480/700/1.400/2.000/5.000 Smc)
-- **CCC 395/2024/R/com** (1° gennaio 2025): scheda sintetica, preavvisi, obblighi informativi precontrattuali
-- **TIVG art. 13** sulla dematerializzazione bolletta per tutela vulnerabili gas
-- **TIV art. 21bis** adeguamento costi operativi esercenti MT
-- **Fine MT 1° luglio 2024**: come si è sovrapposta a preparazione nuova bolletta
-- **TIMOE/TIMG**: il conguaglio problematico come trigger di morosità
-- **Switching in 5 minuti post-QR**: impatto teorico su churn e retention
+- [**Delibera 315/2024/R/com**: frontespizio unificato, sezione trasparenza, codice offerta RCU, QR code al Portale Offerte](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**Portale Offerte** (delibera 51/2018/R/com, codice RCU 32 caratteri da 135/2022): come stima la spesa annua, quali profili usa (1.500/2.200/2.700/3.200 kWh e 120/480/700/1.400/2.000/5.000 Smc)](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**CCC 395/2024/R/com** (1° gennaio 2025): scheda sintetica, preavvisi, obblighi informativi precontrattuali](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**TIVG art. 13** sulla dematerializzazione bolletta per tutela vulnerabili gas](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**TIV art. 21bis** adeguamento costi operativi esercenti MT](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**Fine MT 1° luglio 2024**: come si è sovrapposta a preparazione nuova bolletta](/dashboard/podcast/knowledge/03-timeline)
+- [**TIMOE/TIMG**: il conguaglio problematico come trigger di morosità](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**Switching in 5 minuti post-QR**: impatto teorico su churn e retention](/dashboard/podcast/knowledge/04-operativita-retail)
+
+## Apertura — presentazione e warm-up
+
+**Come presentare l'ospite** (template speaker notes): "Oggi con noi [nome], [COO/Direttore IT/Responsabile Billing] di [azienda], reseller energia italiano con circa [N] clienti. [Azienda] nel 2025 ha portato a terra l'adeguamento alla delibera 315 su tutta la base clienti in [quanti mesi] e oggi può raccontarci cosa ha funzionato e cosa no. [Nome] è in [azienda] da [dato 2: anni, ruolo precedente, progetto distintivo]. Benvenuto, entriamo subito nel cuore operativo."
+
+### Domande di riscaldamento
+
+1. **Come sei entrato nel mondo del billing energia e quale è stata la tua prima bolletta?** — Apertura biografica leggera, mette subito l'ospite nel mood "operativo".
+2. **Una bolletta ben fatta, secondo te, è più un documento fiscale o una lettera al cliente?** — Misura mindset (tech vs customer-centric), utile per calibrare il tono.
+3. **Prima della 315, qual era il fastidio principale che sentivi dal cliente sulla bolletta?** — Rompe il ghiaccio sul tema senza ancora chiedere KPI.
+4. **Ti ricordi la prima volta che hai visto il mock-up del nuovo frontespizio ARERA? Reazione?** — Aneddoto che apre naturalmente alla domanda 1 delle 15.
 
 ## Le 15 domande
 

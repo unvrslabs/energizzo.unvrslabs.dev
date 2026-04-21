@@ -9,6 +9,16 @@ durata_target: 20 min
 
 # STG verso libero — chi si prende i 3 milioni
 
+## Cosa devi sapere (primer)
+
+Il mercato elettrico italiano per i clienti domestici è stato per decenni a "tutela": un prezzo amministrato, stabilito dall'autorità (ARERA), erogato da un venditore designato. Dal 1° luglio 2024 per i clienti domestici "non vulnerabili" questa tutela è finita e si è aperto il **Servizio a Tutele Graduali (STG)**: una fase intermedia di 33 mesi in cui 3,7 milioni di clienti, che non avevano mai scelto un venditore di mercato libero, sono stati assegnati automaticamente a operatori che si erano aggiudicati aste indette da Acquirente Unico (AU) a febbraio 2024. Fine prevista: 31 marzo 2027. Dopo quella data il cliente, se non avrà firmato un contratto di mercato libero, resterà con l'ex-aggiudicatario alla "offerta più favorevole" dell'operatore stesso.
+
+Le aste sono state bandite su 26 aree territoriali, con un tetto di 7 aree aggiudicabili per operatore, e hanno assegnato i clienti sulla base di un parametro di sconto detto γ (gamma): in alcune aree i γ sono stati addirittura negativi, segno che gli aggiudicatari hanno offerto prezzi sotto costo contando di recuperare l'investimento convertendo i clienti a contratti di mercato libero dopo il 2027. Gli operatori in gioco sono quasi tutti nomi italiani: Enel Energia, Eni Plenitude, A2A, Edison, Hera Comm, Iren Mercato, Illumia, Dolomiti Energia e una decina di reseller medi (Axpo, Agsm, Sorgenia, AGN Energia, eccetera). Su 741 venditori elettrici attivi in Italia nel 2024, solo una ventina ha vinto lotti STG: gli altri attaccano i clienti STG altrui dall'esterno.
+
+Le sigle da tenere a mente: **STG** (Servizio a Tutele Graduali, lo stadio intermedio), **MT** (Maggior Tutela, il regime da cui i clienti sono transitati), **PLACET** (Prezzo Libero a Condizioni Equiparate di Tutela, un'offerta standard di mercato libero a condizioni pre-definite), **PUN** (Prezzo Unico Nazionale, il prezzo dell'energia all'ingrosso nella borsa elettrica italiana), **POD** (Point of Delivery, il codice del contatore elettrico, ogni cliente = 1 POD), **CCC** (Codice di Condotta Commerciale, le regole ARERA per i venditori), **TIV** (Testo Integrato Vendita, il regolamento ARERA che disciplina la vendita al dettaglio), **CAC** (Customer Acquisition Cost, il costo di acquisire un cliente), **LTV** (Lifetime Value, il valore generato da un cliente nel suo ciclo di vita), **CER** (Comunità Energetiche Rinnovabili, gruppi di clienti che condividono energia autoprodotta).
+
+L'urgenza è pratica: a 11 mesi dalla fine STG, gli aggiudicatari devono aver convertito la maggior parte dei clienti assegnati in contratti di mercato libero, altrimenti a regime il cliente resta sì loro ma con marginalità bassa. I non-aggiudicatari hanno l'ultima finestra utile per strappare clienti prima che il meccanismo automatico del 1° aprile 2027 "congeli" tutti. Nel frattempo la nuova bolletta 2.0 (dal 1° luglio 2025) obbliga a mostrare un QR code verso il Portale Offerte di ARERA, rendendo il confronto prezzi immediato: la finestra dell'acquisizione "per inerzia" è chiusa.
+
 ## Perché questa puntata ora
 
 Ad aprile 2026 siamo esattamente a 11 mesi dalla fine del Servizio a Tutele Graduali. I 3,7 milioni di clienti domestici non vulnerabili passati automaticamente in STG il 1° luglio 2024 stanno entrando nella finestra in cui la scelta (o non-scelta) del venditore di mercato libero si cristallizza. Per un aggiudicatario STG è il periodo in cui decide se il portafoglio assegnato diventa un asset permanente o un funnel bruciato. Per un non-aggiudicatario è l'ultima finestra di attacco prima che il meccanismo automatico del 1° aprile 2027 congeli le posizioni.
@@ -30,11 +40,22 @@ Il tema parla anche al reseller non-retail puro: la nuova bolletta con QR code v
 
 ## Argomenti collegati da ripassare
 
-- STG — §2, aste AU febbraio 2024 e parametri γ (alcuni negativi)
-- Timeline — §3, 1° luglio 2024 avvio STG domestici e 31 marzo 2027 chiusura
-- TIV art. 5 (obbligo dichiarazione sostitutiva) e art. 7 (morosità pregressa, deposito raddoppiato)
-- CCC art. 13 (preavvisi 2/3 mesi, indennizzo 30€) e delibera 395/2024 sul personale commerciale
-- Portale Offerte + bolletta 2.0 (delibera 315/2024) con QR code dal 1° luglio 2025
+- [STG — §2, aste AU febbraio 2024 e parametri γ (alcuni negativi)](/dashboard/podcast/knowledge/02-stg)
+- [Timeline — §3, 1° luglio 2024 avvio STG domestici e 31 marzo 2027 chiusura](/dashboard/podcast/knowledge/03-timeline)
+- [TIV art. 5 (obbligo dichiarazione sostitutiva) e art. 7 (morosità pregressa, deposito raddoppiato)](/dashboard/podcast/knowledge/01-testi-integrati)
+- [CCC art. 13 (preavvisi 2/3 mesi, indennizzo 30€) e delibera 395/2024 sul personale commerciale](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Portale Offerte + bolletta 2.0 (delibera 315/2024) con QR code dal 1° luglio 2025](/dashboard/podcast/knowledge/04-operativita-retail)
+
+## Apertura — presentazione e warm-up
+
+**Come presentare l'ospite** (template speaker notes): "Oggi con noi c'è [nome], [AD/COO/Direttore Commerciale] di [azienda], uno dei reseller energetici italiani che [aggiudicatario in N aree STG / attivo in modalità attacco sulle 26 aree domestiche]. [Azienda] gestisce [N] clienti tra elettrico e gas e nell'ultimo anno ha [dato 1: crescita, copertura, premio settoriale]. [Nome] è arrivato in [azienda] dopo [dato 2: percorso professionale, settore di provenienza]. Benvenuto, grazie per essere qui."
+
+### Domande di riscaldamento
+
+1. **Come sei arrivato nel settore energia retail, e cosa ti ha convinto a restarci?** — Domanda biografica leggera, serve a umanizzare l'ospite prima del tecnico.
+2. **Se dovessi descrivere la tua giornata tipo in una parola, quale sceglieresti?** — Aneddoto personale, misura energia/mood dell'ospite.
+3. **Qual è stato il momento in cui hai capito che la fine della tutela sarebbe stata più dirompente del previsto?** — Ponte morbido verso il tema STG, senza ancora chiedere numeri.
+4. **Una cosa che i clienti domestici ancora non hanno capito del mercato libero, secondo te?** — Apre il registro "voce del mercato" prima delle 15 domande strutturate.
 
 ## Le 15 domande
 

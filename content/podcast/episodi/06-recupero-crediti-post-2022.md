@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # Lo stock dormiente — recupero crediti nell'era post-bollette gonfie
 
+## Cosa devi sapere (primer)
+
+Il mercato retail dell'energia in Italia è il luogo dove un venditore (reseller) compra energia sui mercati all'ingrosso e la rivende a clienti finali (famiglie e imprese), fatturando mese per mese i consumi misurati dai contatori (POD per l'elettricità, PDR per il gas). Il prezzo di riferimento dell'elettricità è il PUN (Prezzo Unico Nazionale), quello del gas è il PSV (Punto di Scambio Virtuale). Quando i prezzi all'ingrosso esplodono — come è successo nell'agosto 2022, con il PSV oltre 300 €/MWh contro una banda storica di 20-30 — le bollette ai clienti finali diventano enormi, e una parte dei clienti semplicemente non le paga. Quella quota non pagata si chiama "unpaid ratio".
+
+Dal 2023 il settore ha vissuto due dinamiche parallele. Da un lato il cosiddetto "stock dormiente" di crediti 2022-2023: bollette vecchie, in parte rientrate con piani di rateizzazione, in parte finite in contenzioso, in parte svalutate a bilancio. Dall'altro la fine della tutela di prezzo per le famiglie (1 luglio 2024), con la nascita di un regime ponte chiamato STG (Servizi a Tutele Graduali): i clienti domestici "vulnerabili non" sono stati assegnati tramite aste a 7 esercenti aggiudicatari, che li servono a prezzo amministrato fino al 31 marzo 2027. A quella data, circa 3 milioni di clienti dovranno scegliere un'offerta sul mercato libero.
+
+I meccanismi di protezione per chi non paga non spariscono: il FUI (Fornitore di Ultima Istanza, per il gas) e il FDD (Fornitore di Default, per elettricità e gas) prendono in carico i clienti disalimentabili morosi, con compensazioni pagate dalla CSEA (Cassa per i Servizi Energetici e Ambientali). Il cliente che torna al libero dopo essere stato moroso paga un deposito cauzionale raddoppiato (art. 7 TIV, Testo Integrato Vendita). Le regole operative stanno in documenti ARERA come il TIV (elettricità), il TIVG (gas), il TIMOE/TIMG (processi standard di morosità), più i codici di condotta commerciale (CCC) e la bolletta 2.0 (delibera 315/2024) che mette un QR code in ogni fattura per consultare il Portale Offerte.
+
+I player sono circa 800 reseller attivi: dalle 4-5 utility grandi (Enel Energia, Eni Plenitude, A2A, Hera, Edison) a centinaia di realtà medio-piccole. Il problema del recupero crediti è centrale proprio per questi ultimi: margini compressi, PUN in normalizzazione (108,5 €/MWh medio 2024), switching reso facile dalla bolletta 2.0 e dal Portale Offerte significano che uno stock credito malgestito può mangiare l'equity in due-tre anni. Da qui la corsa al credit scoring predittivo, alla segmentazione AI delle pratiche di recupero, alle cessioni pro-soluto di portafogli.
+
+L'urgenza è doppia. Chiudere il capitolo 2022 prima che le posizioni più vecchie prescrivano o perdano valore di mercato, e costruire un front-end di credito (scoring al contratto, depositi modulati, domiciliazione spinta) in vista del 2027, quando i 3 milioni di clienti STG si spalmeranno sui reseller.
+
 ## Perché questa puntata ora
 
 Aprile 2026. Sono passati circa tre anni e mezzo dai picchi PSV >300 €/MWh dell'agosto 2022 e dalle bollette consegnate ai clienti nell'inverno 2022-2023. Una parte consistente di quelle fatture è stata pagata — in ritardo, a rate, con aiuti pubblici — ma una fetta non banale è ancora in contenzioso o in piani di rientro aperti. I bilanci 2024 e 2025 dei reseller mostrano crediti verso clienti stratificati su tre annate diverse, con aging medio che molti CFO hanno smesso di pubblicare volentieri.
@@ -37,16 +49,29 @@ Questa puntata serve a capire, parlando con chi gestisce il recupero dall'intern
 
 ## Argomenti collegati da ripassare
 
-- **TIMOE** (delibera 258/2015/R/eel) e **TIMG** (delibera ARG/gas 99/11) — processo standard morosità
-- **TIV art. 7** — morosità pregressa e deposito cauzionale raddoppiato al rientro
-- **TIV art. 18, 19, 33-41** — meccanismi compensazione MT, STG, FUI, FDD
-- **TIVG art. 33-41** — meccanismi FUI gas e FDD
-- **TIVG art. 44** — cessione obbligatoria del credito FDD al venditore entrante
-- **Switching e cessione credito** — §4.1 passaggio (4) del processo standard: revoca/modifica per morosità pregressa
-- **STG** — clienti che tornano al libero senza storia di pagamento pregressa con quel venditore
-- **Bolletta 2.0** (delibera 315/2024) — QR code al Portale Offerte: il cliente moroso può switchare in 5 minuti
-- **Codice di Condotta Commerciale art. 13** — indennizzo 30€ per mancato preavviso: rischio reputazionale se abbinato a contenzioso
-- **GDPR e scoring** — base giuridica per il credit scoring al contratto e tracciamento pagamenti
+- [**TIMOE** (delibera 258/2015/R/eel) e **TIMG** (delibera ARG/gas 99/11) — processo standard morosità](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**TIV art. 7** — morosità pregressa e deposito cauzionale raddoppiato al rientro](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**TIV art. 18, 19, 33-41** — meccanismi compensazione MT, STG, FUI, FDD](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**TIVG art. 33-41** — meccanismi FUI gas e FDD](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**TIVG art. 44** — cessione obbligatoria del credito FDD al venditore entrante](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**Switching e cessione credito** — §4.1 passaggio (4) del processo standard: revoca/modifica per morosità pregressa](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**STG** — clienti che tornano al libero senza storia di pagamento pregressa con quel venditore](/dashboard/podcast/knowledge/02-stg)
+- [**Bolletta 2.0** (delibera 315/2024) — QR code al Portale Offerte: il cliente moroso può switchare in 5 minuti](/dashboard/podcast/knowledge/01-testi-integrati)
+- [**Codice di Condotta Commerciale art. 13** — indennizzo 30€ per mancato preavviso: rischio reputazionale se abbinato a contenzioso](/dashboard/podcast/knowledge/04-operativita-retail)
+- [**GDPR e scoring** — base giuridica per il credit scoring al contratto e tracciamento pagamenti](/dashboard/podcast/knowledge/04-operativita-retail)
+
+## Apertura — presentazione e warm-up
+
+Speaker notes per la presentazione ospite: "Oggi con noi c'è [nome], CFO/Credit Manager di [azienda], reseller energia con [X] POD/PDR attivi in Italia. [Dato 1: anzianità azienda, volumi o area di specializzazione — es. 'opera dal 2012 con forte presenza in Nord Italia']. [Dato 2: percorso personale — es. 'prima di arrivare qui ha gestito credit & collection in banking/utility per oltre dieci anni']. Benvenuto [nome], grazie per essere qui."
+
+### Domande di riscaldamento
+
+1. **Come sei arrivato a occuparti di credito in un reseller energia? È stata una scelta o ti ci sei ritrovato?** — Risposta breve per scaldare, spesso emerge un passaggio da banking/assicurazioni a utility.
+2. **Descrivi la tua giornata tipo in una parola.** — Domanda volutamente leggera per farlo sorridere; tipicamente escono parole come "aging", "mediazioni", "cassa".
+3. **Qual è stato il momento, nel 2022 o 2023, in cui hai capito che lo stock crediti sarebbe diventato il tema centrale dei prossimi anni?** — Aneddoto personale che apre il tema senza entrare ancora nei numeri.
+4. **Se non fossi in una utility, in quale altro settore faresti credit management oggi?** — Leggera, serve a rompere il ghiaccio e far emergere una visione personale del rischio.
+
+---
 
 ## Le 15 domande
 

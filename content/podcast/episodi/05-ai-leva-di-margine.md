@@ -9,6 +9,18 @@ durata_target: 20 min
 
 # AI come leva di margine nel retail energia
 
+## Cosa devi sapere (primer)
+
+Un "reseller di energia" in Italia è una società che compra elettricità o gas all'ingrosso e li rivende a clienti finali (famiglie e imprese) su un mercato liberalizzato dal 2007. Non gestisce la rete (che è dei distributori come E-Distribuzione o Italgas), non produce energia: si prende cura del contratto commerciale, della bolletta, del servizio clienti, della gestione morosità. Nel 2024 **ARERA** (Autorità di Regolazione per Energia Reti e Ambiente) conta 741 venditori elettrici attivi, in contrazione per via del consolidamento. Margini strutturalmente compressi: il **PUN** (Prezzo Unico Nazionale, il prezzo all'ingrosso dell'elettricità in Italia) è più alto di quello di Francia, Spagna e Germania, e la componente energia che il venditore può mettere sul cliente domestico è scesa a 237,18 €/MWh nel 2024 (-23 rispetto al 2023).
+
+Il 2024 ha portato due shock che rendono critica la domanda "AI sì o no": (1) fine della **Maggior Tutela (MT)** — 3,7 milioni di clienti sono transitati automaticamente al **Servizio a Tutele Graduali (STG)**, fase ponte di 33 mesi gestita da operatori vincitori di aste pubbliche, fine 31 marzo 2027; (2) dal 1° luglio 2025 la nuova bolletta ARERA (delibera 315/2024) ha un **QR code** al **Portale Offerte** che rende il confronto prezzi immediato. Significa che il cliente domestico italiano, per la prima volta, può cambiare fornitore in 5 minuti — lo switching rate domestico elettrico è già al 19% e crescerà. In questo scenario, perdere anche solo 1 punto di **unpaid ratio** (percentuale di crediti non incassati) o 30 secondi di **AHT** (Average Handle Time, tempo medio di gestione chiamata) ha impatto diretto sul margine.
+
+Ecco dove entra l'AI. Fino al 2023 il dibattito era "facciamo un chatbot sul customer service?". Dal 2024-2025 il tema è diverso: l'AI tocca il **P&L** (Profit & Loss, il conto economico) in quattro aree. Primo, **credit scoring** — modelli di machine learning che stimano la probabilità di pagamento di un cliente usando storico pagamenti, pattern di consumo, dati esterni; un punto di unpaid ratio recuperato su 100.000 **POD** (Point of Delivery, i contatori) vale milioni di euro. Secondo, **pricing e portfolio optimization** — non tanto "prezzo dinamico al cliente" (vincolato dal **CCC**, Codice di Condotta Commerciale ARERA, che impone 3 mesi di preavviso per variazioni unilaterali) ma ottimizzazione mix fisso/variabile e scelta indicizzazioni. Terzo, **automazione del back-office regolatorio** — comunicazioni obbligatorie, scadenze **TIV** (Testo Integrato Vendita elettrico) e **TIVG** (equivalente gas), sanzioni da 3.000 a 27.000 euro per mancate comunicazioni. Quarto, **retention e personalizzazione offerte** — dentro i limiti della **Scheda Sintetica** (12 informazioni obbligatorie imposte dal CCC) e del match sul catalogo offerte Portale.
+
+Le sigle essenziali: **ML** (Mercato Libero, dove i clienti scelgono), **ML** (anche Machine Learning, nel contesto AI — attenzione al contesto), **LLM** (Large Language Model, tipo ChatGPT/Claude), **RAG** (Retrieval Augmented Generation, tecnica per far rispondere un LLM su documenti aziendali), **SHAP** (tecnica di spiegabilità per modelli ML, utile in contenzioso), **FTE** (Full Time Equivalent, unità di misura forza lavoro), **A/B test** (metodo scientifico di confronto due versioni), **SII** (Sistema Informativo Integrato di Acquirente Unico, la banca dati nazionale dei clienti energia), **CSEA** (Cassa per i Servizi Energetici e Ambientali), **FDD** (Fornitore Default, chi subentra su clienti morosi), **FUI** (Fornitore Ultima Istanza, subentro gas), **RCU** (codice di 32 caratteri che identifica ogni offerta sul Portale), **CDP** (Customer Data Platform), **GDPR** (regolamento europeo privacy), **AI Act** (regolamento europeo AI in arrivo). I principali operatori del settore: Enel Energia, Eni Plenitude, Edison, A2A, Hera Comm, Iren Mercato, Acea, Illumia.
+
+L'urgenza aggiuntiva: nella Relazione Annuale ARERA 2025 il regolatore stesso annuncia che userà AI per controlli di conformità automatizzati sui venditori. Chi non ha AI interna non sta solo perdendo margine, sta anche diventando più esposto nel radar del regolatore.
+
 ## Perché questa puntata ora
 
 Il settore retail energia italiano ha chiuso il 2024 con 741 venditori elettrici attivi in contrazione, PUN medio a 108,5 €/MWh (il più caro dei grandi mercati UE) e 3,7 milioni di clienti passati da MT a STG. Margini compressi, switching rate domestico elettrico al 19%, Portale Offerte più potente grazie alla bolletta 2025 che ci porta dentro un QR code. In questo scenario l'AI non è più "proviamo un chatbot", è il posto dove decidi se fai margine o no: credit scoring, pricing dinamico, personalizzazione delle offerte dentro i vincoli del CCC, automazione del back-office regolatorio.
@@ -35,14 +47,25 @@ Questo è l'episodio "bollente" in cui chiediamo a chi ha già messo in produzio
 
 ## Argomenti collegati da ripassare
 
-- TIV art. 7 (morosità pregressa, deposito raddoppiato) e art. 19 (compensazione unpaid ratio)
-- TIMOE 258/2015 — processo costituzione in mora e tempi sospensione
-- CCC art. 13, 14, 8, 9 — vincoli retention, informazioni precontrattuali, riconoscibilità agente
-- Delibera 395/2024/R/com — responsabilità venditore su personale commerciale (diretta + per terzi)
-- Delibera 315/2024/R/com — nuova bolletta con RCU e QR Portale Offerte
-- SII — accreditamento ex 166/2013, flussi switching (487/2015 elettrico, 77/2018 gas), limiti accesso dati consumo
-- Scheda Sintetica CCC art. 9 — 12 informazioni obbligatorie
-- Relazione Annuale ARERA 2025 — capitolo controlli e market monitoring AI-driven
+- [TIV art. 7 (morosità pregressa, deposito raddoppiato) e art. 19 (compensazione unpaid ratio)](/dashboard/podcast/knowledge/01-testi-integrati)
+- [TIMOE 258/2015 — processo costituzione in mora e tempi sospensione](/dashboard/podcast/knowledge/04-operativita-retail)
+- [CCC art. 13, 14, 8, 9 — vincoli retention, informazioni precontrattuali, riconoscibilità agente](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Delibera 395/2024/R/com — responsabilità venditore su personale commerciale (diretta + per terzi)](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Delibera 315/2024/R/com — nuova bolletta con RCU e QR Portale Offerte](/dashboard/podcast/knowledge/04-operativita-retail)
+- [SII — accreditamento ex 166/2013, flussi switching (487/2015 elettrico, 77/2018 gas), limiti accesso dati consumo](/dashboard/podcast/knowledge/04-operativita-retail)
+- [Scheda Sintetica CCC art. 9 — 12 informazioni obbligatorie](/dashboard/podcast/knowledge/01-testi-integrati)
+- [Relazione Annuale ARERA 2025 — capitolo controlli e market monitoring AI-driven](/dashboard/podcast/knowledge/05-dati-mercato)
+
+## Apertura — presentazione e warm-up
+
+**Come presentare l'ospite** (template speaker notes): "Oggi con noi [nome], [AD/COO/CFO/Chief Data Officer] di [azienda], reseller italiano di energia con [N] clienti tra elettrico e gas. [Azienda] è uno dei pochi operatori italiani ad aver portato in produzione almeno un caso AI con impatto misurato sul P&L — [dato 1: credit scoring / customer service / back-office regolatorio]. [Nome] ha [dato 2: esperienza data/tech precedente, progetto di punta, premio]. Benvenuto, andiamo subito oltre gli slogan."
+
+### Domande di riscaldamento
+
+1. **Come sei arrivato all'incrocio tra energia e AI? Venivi più da un lato o dall'altro?** — Contesto biografico che posiziona l'ospite (tech-first vs domain-first).
+2. **La parola "intelligenza artificiale" nel 2026 la senti ancora come hype o come realtà?** — Misura scetticismo/entusiasmo, utile per calibrare il resto.
+3. **Qual è il primo caso AI nel retail energia che ti ha fatto dire "questo sì che ha senso"?** — Aneddoto positivo, scalda il terreno per le domande tecniche.
+4. **Il chatbot che hai usato oggi come cliente — dove l'hai incontrato e cosa ti ha lasciato?** — Ice-breaker esperienziale, porta subito sul tema "AI serve davvero o no".
 
 ## Le 15 domande
 
