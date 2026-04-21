@@ -31,12 +31,12 @@ export function LeadsTable({ leads, onSelect }: Props) {
   const gridTemplate = COLS.map((c) => c.width).join(" ");
 
   return (
-    <div className="liquid-glass-card overflow-hidden">
+    <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
       <div className="max-h-[72vh] overflow-auto">
         <div className="min-w-[1400px]">
           {/* Header */}
           <div
-            className="sticky top-0 z-10 grid items-center gap-0 bg-gradient-to-b from-card/95 via-card/90 to-card/70 backdrop-blur-xl border-b border-primary/20 shadow-[0_1px_0_0_rgba(16,185,129,0.15)]"
+            className="sticky top-0 z-10 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {COLS.map((c) => (
