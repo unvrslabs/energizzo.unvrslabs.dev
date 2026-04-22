@@ -24,17 +24,75 @@ import { NetworkJoinCard } from "./NetworkJoinCard";
 
 function ItalianFlag({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 3 2"
-      preserveAspectRatio="none"
-      aria-label="Italia"
-      role="img"
-      className={className}
+    <motion.span
+      className="relative inline-block align-[-0.12em] mx-1 md:mx-2 will-change-transform"
+      style={{
+        transformOrigin: "left center",
+        transformStyle: "preserve-3d",
+        perspective: "600px",
+      }}
+      animate={{
+        rotateY: [0, 14, -6, 10, 0],
+        rotateZ: [0, -1.2, 1.2, -0.6, 0],
+        y: [0, -1.5, 0.5, -1, 0],
+      }}
+      transition={{
+        duration: 4,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
     >
-      <rect width="1" height="2" x="0" fill="#008C45" />
-      <rect width="1" height="2" x="1" fill="#F4F5F0" />
-      <rect width="1" height="2" x="2" fill="#CD212A" />
-    </svg>
+      <svg
+        viewBox="0 0 3 2"
+        preserveAspectRatio="none"
+        aria-label="Italia"
+        role="img"
+        className={className}
+      >
+        <defs>
+          <linearGradient id="flag-shine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="45%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="50%" stopColor="rgba(255,255,255,0.55)" />
+            <stop offset="55%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+        </defs>
+        <rect width="1" height="2" x="0" fill="#008C45" />
+        <rect width="1" height="2" x="1" fill="#F4F5F0" />
+        <rect width="1" height="2" x="2" fill="#CD212A" />
+        <motion.rect
+          width="3"
+          height="2"
+          x="0"
+          fill="url(#flag-shine)"
+          animate={{ x: [-3, 3] }}
+          transition={{
+            duration: 2.8,
+            repeat: Infinity,
+            repeatDelay: 2.2,
+            ease: "easeInOut",
+          }}
+        />
+      </svg>
+      <motion.span
+        aria-hidden
+        className="absolute inset-0 rounded-sm -z-10 blur-md"
+        animate={{
+          opacity: [0.25, 0.55, 0.25],
+          scale: [1, 1.15, 1],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(0,140,69,0.45), rgba(255,255,255,0.15), rgba(205,33,42,0.45))",
+        }}
+      />
+    </motion.span>
   );
 }
 
@@ -140,7 +198,7 @@ export function Hero() {
               className="text-3xl md:text-6xl lg:text-7xl font-black text-foreground leading-[1.1] tracking-tight mb-5 md:mb-7"
             >
               Il primo network{" "}
-              <ItalianFlag className="inline-block align-[-0.12em] mx-1 md:mx-2 h-[0.78em] w-auto rounded-sm shadow-[0_3px_12px_rgba(0,140,69,0.35)] ring-1 ring-white/10" />{" "}
+              <ItalianFlag className="h-[0.78em] w-auto rounded-sm shadow-[0_6px_18px_rgba(0,140,69,0.35)] ring-1 ring-white/15" />{" "}
               per i{" "}
               <span className="gradient-text">
                 protagonisti del settore energetico
