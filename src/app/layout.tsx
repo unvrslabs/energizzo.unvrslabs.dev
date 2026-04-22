@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Orbitron,
   Plus_Jakarta_Sans,
@@ -28,6 +28,12 @@ const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 });
+
+export const viewport: Viewport = {
+  themeColor: "#122434",
+  viewportFit: "cover",
+  colorScheme: "dark",
+};
 
 export const metadata: Metadata = {
   title: {
