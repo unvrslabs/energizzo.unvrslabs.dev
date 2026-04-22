@@ -20,6 +20,7 @@ import {
   List,
   Phone,
 } from "lucide-react";
+import { NetworkJoinCard } from "./NetworkJoinCard";
 
 function TypingText({
   text,
@@ -70,62 +71,6 @@ function TypingText({
         aria-hidden
         className={`inline-block w-[2px] h-[1em] -mb-1 ml-[2px] align-baseline bg-primary ${done ? "opacity-0" : "animate-pulse"}`}
       />
-    </span>
-  );
-}
-
-function AnimatedNumber({
-  value,
-  decimals = 0,
-  prefix = "",
-  suffix = "",
-}: {
-  value: number;
-  decimals?: number;
-  prefix?: string;
-  suffix?: string;
-}) {
-  const [displayValue, setDisplayValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const [hasAnimated, setHasAnimated] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          const duration = 2000;
-          const steps = 60;
-          let step = 0;
-          const timer = setInterval(() => {
-            step++;
-            const progress = step / steps;
-            const eased = 1 - Math.pow(1 - progress, 3);
-            let current = value * eased;
-            if (step >= steps) {
-              current = value;
-              clearInterval(timer);
-            }
-            setDisplayValue(current);
-          }, duration / steps);
-        }
-      },
-      { threshold: 0.3 },
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [value, hasAnimated]);
-
-  const formatted =
-    decimals > 0
-      ? displayValue.toFixed(decimals).replace(".", ",")
-      : Math.round(displayValue).toLocaleString("it-IT");
-
-  return (
-    <span ref={ref}>
-      {prefix}
-      {formatted}
-      {suffix}
     </span>
   );
 }
@@ -201,60 +146,14 @@ export function Hero() {
 
           </div>
 
-          {/* Right — Stats cards */}
+          {/* Right — Join request card */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="lg:w-[420px] xl:w-[480px] shrink-0"
+            className="lg:w-[440px] xl:w-[480px] shrink-0"
           >
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
-              {[
-                {
-                  value: <AnimatedNumber value={741} />,
-                  label:
-                    "Venditori attivi in Italia nel 2024. Erano 806 nel 2022.",
-                  color: "text-primary",
-                },
-                {
-                  value: (
-                    <AnimatedNumber value={23.8} decimals={1} suffix="%" />
-                  ),
-                  label:
-                    "Tasso di switching 2024. 1 cliente su 4 ha cambiato fornitore.",
-                  color: "text-amber-400",
-                },
-                {
-                  value: (
-                    <AnimatedNumber value={30.5} decimals={1} suffix="M" />
-                  ),
-                  label: "Punti di prelievo domestici nel mercato italiano.",
-                  color: "text-emerald-400",
-                },
-                {
-                  value: <AnimatedNumber value={108.5} decimals={1} />,
-                  label: "€/MWh il PUN medio 2024. Francia: 58. Spagna: 63.",
-                  color: "text-blue-400",
-                },
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  className="liquid-glass-card-sm p-4 md:p-6 text-center"
-                >
-                  <div
-                    className={`text-2xl md:text-3xl font-black tracking-tight mb-2 ${stat.color}`}
-                  >
-                    {stat.value}
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground/50 mt-4 text-center">
-              Fonte: ARERA — Relazione Annuale 2025
-            </p>
+            <NetworkJoinCard />
           </motion.div>
         </div>
 
