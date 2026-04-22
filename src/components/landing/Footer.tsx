@@ -23,7 +23,7 @@ export function Footer() {
 
         <nav className="flex flex-wrap gap-5 text-xs text-muted-foreground">
           <Link
-            href="https://dash.ildispaccio.energy"
+            href="/network/login"
             className="hover:text-foreground transition-colors"
           >
             Area riservata

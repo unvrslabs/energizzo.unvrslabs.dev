@@ -13,8 +13,8 @@ const navLinks = [
   { label: "Confronto", href: "#confronto" },
 ];
 
-const CTA_HREF = "https://dash.ildispaccio.energy/login";
-const CTA_LABEL = "Login";
+const CTA_HREF = "/network/login";
+const CTA_LABEL = "Accedi al network";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
