@@ -1,44 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Sparkles,
-  FileText,
-  Gauge,
-  Mic,
-  BarChart3,
-  Users,
-} from "lucide-react";
-
-const services = [
-  {
-    icon: FileText,
-    title: "Delibere ARERA intelligenti",
-    desc: "Analizzate, riassunte in bullet point operativi, con un agente AI pronto a spiegartele in chat.",
-  },
-  {
-    icon: Gauge,
-    title: "Benchmark tariffario live",
-    desc: "Confronto aggregato delle offerte del mercato libero — elettrico e gas — aggiornato in continuo.",
-  },
-  {
-    icon: Mic,
-    title: 'Podcast "Il Reseller"',
-    desc: "Conversazioni settimanali con operatori, manager e CEO del settore. Zero script, solo tecnicalia.",
-  },
-  {
-    icon: BarChart3,
-    title: "Report indipendente",
-    desc: "Benchmark annuale anonimo dello stato del reseller energia in Italia. Il tuo posizionamento entro 60 giorni.",
-  },
-  {
-    icon: Users,
-    title: "Community peer-to-peer",
-    desc: "Gruppo chiuso per CEO e COO. Domande, casi pratici, best practice condivise. Zero fornitori, zero spam.",
-  },
-];
+import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 
 export function FreeNetworkSection() {
   return (
@@ -101,8 +64,12 @@ export function FreeNetworkSection() {
                 <span className="text-primary">Ora e sempre.</span>
               </h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
-                Tutti i servizi del Dispaccio sono inclusi — senza quote
-                d&apos;ingresso, senza abbonamenti, senza costi nascosti.
+                Tutti i servizi del Dispaccio sono inclusi: delibere ARERA
+                intelligenti — analizzate, riassunte in bullet point con un
+                agente AI pronto a spiegartele — benchmark tariffario live,
+                podcast &quot;Il Reseller&quot;, report indipendente annuale e
+                community peer-to-peer. Nessuna quota d&apos;ingresso, nessun
+                abbonamento, nessun costo nascosto.
               </p>
 
               <motion.a
@@ -116,28 +83,6 @@ export function FreeNetworkSection() {
               </motion.a>
             </div>
           </div>
-
-          {/* Services grid */}
-          <ul className="mt-8 md:mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s) => (
-              <li
-                key={s.title}
-                className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
-              >
-                <div className="shrink-0 inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                  <s.icon className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-foreground leading-snug">
-                    {s.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    {s.desc}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
 
           {/* Divider */}
           <div
