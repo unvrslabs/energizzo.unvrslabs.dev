@@ -1,4 +1,4 @@
-import { UserPlus, ClipboardList, Sparkles } from "lucide-react";
+import { ClipboardList, Search, MessageCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 interface Step {
@@ -11,21 +11,21 @@ interface Step {
 const STEPS: Step[] = [
   {
     num: "01",
-    Icon: UserPlus,
-    title: "Candidati",
-    desc: "Richiedi l'invito lasciando ragione sociale, P.IVA e referente. Valutiamo profili: tutti i reseller operativi del mercato italiano sono benvenuti.",
+    Icon: ClipboardList,
+    title: "Compila il form",
+    desc: "Lascia ragione sociale, P.IVA, referente e contatto WhatsApp. Servono solo poche informazioni per presentarti.",
   },
   {
     num: "02",
-    Icon: ClipboardList,
-    title: "Compila il survey",
-    desc: "24 domande in 3-5 minuti: costi, switching, AI, morosità, compliance. Contribuisci al report indipendente del settore e riceverai il posizionamento della tua azienda.",
+    Icon: Search,
+    title: "Analisi del profilo",
+    desc: "La tua richiesta viene presa in carico e analizzata dal team per verificare che la tua azienda rispetti i requisiti di ammissione al network.",
   },
   {
     num: "03",
-    Icon: Sparkles,
-    title: "Accesso completo",
-    desc: "Sei dentro. Delibere, tariffe, podcast, eventi privati, community. Il report privato della tua azienda arriva entro 60 giorni.",
+    Icon: MessageCircle,
+    title: "Contatto e ammissione",
+    desc: "Ti ricontattiamo con l'esito della valutazione. Se accettato, ti spieghiamo la procedura di ammissione e come iniziare a usare il network.",
   },
 ];
 
@@ -43,8 +43,8 @@ export function HowItWorks() {
           In tre passi sei dentro
         </h2>
         <p className="mt-4 text-base sm:text-lg text-muted-foreground">
-          Nessuna quota. Nessuna burocrazia. L&apos;accesso dipende dal valore
-          che porti al network.
+          L&apos;accesso è su invito. Ogni candidatura viene valutata
+          individualmente per garantire la qualità del network.
         </p>
       </div>
 
