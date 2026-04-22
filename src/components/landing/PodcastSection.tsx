@@ -54,7 +54,15 @@ export function PodcastSection() {
 
           {/* Video card mockup */}
           <div className="space-y-4">
-            <article className="group dispaccio-card aspect-video cursor-pointer">
+            <article
+              className="group dispaccio-card aspect-video cursor-pointer rounded-3xl"
+              style={{
+                borderRadius: "1.5rem",
+                overflow: "hidden",
+                isolation: "isolate",
+                transform: "translateZ(0)",
+              }}
+            >
               {/* Decorative bokeh */}
               <div
                 aria-hidden
