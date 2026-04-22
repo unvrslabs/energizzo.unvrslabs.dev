@@ -27,7 +27,7 @@ const ROWS: Row[] = [
   },
   {
     label: "Podcast tecnico",
-    dispaccio: { mark: "yes", note: "Settimanale, 1-a-1" },
+    dispaccio: { mark: "yes", note: "Settimanale, 1 a 1" },
     arera: { mark: "no" },
     assoc: { mark: "no" },
     linkedin: { mark: "partial", note: "Contenuti brandizzati" },

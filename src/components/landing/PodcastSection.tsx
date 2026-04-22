@@ -38,7 +38,7 @@ export function PodcastSection() {
             </h2>
 
             <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Interviste video 1-a-1 di 20 minuti con manager e operatori del
+              Interviste video 1 a 1 di 20 minuti con manager e operatori del
               settore reseller energia. STG, aste, M&amp;A, AI, recupero
               crediti, CER, telemarketing. Zero script, solo tecnicalia
               operativa.
@@ -74,7 +74,7 @@ export function PodcastSection() {
                   </span>
                 </div>
                 <span className="uppercase tracking-[0.2em]">
-                  Ep.{FEATURED_EPISODE.num} · 4K · 1-a-1
+                  Ep.{FEATURED_EPISODE.num} · 4K · 1 a 1
                 </span>
               </div>
 
@@ -141,7 +141,7 @@ export function PodcastSection() {
 
         <div className="mt-10 pt-8 border-t border-border/30 flex justify-center">
           <span className="inline-flex items-center gap-2 rounded-full liquid-glass px-4 py-2 text-xs font-semibold text-muted-foreground">
-            10 episodi a stagione · Interviste video in formato 1-a-1
+            10 episodi a stagione · Interviste video in formato 1 a 1
           </span>
         </div>
       </div>

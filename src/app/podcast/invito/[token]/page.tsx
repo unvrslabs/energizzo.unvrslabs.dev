@@ -39,7 +39,7 @@ export default async function InvitoPage({
             <strong>&quot;Il Reseller&quot;</strong> è un podcast settimanale dedicato
             agli amministratori delegati e ai COO dei reseller energetici italiani. In
             ogni puntata affrontiamo un tema caldo del settore — margini, switching,
-            regolazione ARERA, AI, M&amp;A — attraverso una conversazione 1-a-1 di circa
+            regolazione ARERA, AI, M&amp;A — attraverso una conversazione 1 a 1 di circa
             20 minuti con un protagonista del mercato.
           </p>
           <p className="text-sm leading-relaxed">

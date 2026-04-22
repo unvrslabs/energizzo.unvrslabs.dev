@@ -32,7 +32,7 @@ const FEATURES: Feature[] = [
     Icon: Mic,
     title: 'Podcast "Il Reseller"',
     badge: "Ogni lunedì",
-    desc: "10 episodi a stagione con manager e reseller operativi. STG, aste, M&A, AI, recupero crediti, CER. Conversazioni 1-a-1 senza script.",
+    desc: "10 episodi a stagione con manager e reseller operativi. STG, aste, M&A, AI, recupero crediti, CER. Conversazioni 1 a 1 senza script.",
   },
   {
     Icon: Calendar,
