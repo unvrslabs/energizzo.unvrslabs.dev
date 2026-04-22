@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getNetworkMember } from "@/lib/network/session";
+import { maskPhone } from "@/lib/network/phone";
 import { NetworkNavbar } from "@/components/network/navbar";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +17,15 @@ export default async function NetworkProtectedLayout({
 
   return (
     <div className="mesh-gradient relative min-h-screen">
-      <NetworkNavbar referente={member.referente} />
-      <main className="mx-auto max-w-6xl px-4 md:px-6 py-8 md:py-12">
+      <NetworkNavbar
+        member={{
+          referente: member.referente,
+          ragione_sociale: member.ragione_sociale,
+          piva: member.piva,
+          phone_masked: maskPhone(member.phone),
+        }}
+      />
+      <main className="mx-auto max-w-6xl px-4 md:px-6 pt-28 md:pt-32 pb-12">
         {children}
       </main>
     </div>
