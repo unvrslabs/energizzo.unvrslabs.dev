@@ -179,10 +179,10 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-black text-foreground leading-[1.05] tracking-tight mb-6 md:mb-8"
+              className="text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-[1.1] tracking-tight mb-6 md:mb-8"
             >
               Il primo network italiano per i{" "}
-              <span className="gradient-text">
+              <span className="gradient-text font-bold">
                 protagonisti del settore energetico
               </span>
               .
@@ -195,7 +195,7 @@ export function Hero() {
               className="max-w-[680px] mx-auto lg:mx-0 mb-8 md:mb-10 px-2 lg:px-0 space-y-2"
             >
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-balance">
-                <TypingText text="Reseller, dispacciatori, trader, produttori." />
+                <TypingText text="Reseller, Dispacciatori, Trader, Produttori." />
               </p>
               <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
                 <span className="shiny-text">La corrente passa da qui.</span>

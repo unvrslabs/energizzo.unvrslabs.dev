@@ -160,15 +160,15 @@
     background-clip: text;
   }
 
-  /* Mesh gradient background — dark blue + emerald glow, ported from energizzo */
+  /* Keep the original dark navy, layer emerald radial glows over it */
   .mesh-gradient {
-    background:
-      radial-gradient(ellipse at 30% 20%, hsl(158 60% 45% / 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 70% 10%, hsl(170 50% 50% / 0.1) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 50%, hsl(158 64% 42% / 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 70%, hsl(180 50% 40% / 0.12) 0%, transparent 45%),
-      radial-gradient(ellipse at 20% 80%, hsl(170 40% 45% / 0.1) 0%, transparent 50%),
-      linear-gradient(180deg, hsl(215 35% 18%) 0%, hsl(215 35% 12%) 50%, hsl(215 35% 8%) 100%);
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse at 25% 15%, hsl(158 64% 45% / 0.12) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 10%, hsl(170 50% 50% / 0.08) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 55%, hsl(158 64% 42% / 0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 75%, hsl(180 50% 40% / 0.1) 0%, transparent 45%),
+      radial-gradient(ellipse at 15% 85%, hsl(170 40% 45% / 0.08) 0%, transparent 55%);
     background-attachment: fixed;
   }
 
