@@ -53,7 +53,7 @@
     min-height: 100vh;
   }
   h1, h2, h3, h4 {
-    @apply font-display tracking-tight;
+    @apply tracking-tight;
   }
   .font-mono {
     font-family: var(--font-mono), ui-monospace, monospace;
