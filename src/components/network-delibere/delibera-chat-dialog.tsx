@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Sparkles, Send, Bot, User, Loader2 } from "lucide-react";
 import type { Delibera } from "@/lib/delibere/mock";
 
@@ -80,19 +75,21 @@ export function DeliberaChatDialog({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex flex-col h-full overflow-hidden p-0">
-        <SheetHeader className="p-4 sm:p-5 border-b border-white/10 bg-primary/5 space-y-0">
-          <SheetTitle className="flex items-center gap-2 text-base pr-8">
-            <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 border border-primary/30 text-primary">
+        <div className="p-4 sm:p-5 border-b border-white/10 bg-primary/5">
+          <div className="flex items-center gap-2 pr-8">
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 border border-primary/30 text-primary">
               <Sparkles className="h-4 w-4" />
             </div>
-            <div className="min-w-0 flex-1 text-left">
-              <p className="font-bold truncate">Agente AI · {delibera?.code ?? ""}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold truncate">
+                Agente AI · {delibera?.code ?? ""}
+              </p>
               <p className="text-[11px] font-normal text-muted-foreground truncate">
                 {delibera?.title ?? ""}
               </p>
             </div>
-          </SheetTitle>
-        </SheetHeader>
+          </div>
+        </div>
 
         <div
           ref={scrollRef}
