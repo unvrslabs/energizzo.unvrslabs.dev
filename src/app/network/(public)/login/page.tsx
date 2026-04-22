@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { NetworkLoginForm } from "@/components/network/login-form";
+import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 
 export const metadata = {
   title: "Accesso network — Il Dispaccio",
@@ -21,7 +22,8 @@ export default async function NetworkLoginPage({
       : undefined;
 
   return (
-    <main className="mesh-gradient relative min-h-screen flex flex-col">
+    <main className="relative min-h-screen flex flex-col">
+      <AnimatedBackground />
       <header className="relative z-10 p-6 md:p-8">
         <Link
           href="/"
