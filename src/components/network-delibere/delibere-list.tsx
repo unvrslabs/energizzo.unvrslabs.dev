@@ -219,7 +219,7 @@ export function DelibereList() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <header className="space-y-2 md:space-y-3">
+      <header className="sticky top-24 z-30 space-y-2 md:space-y-3 -mx-4 md:-mx-6 px-4 md:px-6 py-2 backdrop-blur-sm bg-[hsl(218_32%_12%/0.6)]">
         {/* MOBILE: search + date together, sector pills in a second card */}
         <div className="md:hidden space-y-2">
           <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 flex items-center gap-2">
