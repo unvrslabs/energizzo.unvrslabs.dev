@@ -128,29 +128,35 @@ export function DelibereList() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <header className="space-y-4">
-        <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cerca per titolo, codice, contenuto…"
-            className="w-full rounded-full border border-white/10 bg-white/[0.03] pl-10 pr-10 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 focus:bg-white/[0.06]"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Pulisci ricerca"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+      <header className="space-y-3">
+        <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 sm:p-3 flex flex-col md:flex-row md:items-center gap-2">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cerca per titolo, codice, contenuto…"
+              className="w-full rounded-full bg-transparent pl-10 pr-10 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Pulisci ricerca"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+          <div
+            aria-hidden
+            className="hidden md:block w-px h-6 bg-white/10"
+          />
+
+          <div className="flex items-center gap-1.5 flex-wrap">
           {FILTERS.map((f) => {
             const active = sector === f.v;
             const Icon = f.icon;
@@ -261,24 +267,25 @@ export function DelibereList() {
             </PopoverContent>
           </Popover>
 
-          {hasAnyFilter && (
-            <button
-              type="button"
-              onClick={() => {
-                setSector("all");
-                setPeriod("all");
-                setYear(null);
-                setQuery("");
-              }}
-              className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25 px-3 py-1.5 text-xs font-semibold transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-              Pulisci
-            </button>
-          )}
+            {hasAnyFilter && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSector("all");
+                  setPeriod("all");
+                  setYear(null);
+                  setQuery("");
+                }}
+                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25 px-3 py-1.5 text-xs font-semibold transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+                Pulisci
+              </button>
+            )}
+          </div>
         </div>
 
-        <p className="text-[11px] text-muted-foreground/70">
+        <p className="text-[11px] text-muted-foreground/70 px-2">
           {visible.length}{" "}
           {visible.length === 1 ? "delibera" : "delibere"} nel filtro corrente
         </p>
