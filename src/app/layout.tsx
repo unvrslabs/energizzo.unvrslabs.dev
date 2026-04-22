@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Orbitron, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import {
+  Orbitron,
+  Plus_Jakarta_Sans,
+  Inter,
+  JetBrains_Mono,
+} from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -12,6 +17,12 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-sans",
+});
+// Inter serves as the 900-weight fallback for Plus Jakarta Sans (same stack as energizzo.it)
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
 });
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
@@ -42,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="it"
-      className={`${orbitron.variable} ${jakarta.variable} ${jetbrains.variable}`}
+      className={`${orbitron.variable} ${jakarta.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>
         {children}
