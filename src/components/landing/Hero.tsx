@@ -173,7 +173,7 @@ const servicePills = [
 export function Hero() {
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24"
+      className="relative min-h-screen flex items-center overflow-hidden pt-32 pb-16 md:pt-32 md:pb-24"
       aria-label="Il Dispaccio · Il network dei reseller energia in Italia"
     >
       <div className="container mx-auto px-4 relative z-10">
