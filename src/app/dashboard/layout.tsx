@@ -10,12 +10,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!admin) redirect("/login");
 
   return (
-    <div className="min-h-screen">
+    <div className="mesh-gradient relative min-h-screen">
       <div className="sticky top-4 z-40 px-4 md:px-6 pt-4 pb-2">
         <header className="liquid-glass-nav mx-auto w-fit max-w-full rounded-full px-3 md:px-4 h-12 flex items-center justify-center gap-2 overflow-x-auto scroll-x-contained">
           <NavLinks
             items={[
               { href: "/dashboard", label: "Lead", icon: "users" },
+              { href: "/dashboard/network", label: "Network", icon: "network" },
               { href: "/dashboard/podcast", label: "Podcast", icon: "mic" },
               { href: "/dashboard/report", label: "Report", icon: "clipboard" },
               { href: "/dashboard/strategia", label: "Strategia", icon: "target" },
