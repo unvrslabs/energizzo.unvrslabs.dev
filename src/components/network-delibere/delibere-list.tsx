@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import {
-  BookOpen,
   Zap,
   Flame,
   Layers,
@@ -130,22 +129,6 @@ export function DelibereList() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <header className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 border border-primary/30 text-primary">
-            <BookOpen className="h-4 w-4" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-              Delibere ARERA
-            </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Ogni delibera ARERA letta dall&apos;AI, in italiano operativo.
-              Bullet point, allegati, link originale e agente dedicato su ogni
-              card.
-            </p>
-          </div>
-        </div>
-
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
