@@ -144,9 +144,9 @@
     box-shadow: 0 0 40px hsl(var(--glass-glow));
   }
 
-  /* Gradient text */
+  /* Gradient text — emerald to deep emerald (matches energizzo.it) */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(158 64% 55%), hsl(180 60% 55%));
+    background: linear-gradient(135deg, hsl(158 64% 50%), hsl(158 64% 38%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

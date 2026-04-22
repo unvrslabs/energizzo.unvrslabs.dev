@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowRight,
   FileText,
   Gauge,
   Mic,
@@ -21,8 +20,6 @@ import {
   List,
   Phone,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 
 function TypingText({
   text,
@@ -182,7 +179,7 @@ export function Hero() {
               className="text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-[1.1] tracking-tight mb-6 md:mb-8"
             >
               Il primo network italiano per i{" "}
-              <span className="gradient-text-emerald font-bold">
+              <span className="gradient-text">
                 protagonisti del settore energetico
               </span>
               .
@@ -202,27 +199,6 @@ export function Hero() {
               </p>
             </motion.div>
 
-            {/* Sponsor badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="flex justify-center lg:justify-start mb-10 lg:mb-0"
-            >
-              <a
-                href="https://www.energizzo.it"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  "group rounded-full border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur transition-all",
-                )}
-              >
-                <AnimatedShinyText className="inline-flex items-center justify-center px-5 py-1.5 text-sm">
-                  <span>✨ Sponsor Ufficiale · Energizzo</span>
-                  <ArrowRight className="ml-2 size-3.5 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-                </AnimatedShinyText>
-              </a>
-            </motion.div>
           </div>
 
           {/* Right — Stats cards */}

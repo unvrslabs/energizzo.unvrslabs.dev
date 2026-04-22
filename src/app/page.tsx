@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
+import { SponsorSection } from "@/components/landing/SponsorSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { PlatformTabs } from "@/components/landing/PlatformTabs";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -24,6 +25,7 @@ export default function HomePage() {
     <main className="min-h-screen text-foreground mesh-gradient">
       <Navbar />
       <Hero />
+      <SponsorSection />
       <FeaturesSection />
       <PlatformTabs />
       <HowItWorks />
