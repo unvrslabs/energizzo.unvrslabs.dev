@@ -38,6 +38,7 @@ export type Lead = {
   telefono: string | null;
   podcast_status?: string | null;
   podcast_confirmed_at?: string | null;
+  documents_count?: number;
 };
 
 export type SurveyResponse = {

@@ -26,7 +26,8 @@ function isAdminProtectedRoute(pathname: string): boolean {
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
     pathname.startsWith("/api/email-preview") ||
-    pathname.startsWith("/api/agent-chat")
+    pathname.startsWith("/api/agent-chat") ||
+    pathname.startsWith("/api/dashboard/")
   );
 }
 
@@ -34,9 +35,7 @@ function isAdminRoute(pathname: string): boolean {
   return (
     pathname === "/login" ||
     isAdminProtectedRoute(pathname) ||
-    pathname.startsWith("/api/admin/") ||
-    pathname.startsWith("/api/email-preview") ||
-    pathname.startsWith("/api/agent-chat")
+    pathname.startsWith("/api/admin/")
   );
 }
 

@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
+import { Paperclip } from "lucide-react";
 import { STATUS_CONFIG, STATUSES_IN_ORDER, type Status } from "@/lib/status-config";
 import { updateLeadStatus } from "@/actions/update-lead";
 import type { Lead } from "@/lib/types";
@@ -119,8 +120,19 @@ export function KanbanBoard({ leads, onSelect }: Props) {
                                   : "hover:ring-1 hover:ring-primary/30"
                               }`}
                             >
-                              <div className="font-medium leading-tight line-clamp-2">
-                                {lead.ragione_sociale}
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="font-medium leading-tight line-clamp-2 min-w-0 flex-1">
+                                  {lead.ragione_sociale}
+                                </div>
+                                {(lead.documents_count ?? 0) > 0 && (
+                                  <span
+                                    className="inline-flex items-center gap-0.5 rounded-md border border-primary/30 bg-primary/10 text-primary px-1.5 py-0.5 text-[10px] font-semibold shrink-0"
+                                    title={`${lead.documents_count} documenti`}
+                                  >
+                                    <Paperclip className="h-2.5 w-2.5" />
+                                    {lead.documents_count}
+                                  </span>
+                                )}
                               </div>
                               <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
                                 <span>{lead.provincia ?? "—"}</span>

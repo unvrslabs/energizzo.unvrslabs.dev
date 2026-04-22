@@ -83,10 +83,22 @@ export async function DashboardView({
     if (g.lead_id) guestByLead.set(g.lead_id, g);
   }
 
+  const { data: docRows } = leadIds.length
+    ? await supabase
+        .from("lead_documents")
+        .select("lead_id")
+        .in("lead_id", leadIds)
+    : { data: [] };
+  const docsByLead = new Map<string, number>();
+  for (const d of (docRows ?? []) as { lead_id: string }[]) {
+    docsByLead.set(d.lead_id, (docsByLead.get(d.lead_id) ?? 0) + 1);
+  }
+
   const leads: Lead[] = leadsRaw.map((l) => ({
     ...l,
     podcast_status: guestByLead.get(l.id)?.status ?? null,
     podcast_confirmed_at: guestByLead.get(l.id)?.response_confirmed_at ?? null,
+    documents_count: docsByLead.get(l.id) ?? 0,
   }));
 
   const { data: provData } = await supabase
