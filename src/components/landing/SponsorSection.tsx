@@ -49,9 +49,6 @@ export function SponsorSection() {
               >
                 energizzo
               </span>
-              <span className="block text-sm font-medium text-muted-foreground mb-3">
-                .it
-              </span>
             </a>
           </div>
 
