@@ -101,7 +101,7 @@ export function DeliberaCard({
       </div>
 
       {/* Title */}
-      <h3 className="font-display text-base sm:text-lg font-bold leading-tight tracking-tight text-foreground">
+      <h3 className="text-base sm:text-lg font-bold leading-snug tracking-tight text-foreground">
         {delibera.title}
       </h3>
 
