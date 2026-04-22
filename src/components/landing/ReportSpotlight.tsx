@@ -30,7 +30,7 @@ export function ReportSpotlight() {
             </span>
           </div>
 
-          <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
             Il primo report indipendente{" "}
             <span className="gradient-text">del settore.</span>
           </h2>
@@ -65,7 +65,7 @@ export function ReportSpotlight() {
                 <c.Icon className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-display text-lg font-bold tracking-tight mb-1">
+                <h3 className="text-lg font-bold tracking-tight mb-1">
                   {c.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">

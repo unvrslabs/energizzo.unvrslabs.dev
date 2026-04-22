@@ -61,7 +61,7 @@ export function FeaturesSection() {
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Sezioni
         </div>
-        <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
           Tutto quello che serve per navigare il mercato{" "}
           <span className="gradient-text">reseller</span>
         </h2>
@@ -84,7 +84,7 @@ export function FeaturesSection() {
                 {f.badge}
               </span>
             </div>
-            <h3 className="font-display text-xl font-bold tracking-tight mb-2">
+            <h3 className="text-xl font-bold tracking-tight mb-2">
               {f.title}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">

@@ -121,7 +121,7 @@ export function PlatformTabs() {
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Il network
         </div>
-        <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
           Un hub completo per chi vende energia in Italia
         </h2>
         <p className="mt-4 text-base sm:text-lg text-muted-foreground">
@@ -160,7 +160,7 @@ export function PlatformTabs() {
             <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary/15 text-primary text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
               {c.pill}
             </span>
-            <h3 className="font-display text-lg font-bold tracking-tight mb-2">
+            <h3 className="text-lg font-bold tracking-tight mb-2">
               {c.title}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed">

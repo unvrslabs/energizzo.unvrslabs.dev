@@ -25,7 +25,7 @@ export function PodcastSection() {
               </span>
             </div>
 
-            <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
               Il Reseller —{" "}
               <span className="gradient-text">voci dal mercato.</span>
             </h2>
@@ -59,7 +59,7 @@ export function PodcastSection() {
                     {e.duration}
                   </span>
                 </div>
-                <h3 className="font-display text-sm font-bold leading-snug">
+                <h3 className="text-sm font-bold leading-snug">
                   <span className="text-muted-foreground">{e.num} · </span>
                   {e.title}
                 </h3>

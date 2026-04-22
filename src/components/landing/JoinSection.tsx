@@ -16,7 +16,7 @@ export function JoinSection() {
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Chi può entrare
         </div>
-        <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
           Il network è aperto ai reseller operativi del{" "}
           <span className="gradient-text">mercato italiano</span>
         </h2>
@@ -28,7 +28,7 @@ export function JoinSection() {
       <div className="grid gap-6 md:grid-cols-3 md:items-stretch">
         {/* LEFT */}
         <article className="liquid-glass-card liquid-glass-hover p-8 flex flex-col">
-          <h3 className="font-display text-xl font-bold tracking-tight">
+          <h3 className="text-xl font-bold tracking-tight">
             Venditori energia
           </h3>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed flex-1">
@@ -50,7 +50,7 @@ export function JoinSection() {
             Accesso completo
           </span>
 
-          <h3 className="font-display text-2xl font-bold tracking-tight">
+          <h3 className="text-2xl font-bold tracking-tight">
             Network Core
           </h3>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
@@ -77,7 +77,7 @@ export function JoinSection() {
 
         {/* RIGHT */}
         <article className="liquid-glass-card liquid-glass-hover p-8 flex flex-col">
-          <h3 className="font-display text-xl font-bold tracking-tight">
+          <h3 className="text-xl font-bold tracking-tight">
             Consulenti e analisti
           </h3>
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed flex-1">

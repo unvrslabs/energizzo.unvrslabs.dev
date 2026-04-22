@@ -39,7 +39,7 @@ export function HowItWorks() {
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Come entri nel network
         </div>
-        <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
           In tre passi sei dentro
         </h2>
         <p className="mt-4 text-base sm:text-lg text-muted-foreground">
@@ -55,7 +55,7 @@ export function HowItWorks() {
             className="liquid-glass-card liquid-glass-hover p-8 flex flex-col relative overflow-hidden"
           >
             <span
-              className="font-display font-black leading-none gradient-text select-none"
+              className="font-black leading-none gradient-text select-none"
               style={{ fontSize: "6rem" }}
               aria-hidden
             >
@@ -64,7 +64,7 @@ export function HowItWorks() {
             <div className="mt-2 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
               <s.Icon className="h-5 w-5" />
             </div>
-            <h3 className="mt-4 font-display text-2xl font-bold tracking-tight">
+            <h3 className="mt-4 text-2xl font-bold tracking-tight">
               {s.title}
             </h3>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">

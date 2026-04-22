@@ -14,7 +14,7 @@ export function Footer() {
             className="rounded-lg"
           />
           <div className="flex flex-col">
-            <span className="font-display text-sm font-bold tracking-[0.2em] uppercase">
+            <span className="text-sm font-bold tracking-[0.2em] uppercase">
               Il Dispaccio
             </span>
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">

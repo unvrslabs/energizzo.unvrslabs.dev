@@ -11,7 +11,7 @@ export function FinalCTA() {
             "0 0 0 1px hsl(158 64% 42% / 0.15), 0 24px 80px hsl(158 64% 42% / 0.15)",
         }}
       >
-        <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
+        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
           Pronto a entrare{" "}
           <span className="gradient-text">nel network?</span>
         </h2>

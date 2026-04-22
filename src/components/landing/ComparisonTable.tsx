@@ -109,7 +109,7 @@ export function ComparisonTable() {
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Alternativa a
         </div>
-        <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
           Dove andavi prima
         </h2>
         <p className="mt-4 text-base sm:text-lg text-muted-foreground">

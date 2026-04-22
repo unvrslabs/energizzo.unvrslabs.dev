@@ -48,7 +48,7 @@ export function FAQ() {
         <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // FAQ
         </div>
-        <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
           Domande frequenti
         </h2>
         <p className="mt-4 text-base sm:text-lg text-muted-foreground">
@@ -74,7 +74,7 @@ export function FAQ() {
                 onClick={() => setOpenIdx(open ? null : idx)}
                 className="w-full flex items-center justify-between gap-4 text-left"
               >
-                <h3 className="font-display text-base sm:text-lg font-bold tracking-tight">
+                <h3 className="text-base sm:text-lg font-bold tracking-tight">
                   {item.q}
                 </h3>
                 <ChevronDown

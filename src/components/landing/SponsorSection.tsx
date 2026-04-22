@@ -43,10 +43,10 @@ export function SponsorSection() {
               className="group/logo flex items-baseline gap-1.5 transition-opacity hover:opacity-90"
               aria-label="Visita energizzo.it"
             >
-              <span className="text-5xl md:text-6xl font-black tracking-tight gradient-text-emerald leading-none">
+              <span className="text-5xl md:text-6xl font-black tracking-tight gradient-text-emerald leading-[1.15] pb-1">
                 energizzo
               </span>
-              <span className="text-sm font-medium text-muted-foreground leading-none">
+              <span className="text-sm font-medium text-muted-foreground">
                 .it
               </span>
             </a>
