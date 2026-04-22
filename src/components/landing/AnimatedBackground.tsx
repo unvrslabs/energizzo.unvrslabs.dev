@@ -6,7 +6,6 @@ export function AnimatedBackground() {
       <div className="aurora-blob aurora-blob--c" />
       <div className="aurora-blob aurora-blob--d" />
       <div className="aurora-grid" />
-      <div className="aurora-scanline" />
       <div className="aurora-vignette" />
     </div>
   );
