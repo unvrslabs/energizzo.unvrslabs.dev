@@ -25,8 +25,8 @@ export default function HomePage() {
       <Navbar />
       <Hero />
       <FreeNetworkSection />
-      <PlatformTabs />
       <HowItWorks />
+      <PlatformTabs />
       <ReportSpotlight />
       <JoinSection />
       <PodcastSection />
