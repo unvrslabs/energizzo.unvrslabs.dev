@@ -74,7 +74,7 @@ export function FeaturesSection() {
         {FEATURES.map((f) => (
           <article
             key={f.title}
-            className="liquid-glass-card liquid-glass-hover p-7 group"
+            className="dispaccio-card dispaccio-card-hover p-7 group"
           >
             <div className="flex items-start justify-between mb-5">
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform duration-300 group-hover:scale-110">

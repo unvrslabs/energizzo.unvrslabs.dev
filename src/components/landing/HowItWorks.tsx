@@ -52,7 +52,7 @@ export function HowItWorks() {
         {STEPS.map((s) => (
           <div
             key={s.num}
-            className="liquid-glass-card liquid-glass-hover p-8 flex flex-col relative overflow-hidden"
+            className="dispaccio-card dispaccio-card-hover p-8 flex flex-col relative overflow-hidden"
           >
             <span
               className="font-black leading-none gradient-text select-none"

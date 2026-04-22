@@ -4,7 +4,7 @@ export function FinalCTA() {
   return (
     <section className="mx-auto max-w-5xl px-6 py-20 sm:py-24">
       <div
-        className="liquid-glass-card p-10 sm:p-16 text-center"
+        className="dispaccio-card p-10 sm:p-16 text-center"
         style={{
           borderColor: "hsl(158 64% 42% / 0.3)",
           boxShadow:

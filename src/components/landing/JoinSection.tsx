@@ -27,7 +27,7 @@ export function JoinSection() {
 
       <div className="grid gap-6 md:grid-cols-3 md:items-stretch">
         {/* LEFT */}
-        <article className="liquid-glass-card liquid-glass-hover p-8 flex flex-col">
+        <article className="dispaccio-card dispaccio-card-hover p-8 flex flex-col">
           <h3 className="text-xl font-bold tracking-tight">
             Venditori energia
           </h3>
@@ -44,7 +44,7 @@ export function JoinSection() {
             Accesso completo
           </span>
           <article
-            className="liquid-glass-card p-8 flex flex-col h-full border border-primary/40"
+            className="dispaccio-card p-8 flex flex-col h-full border border-primary/40"
             style={{
               boxShadow:
                 "0 0 0 1px hsl(158 64% 42% / 0.25), 0 20px 60px hsl(158 64% 42% / 0.2)",
@@ -75,7 +75,7 @@ export function JoinSection() {
         </div>
 
         {/* RIGHT */}
-        <article className="liquid-glass-card liquid-glass-hover p-8 flex flex-col">
+        <article className="dispaccio-card dispaccio-card-hover p-8 flex flex-col">
           <h3 className="text-xl font-bold tracking-tight">
             Consulenti e analisti
           </h3>

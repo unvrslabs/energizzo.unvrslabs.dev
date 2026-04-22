@@ -117,7 +117,7 @@ export function ComparisonTable() {
         </p>
       </div>
 
-      <div className="liquid-glass-card overflow-hidden">
+      <div className="dispaccio-card overflow-hidden">
         <div className="overflow-x-auto scroll-x-contained">
           <table className="w-full min-w-[720px]">
             <thead>

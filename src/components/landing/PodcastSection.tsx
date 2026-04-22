@@ -22,7 +22,7 @@ const UPCOMING: Episode[] = [
 export function PodcastSection() {
   return (
     <section id="podcast" className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
-      <div className="liquid-glass-card p-8 sm:p-12 lg:p-16">
+      <div className="dispaccio-card p-8 sm:p-12 lg:p-16">
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-14 items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/30 px-3 py-1 mb-6">

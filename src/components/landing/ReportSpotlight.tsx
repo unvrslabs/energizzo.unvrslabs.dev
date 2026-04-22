@@ -59,7 +59,7 @@ export function ReportSpotlight() {
           {MINI_CARDS.map((c) => (
             <article
               key={c.title}
-              className="liquid-glass-card liquid-glass-hover p-6 flex gap-4"
+              className="dispaccio-card dispaccio-card-hover p-6 flex gap-4"
             >
               <div className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
                 <c.Icon className="h-5 w-5" />

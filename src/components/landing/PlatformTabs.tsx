@@ -155,7 +155,7 @@ export function PlatformTabs() {
         {cards.map((c) => (
           <article
             key={c.title}
-            className="liquid-glass-card liquid-glass-hover p-6 animate-fade-in-up"
+            className="dispaccio-card dispaccio-card-hover p-6 animate-fade-in-up"
           >
             <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary/15 text-primary text-[10px] font-bold uppercase tracking-[0.15em] mb-4">
               {c.pill}

@@ -64,7 +64,7 @@ export function FAQ() {
           return (
             <div
               key={item.q}
-              className="liquid-glass-card liquid-glass-hover p-5"
+              className="dispaccio-card dispaccio-card-hover p-5"
             >
               <button
                 id={buttonId}
