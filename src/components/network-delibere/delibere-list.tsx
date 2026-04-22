@@ -49,7 +49,7 @@ export function DelibereList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6">
       <header className="space-y-3">
         <div className="flex items-center gap-2">
           <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 border border-primary/30 text-primary">
@@ -112,7 +112,7 @@ export function DelibereList() {
           </p>
         </div>
       ) : (
-        <div className="max-w-3xl mx-auto flex flex-col gap-4 sm:gap-5">
+        <div className="flex flex-col gap-4 sm:gap-5">
           {visible.map((d) => (
             <DeliberaCard
               key={d.code}
