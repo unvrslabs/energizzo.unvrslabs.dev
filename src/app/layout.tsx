@@ -4,6 +4,7 @@ import {
   Plus_Jakarta_Sans,
   Inter,
   JetBrains_Mono,
+  Newsreader,
 } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -27,6 +28,12 @@ const inter = Inter({
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+});
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-serif",
 });
 
 export const viewport: Viewport = {
@@ -59,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="it"
-      className={`${orbitron.variable} ${jakarta.variable} ${inter.variable} ${jetbrains.variable}`}
+      className={`${orbitron.variable} ${jakarta.variable} ${inter.variable} ${jetbrains.variable} ${newsreader.variable}`}
     >
       <body>
         {children}

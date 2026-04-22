@@ -1,10 +1,29 @@
-import { CalendarClock, Flame, Zap } from "lucide-react";
-import {
-  DELIBERE_DEADLINES,
-  type DeadlineSeverity,
-  type DeliberaSector,
-} from "@/lib/delibere/mock";
+import { DELIBERE_DEADLINES } from "@/lib/delibere/mock";
 import { cn } from "@/lib/utils";
+
+const MONTHS_IT = [
+  "gen",
+  "feb",
+  "mar",
+  "apr",
+  "mag",
+  "giu",
+  "lug",
+  "ago",
+  "set",
+  "ott",
+  "nov",
+  "dic",
+];
+
+function splitDate(date: string): { day: string; mon: string; yr: string } {
+  const d = new Date(date + "T00:00:00Z");
+  return {
+    day: String(d.getUTCDate()).padStart(2, "0"),
+    mon: MONTHS_IT[d.getUTCMonth()],
+    yr: String(d.getUTCFullYear()).slice(2),
+  };
+}
 
 function daysUntil(date: string): number {
   const target = new Date(date + "T00:00:00Z").getTime();
@@ -12,118 +31,93 @@ function daysUntil(date: string): number {
   return Math.round((target - now) / (24 * 60 * 60 * 1000));
 }
 
-function formatDate(date: string): string {
-  const d = new Date(date + "T00:00:00Z");
-  return d.toLocaleDateString("it-IT", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+function etaLabel(diff: number): string {
+  if (diff === 0) return "oggi";
+  if (diff > 0) return `fra ${diff}g`;
+  return `${Math.abs(diff)}g fa`;
 }
 
-const SEVERITY_STYLE: Record<
-  DeadlineSeverity,
-  { dot: string; badge: string; label: string }
-> = {
-  live: {
-    dot: "bg-emerald-400",
-    badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-    label: "Live",
-  },
-  imminent: {
-    dot: "bg-amber-400",
-    badge: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    label: "Imminente",
-  },
-  upcoming: {
-    dot: "bg-sky-400",
-    badge: "bg-sky-500/15 text-sky-300 border-sky-500/30",
-    label: "In arrivo",
-  },
-  far: {
-    dot: "bg-muted",
-    badge: "bg-white/5 text-muted-foreground border-white/10",
-    label: "Pianificato",
-  },
-};
-
-function SectorIcon({ sector }: { sector: DeliberaSector }) {
-  if (sector === "gas") return <Flame className="h-3 w-3 text-sky-300" />;
-  if (sector === "eel") return <Zap className="h-3 w-3 text-amber-300" />;
-  return <Zap className="h-3 w-3 text-muted-foreground" />;
-}
-
-function DeadlinesCard() {
+export function DelibereSidebar() {
   const sorted = [...DELIBERE_DEADLINES].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   return (
-    <section className="dispaccio-card rounded-2xl p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25">
-          <CalendarClock className="h-3.5 w-3.5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-xs font-bold tracking-tight">Prossime scadenze</h3>
-          <p className="text-[10px] text-muted-foreground">
-            {sorted.length} date chiave dalle delibere in vigore
-          </p>
-        </div>
+    <aside className="lg:sticky lg:top-[11rem] lg:self-start">
+      <div className="border-t-2 border-foreground pt-5">
+        <h2 className="text-[13px] font-bold uppercase tracking-[0.14em] text-foreground">
+          Prossime scadenze
+        </h2>
+        <p className="net-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80 mt-1">
+          — {String(sorted.length).padStart(2, "0")} date chiave
+        </p>
       </div>
 
-      <ol className="space-y-2">
+      <ol className="mt-1">
         {sorted.map((d) => {
+          const { day, mon, yr } = splitDate(d.date);
           const diff = daysUntil(d.date);
-          const style = SEVERITY_STYLE[d.severity];
-          const diffLabel =
-            diff === 0
-              ? "oggi"
-              : diff > 0
-                ? `fra ${diff}g`
-                : `${Math.abs(diff)}g fa`;
+          const isNow = d.severity === "live" || (diff >= 0 && diff <= 7);
 
           return (
             <li
               key={`${d.date}-${d.deliberaCode}`}
-              className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 space-y-1.5"
+              className={cn(
+                "relative grid grid-cols-[58px_minmax(0,1fr)] gap-4 py-4 border-t border-white/5",
+                isNow && "pl-4 -ml-4",
+              )}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5">
-                  <SectorIcon sector={d.sector} />
-                  <p className="text-[11px] font-bold tracking-wide">
-                    {formatDate(d.date)}
-                  </p>
-                </div>
+              {isNow && (
                 <span
+                  aria-hidden
+                  className="absolute left-0 top-5 bottom-5 w-[2px] bg-primary"
+                />
+              )}
+
+              <div>
+                <div
                   className={cn(
-                    "inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]",
-                    style.badge,
+                    "net-mono font-bold text-[26px] leading-none tracking-[-0.02em] pt-0.5",
+                    isNow ? "text-primary" : "text-foreground",
                   )}
                 >
-                  {style.label}
-                </span>
+                  {day}
+                </div>
+                <div
+                  className={cn(
+                    "net-mono font-medium text-[10px] uppercase tracking-[0.2em] mt-1.5",
+                    isNow ? "text-primary/90" : "text-muted-foreground",
+                  )}
+                >
+                  {mon} {yr}
+                </div>
               </div>
-              <p className="text-[11px] text-foreground/85 leading-snug">
-                {d.label}
-              </p>
-              <p className="text-[10px] text-muted-foreground flex items-center justify-between">
-                <span className="font-mono">{d.deliberaCode}</span>
-                <span className="font-semibold">{diffLabel}</span>
-              </p>
+
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold leading-snug text-foreground tracking-[-0.005em] mb-1.5">
+                  {d.label}
+                </p>
+                {isNow && d.severity === "live" && (
+                  <div className="inline-flex items-center gap-1.5 mb-1.5">
+                    <span className="net-live-dot" />
+                    <span className="net-mono text-[9.5px] font-bold uppercase tracking-[0.2em] text-primary/90">
+                      Live · oggi
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2.5 net-mono text-[10px] tracking-[0.08em] text-muted-foreground/80">
+                  <span>{d.deliberaCode}</span>
+                  <span
+                    aria-hidden
+                    className="w-1 h-1 rounded-full bg-muted-foreground/40"
+                  />
+                  <span>{etaLabel(diff)}</span>
+                </div>
+              </div>
             </li>
           );
         })}
       </ol>
-    </section>
-  );
-}
-
-export function DelibereSidebar() {
-  return (
-    <aside className="lg:sticky lg:top-[11rem] lg:self-start">
-      <DeadlinesCard />
     </aside>
   );
 }

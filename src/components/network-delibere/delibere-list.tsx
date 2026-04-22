@@ -1,16 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Zap,
-  Flame,
-  Layers,
-  Search,
-  Calendar,
-  ChevronDown,
-  X,
-  Check,
-} from "lucide-react";
+import { Calendar, ChevronDown, Check, Search, X } from "lucide-react";
 import {
   Popover,
   PopoverTrigger,
@@ -28,15 +19,10 @@ import { DelibereSidebar } from "./delibere-sidebar";
 
 type SectorFilter = "all" | "eel" | "gas";
 
-const FILTERS: {
-  v: SectorFilter;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
-}[] = [
-  { v: "all", label: "Tutte", icon: Layers, color: "text-muted-foreground" },
-  { v: "eel", label: "Energia", icon: Zap, color: "text-amber-300" },
-  { v: "gas", label: "Gas", icon: Flame, color: "text-sky-300" },
+const SECTORS: { v: SectorFilter; label: string }[] = [
+  { v: "all", label: "Tutte" },
+  { v: "eel", label: "EEL" },
+  { v: "gas", label: "GAS" },
 ];
 
 type PeriodFilter = "all" | "30d" | "90d" | "180d" | "year";
@@ -61,6 +47,26 @@ function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
   return [...items].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
+}
+
+const MONTHS_IT_SHORT = [
+  "gen",
+  "feb",
+  "mar",
+  "apr",
+  "mag",
+  "giu",
+  "lug",
+  "ago",
+  "set",
+  "ott",
+  "nov",
+  "dic",
+];
+
+function todayLabel(): string {
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2, "0")}·${MONTHS_IT_SHORT[d.getMonth()]}`;
 }
 
 export function DelibereList() {
@@ -118,149 +124,171 @@ export function DelibereList() {
     setChatOpen(true);
   }
 
-  function resetAll() {
-    setSector("all");
-    setPeriod("all");
-    setYear(null);
-    setQuery("");
-  }
-
-  const hasAnyFilter =
-    sector !== "all" || period !== "all" || year !== null || query !== "";
   const periodLabel =
     year !== null
       ? String(year)
       : PERIODS.find((p) => p.v === period)?.label ?? "Tutte le date";
   const periodActive = period !== "all" || year !== null;
 
-  const searchField = (
-    <div className="relative flex-1 min-w-0">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Cerca per titolo, codice, contenuto…"
-        className="w-full rounded-full bg-transparent pl-10 pr-9 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
-      />
-      {query && (
-        <button
-          type="button"
-          onClick={() => setQuery("")}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Pulisci ricerca"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      )}
-    </div>
-  );
-
-  const datePopover = (
-    <DatePopoverPill
-      label={periodLabel}
-      active={periodActive}
-      period={period}
-      year={year}
-      availableYears={availableYears}
-      onSelectPeriod={(p) => {
-        setPeriod(p);
-        setYear(null);
-      }}
-      onSelectYear={(y) => {
-        setYear(y);
-        setPeriod("all");
-      }}
-    />
-  );
-
-  const sectorPills = FILTERS.map((f) => {
-    const active = sector === f.v;
-    const Icon = f.icon;
-    const count = sectorCounts[f.v];
-    return (
-      <button
-        key={f.v}
-        type="button"
-        onClick={() => setSector(f.v)}
-        className={cn(
-          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
-          active
-            ? "border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20"
-            : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25",
-        )}
-      >
-        <Icon
-          className={cn("h-3.5 w-3.5", active ? "text-primary" : f.color)}
-        />
-        {f.label}
-        <span
-          className={cn(
-            "inline-flex items-center justify-center rounded-full px-1.5 min-w-[1.2rem] h-4 text-[10px] font-bold",
-            active ? "bg-primary/25 text-primary" : "bg-white/10",
-          )}
-        >
-          {count}
-        </span>
-      </button>
-    );
-  });
-
-  const clearButton = hasAnyFilter ? (
-    <button
-      type="button"
-      onClick={resetAll}
-      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25 px-3 py-1.5 text-xs font-semibold transition-colors"
-    >
-      <X className="h-3.5 w-3.5" />
-      Pulisci
-    </button>
-  ) : null;
-
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <header className="sticky top-24 z-30 space-y-2 md:space-y-3 -mx-4 md:-mx-6 px-4 md:px-6 py-2 backdrop-blur-sm bg-[hsl(218_32%_12%/0.6)]">
-        {/* MOBILE: search + date together, sector pills in a second card */}
-        <div className="md:hidden space-y-2">
-          <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 flex items-center gap-2">
-            {searchField}
-            {datePopover}
-          </div>
-          <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 flex items-center gap-1.5 flex-wrap">
-            {sectorPills}
-            {clearButton}
-          </div>
+    <div className="max-w-6xl mx-auto">
+      {/* Page header — editorial */}
+      <header className="pt-4 md:pt-8 pb-8 flex items-end justify-between gap-6 flex-wrap border-b border-white/[0.06]">
+        <div>
+          <p className="net-mono text-[10.5px] font-semibold uppercase tracking-[0.22em] text-primary/90 flex items-center gap-3">
+            <span aria-hidden className="w-5 h-px bg-primary" />
+            Atti di regolazione · 2024–2026
+          </p>
+          <h1 className="mt-4 text-[34px] md:text-[48px] font-extrabold leading-[1] tracking-[-0.035em] text-foreground">
+            Delibere{" "}
+            <span className="net-serif italic font-normal text-primary/90">
+              ARERA
+            </span>
+          </h1>
         </div>
-
-        {/* DESKTOP: everything in one liquid-glass bar */}
-        <div className="hidden md:flex liquid-glass-nav rounded-[1.75rem] p-3 items-center gap-2">
-          {searchField}
-          <div aria-hidden className="w-px h-6 bg-white/10" />
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {sectorPills}
-            {datePopover}
-            {clearButton}
-          </div>
+        <div className="flex items-baseline gap-7 md:gap-9 pr-1">
+          <KPI value={String(DELIBERE.length).padStart(2, "0")} label="Atti" />
+          <KPI value={String(visible.length).padStart(2, "0")} label="Filtrate" />
+          <KPI value={todayLabel()} label="Aggiornato" mono />
         </div>
-
-        <p className="text-[11px] text-muted-foreground/70 px-2">
-          {visible.length}{" "}
-          {visible.length === 1 ? "delibera" : "delibere"} nel filtro corrente
-        </p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 items-start">
+      {/* Sticky filter rail */}
+      <div className="sticky top-[88px] z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-5 pb-4 bg-gradient-to-b from-[hsl(218_32%_7%)] via-[hsl(218_32%_7%/0.95)] to-transparent backdrop-blur-sm">
+        <div className="flex items-stretch border border-white/[0.1] rounded-xl bg-[hsl(218_28%_10%)] overflow-hidden">
+          {/* Search */}
+          <label className="flex items-center gap-3 px-4 md:px-5 flex-1 min-w-0 border-r border-white/[0.08]">
+            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cerca titolo, codice, contenuto…"
+              className="bg-transparent border-0 outline-none w-full py-3 text-[14px] text-foreground placeholder:text-muted-foreground/60 tracking-[-0.005em]"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Pulisci ricerca"
+                className="text-muted-foreground hover:text-foreground shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </label>
+
+          {/* Sector segmented — hairline underline */}
+          <div className="hidden md:flex items-stretch border-r border-white/[0.08]">
+            {SECTORS.map((s) => {
+              const active = sector === s.v;
+              const count = sectorCounts[s.v];
+              return (
+                <button
+                  key={s.v}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setSector(s.v)}
+                  className={cn(
+                    "relative px-4 lg:px-5 net-mono text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                    active
+                      ? "text-foreground bg-white/[0.03]"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {s.label}
+                  <span
+                    className={cn(
+                      "ml-2 text-[10px] tracking-[0.08em]",
+                      active ? "text-primary/90" : "text-muted-foreground/70",
+                    )}
+                  >
+                    {String(count).padStart(2, "0")}
+                  </span>
+                  {active && (
+                    <span
+                      aria-hidden
+                      className="absolute left-4 right-4 lg:left-5 lg:right-5 bottom-0 h-[2px] bg-primary"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Date popover */}
+          <DatePopoverTrigger
+            label={periodLabel}
+            active={periodActive}
+            period={period}
+            year={year}
+            availableYears={availableYears}
+            onSelectPeriod={(p) => {
+              setPeriod(p);
+              setYear(null);
+            }}
+            onSelectYear={(y) => {
+              setYear(y);
+              setPeriod("all");
+            }}
+          />
+        </div>
+
+        {/* Mobile sector row */}
+        <div className="md:hidden mt-2 flex items-center gap-1 border border-white/[0.1] rounded-xl bg-[hsl(218_28%_10%)] overflow-hidden">
+          {SECTORS.map((s) => {
+            const active = sector === s.v;
+            const count = sectorCounts[s.v];
+            return (
+              <button
+                key={s.v}
+                type="button"
+                onClick={() => setSector(s.v)}
+                className={cn(
+                  "relative flex-1 px-4 py-2.5 net-mono text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors",
+                  active
+                    ? "text-foreground bg-white/[0.03]"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {s.label}
+                <span
+                  className={cn(
+                    "ml-2 text-[10px]",
+                    active ? "text-primary/90" : "text-muted-foreground/70",
+                  )}
+                >
+                  {String(count).padStart(2, "0")}
+                </span>
+                {active && (
+                  <span
+                    aria-hidden
+                    className="absolute left-4 right-4 bottom-0 h-[2px] bg-primary"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="net-mono text-[10.5px] uppercase tracking-[0.2em] text-muted-foreground/80 mt-3 px-1">
+          — {String(visible.length).padStart(2, "0")} atti nel filtro corrente
+        </p>
+      </div>
+
+      {/* Grid · sidebar + articles */}
+      <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12 items-start pt-6 pb-16">
         <DelibereSidebar />
 
-        <div className="space-y-5 min-w-0">
+        <div className="min-w-0">
           {visible.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                Nessuna delibera nel filtro corrente.
+            <div className="net-card p-10 text-center">
+              <p className="net-serif text-[15px] text-muted-foreground">
+                Nessun atto corrisponde al filtro corrente.
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-4 sm:gap-5">
+            <div className="flex flex-col gap-6">
               {visible.map((d) => (
                 <DeliberaCard
                   key={d.code}
@@ -282,7 +310,34 @@ export function DelibereList() {
   );
 }
 
-function DatePopoverPill({
+function KPI({
+  value,
+  label,
+  mono,
+}: {
+  value: string;
+  label: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span
+        className={cn(
+          "font-bold text-[22px] md:text-[26px] leading-none tracking-[-0.02em] text-foreground",
+          mono && "net-mono",
+          !mono && "net-mono",
+        )}
+      >
+        {value}
+      </span>
+      <span className="net-mono text-[9.5px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/80">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function DatePopoverTrigger({
   label,
   active,
   period,
@@ -307,22 +362,24 @@ function DatePopoverPill({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all shrink-0",
+            "inline-flex items-center gap-2 px-4 md:px-5 net-mono text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors shrink-0",
             active
-              ? "border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20"
-              : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25",
+              ? "text-primary"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           <Calendar className="h-3.5 w-3.5" />
-          <span className="truncate max-w-[140px]">{label}</span>
-          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+          <span className="truncate max-w-[140px] normal-case tracking-[0.06em]">
+            {label}
+          </span>
+          <ChevronDown className="h-3 w-3 opacity-70" />
         </button>
       </PopoverTrigger>
       <PopoverContent
-        align="start"
-        className="w-[220px] p-0 border-primary/20 bg-card/40 backdrop-blur-xl dispaccio-card rounded-2xl"
+        align="end"
+        className="w-[220px] p-0 border-white/10 bg-[hsl(218_28%_10%)] rounded-xl overflow-hidden"
       >
-        <div className="py-1 border-b border-white/10">
+        <div className="py-1 border-b border-white/[0.08]">
           {PERIODS.map((p) => {
             const active = period === p.v && year === null;
             return (
@@ -334,10 +391,10 @@ function DatePopoverPill({
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-left transition-colors",
+                  "w-full flex items-center justify-between gap-2 px-3 py-2 text-[13px] text-left transition-colors tracking-[-0.005em]",
                   active
                     ? "bg-primary/10 text-foreground"
-                    : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                    : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground",
                 )}
               >
                 {p.label}
@@ -348,7 +405,7 @@ function DatePopoverPill({
         </div>
         {availableYears.length > 0 && (
           <div className="py-1">
-            <p className="px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+            <p className="net-mono px-3 py-1.5 text-[9.5px] uppercase tracking-[0.22em] text-muted-foreground/80 font-semibold">
               Per anno
             </p>
             {availableYears.map((y) => {
@@ -362,10 +419,10 @@ function DatePopoverPill({
                     setOpen(false);
                   }}
                   className={cn(
-                    "w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-left transition-colors",
+                    "w-full flex items-center justify-between gap-2 px-3 py-2 net-mono text-[12px] text-left transition-colors tracking-[0.04em]",
                     active
                       ? "bg-primary/10 text-foreground"
-                      : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                      : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground",
                   )}
                 >
                   {y}
