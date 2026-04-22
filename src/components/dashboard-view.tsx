@@ -15,6 +15,7 @@ type SearchParams = {
   status?: string;
   tipo?: string;
   prov?: string;
+  network?: string;
 };
 
 export async function DashboardView({
@@ -94,12 +95,38 @@ export async function DashboardView({
     docsByLead.set(d.lead_id, (docsByLead.get(d.lead_id) ?? 0) + 1);
   }
 
-  const leads: Lead[] = leadsRaw.map((l) => ({
-    ...l,
-    podcast_status: guestByLead.get(l.id)?.status ?? null,
-    podcast_confirmed_at: guestByLead.get(l.id)?.response_confirmed_at ?? null,
-    documents_count: docsByLead.get(l.id) ?? 0,
-  }));
+  const { data: memberRows } = await supabase
+    .from("network_members")
+    .select("piva")
+    .is("revoked_at", null);
+  const memberPivas = new Set(
+    ((memberRows ?? []) as { piva: string }[]).map((r) => r.piva),
+  );
+
+  const leads: Lead[] = leadsRaw.map((l) => {
+    const isMember = memberPivas.has(l.piva);
+    const isInvited = !!l.survey_sent_at;
+    const networkStatus: "member" | "invited" | null = isMember
+      ? "member"
+      : isInvited
+        ? "invited"
+        : null;
+    return {
+      ...l,
+      podcast_status: guestByLead.get(l.id)?.status ?? null,
+      podcast_confirmed_at: guestByLead.get(l.id)?.response_confirmed_at ?? null,
+      documents_count: docsByLead.get(l.id) ?? 0,
+      network_status: networkStatus,
+    };
+  });
+
+  const networkFilter = sp.network;
+  const filteredLeads =
+    networkFilter === "member"
+      ? leads.filter((l) => l.network_status === "member")
+      : networkFilter === "invited"
+        ? leads.filter((l) => l.network_status === "invited")
+        : leads;
 
   const { data: provData } = await supabase
     .from("leads")
@@ -121,7 +148,7 @@ export async function DashboardView({
     <div className="space-y-4">
       <StatsCards stats={stats} />
       <FilterBar provinces={provinces} />
-      <DashboardClient leads={leads} initialLeadId={initialLeadId} />
+      <DashboardClient leads={filteredLeads} initialLeadId={initialLeadId} />
     </div>
   );
 }

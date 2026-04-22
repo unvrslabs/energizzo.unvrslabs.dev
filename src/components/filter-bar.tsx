@@ -2,7 +2,16 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { Search, X, MapPin, Check, ChevronDown, Activity, Zap } from "lucide-react";
+import {
+  Search,
+  X,
+  MapPin,
+  Check,
+  ChevronDown,
+  Activity,
+  Zap,
+  Network,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -25,6 +34,7 @@ export function FilterBar({ provinces }: Props) {
   const currentStatus = (search.get("status")?.split(",").filter(Boolean) ?? []) as Status[];
   const currentTipo = (search.get("tipo")?.split(",").filter(Boolean) ?? []) as TipoServizio[];
   const currentProv = search.get("prov")?.split(",").filter(Boolean) ?? [];
+  const currentNetwork = (search.get("network") ?? "") as "" | "invited" | "member";
   const q = search.get("q") ?? "";
 
   const [qLocal, setQLocal] = useState(q);
@@ -35,6 +45,16 @@ export function FilterBar({ provinces }: Props) {
       const params = new URLSearchParams(search.toString());
       if (values.length === 0) params.delete(key);
       else params.set(key, values.join(","));
+      startTransition(() => router.replace(`${pathname}?${params.toString()}`));
+    },
+    [router, pathname, search],
+  );
+
+  const updateSingle = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(search.toString());
+      if (!value) params.delete(key);
+      else params.set(key, value);
       startTransition(() => router.replace(`${pathname}?${params.toString()}`));
     },
     [router, pathname, search],
@@ -51,7 +71,12 @@ export function FilterBar({ provinces }: Props) {
     return () => clearTimeout(id);
   }, [qLocal, q, router, pathname, search]);
 
-  const totalFilters = currentStatus.length + currentTipo.length + currentProv.length + (q ? 1 : 0);
+  const totalFilters =
+    currentStatus.length +
+    currentTipo.length +
+    currentProv.length +
+    (currentNetwork ? 1 : 0) +
+    (q ? 1 : 0);
 
   return (
     <div className="liquid-glass-card rounded-[1.5rem] p-3">
@@ -80,6 +105,11 @@ export function FilterBar({ provinces }: Props) {
           all={provinces}
           selected={currentProv}
           onChange={(arr) => updateParam("prov", arr)}
+        />
+
+        <NetworkPicker
+          value={currentNetwork}
+          onChange={(v) => updateSingle("network", v)}
         />
 
         {totalFilters > 0 && (
@@ -286,6 +316,82 @@ function StatusPicker({
                 </span>
                 <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: cfg.color }} />
                 <span className="truncate">{cfg.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function NetworkPicker({
+  value,
+  onChange,
+}: {
+  value: "" | "invited" | "member";
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const options: { v: "" | "invited" | "member"; label: string; color: string }[] = [
+    { v: "", label: "Tutti", color: "#64748b" },
+    { v: "invited", label: "Invitati", color: "#38bdf8" },
+    { v: "member", label: "Membri", color: "#10b981" },
+  ];
+  const current = options.find((o) => o.v === value) ?? options[0];
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border bg-white/5 backdrop-blur-md px-4 h-11 text-sm transition-all whitespace-nowrap max-w-[200px]",
+            value
+              ? "border-primary text-foreground shadow-sm shadow-primary/20"
+              : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",
+          )}
+        >
+          {value ? (
+            <span
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: current.color }}
+            />
+          ) : (
+            <Network className="h-4 w-4 shrink-0" />
+          )}
+          <span className="truncate">
+            {value ? current.label : "Network"}
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0" align="start">
+        <div className="py-1">
+          {options.map((o) => {
+            const active = value === o.v;
+            return (
+              <button
+                key={o.v || "all"}
+                type="button"
+                onClick={() => {
+                  onChange(o.v);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-colors text-left",
+                  active
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                )}
+              >
+                <span
+                  className="h-2.5 w-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: o.color }}
+                />
+                <span className="truncate">{o.label}</span>
+                {active && <Check className="ml-auto h-3.5 w-3.5 text-primary" />}
               </button>
             );
           })}

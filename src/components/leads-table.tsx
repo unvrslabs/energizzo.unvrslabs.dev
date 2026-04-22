@@ -1,7 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { ExternalLink, Mail, Phone, Users } from "lucide-react";
+import {
+  CheckCircle2,
+  ExternalLink,
+  Mail,
+  MinusCircle,
+  Phone,
+  Send,
+  Users,
+} from "lucide-react";
 import { StatusBadge } from "./status-badge";
 import { SurveyBadge } from "./survey-badge";
 import { PodcastStatusBadge } from "./podcast-status-badge";
@@ -17,6 +25,7 @@ type Props = {
 const COLS = [
   { key: "ragione", label: "Ragione sociale", width: "minmax(240px, 1.6fr)" },
   { key: "stato", label: "Stato", width: "150px" },
+  { key: "network", label: "Network", width: "120px" },
   { key: "report", label: "Report", width: "130px" },
   { key: "podcast", label: "Podcast", width: "130px" },
   { key: "tipo", label: "Tipo", width: "110px" },
@@ -28,6 +37,35 @@ const COLS = [
   { key: "titolari", label: "Titolari", width: "minmax(130px, 0.3fr)" },
 ] as const;
 
+function NetworkBadge({
+  status,
+}: {
+  status: "member" | "invited" | null | undefined;
+}) {
+  if (status === "member") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/15 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+        <CheckCircle2 className="h-3 w-3" />
+        Membro
+      </span>
+    );
+  }
+  if (status === "invited") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/40 bg-sky-500/15 text-sky-300 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+        <Send className="h-3 w-3" />
+        Invitato
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+      <MinusCircle className="h-3 w-3" />
+      Nessuno
+    </span>
+  );
+}
+
 export function LeadsTable({ leads, onSelect }: Props) {
   const rows = useMemo(() => leads, [leads]);
   const gridTemplate = COLS.map((c) => c.width).join(" ");
@@ -35,7 +73,7 @@ export function LeadsTable({ leads, onSelect }: Props) {
   return (
     <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
       <div className="max-h-[72vh] overflow-auto scroll-contained">
-        <div className="min-w-[1530px] w-full">
+        <div className="min-w-[1650px] w-full">
           {/* Header */}
           <div
             className="sticky top-0 z-10 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
@@ -75,6 +113,9 @@ export function LeadsTable({ leads, onSelect }: Props) {
               </div>
               <div className="px-4 py-3">
                 <StatusBadge status={l.status} />
+              </div>
+              <div className="px-4 py-3">
+                <NetworkBadge status={l.network_status} />
               </div>
               <div className="px-4 py-3">
                 <SurveyBadge status={l.survey_status} />

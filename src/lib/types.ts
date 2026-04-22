@@ -39,6 +39,7 @@ export type Lead = {
   podcast_status?: string | null;
   podcast_confirmed_at?: string | null;
   documents_count?: number;
+  network_status?: "member" | "invited" | null;
 };
 
 export type SurveyResponse = {
