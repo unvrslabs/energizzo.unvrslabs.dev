@@ -467,7 +467,7 @@
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  background-color: hsl(218 48% 10%);
+  background-color: hsl(218 48% 9%);
   pointer-events: none;
 }
 
@@ -475,9 +475,51 @@
   position: absolute;
   border-radius: 9999px;
   filter: blur(100px);
-  opacity: 0.6;
+  opacity: 0.55;
   will-change: transform;
   mix-blend-mode: screen;
+}
+
+@media (max-width: 768px) {
+  .aurora-stage {
+    background-color: hsl(218 50% 7%);
+  }
+  .aurora-blob {
+    filter: blur(60px);
+    opacity: 0.3;
+    mix-blend-mode: normal;
+  }
+  .aurora-blob--a {
+    width: 22rem;
+    height: 22rem;
+    left: -6rem;
+    top: -6rem;
+  }
+  .aurora-blob--b {
+    width: 20rem;
+    height: 20rem;
+    right: -5rem;
+    top: 25%;
+  }
+  .aurora-blob--c {
+    width: 22rem;
+    height: 22rem;
+    left: -4rem;
+    bottom: -8rem;
+  }
+  .aurora-blob--d {
+    width: 18rem;
+    height: 18rem;
+    right: -3rem;
+    bottom: 10%;
+  }
+  .aurora-grid {
+    background-size: 40px 40px;
+    opacity: 0.35;
+  }
+  .aurora-scanline {
+    opacity: 0.25;
+  }
 }
 
 .aurora-blob--a {
@@ -571,6 +613,12 @@
   pointer-events: none;
 }
 
+@media (max-width: 768px) {
+  .aurora-vignette {
+    background: radial-gradient(ellipse at center, transparent 15%, hsl(218 60% 5% / 0.92) 90%);
+  }
+}
+
 /* Floating icons in hero */
 .float-icon {
   position: absolute;
@@ -578,6 +626,13 @@
   filter: drop-shadow(0 0 10px hsl(158 80% 55% / 0.35));
   animation: float-bob 9s ease-in-out infinite;
   will-change: transform;
+}
+
+@media (max-width: 768px) {
+  .float-icon {
+    color: hsl(158 70% 60% / 0.22);
+    filter: drop-shadow(0 0 6px hsl(158 80% 55% / 0.18));
+  }
 }
 
 @keyframes float-bob {
