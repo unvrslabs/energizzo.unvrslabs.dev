@@ -430,12 +430,12 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                 {lead.survey_status === "not_sent" && (
                   <Button size="sm" variant="outline" onClick={markSent} disabled={markingSent}>
                     <Send className="h-3.5 w-3.5" />
-                    {markingSent ? "Salvo..." : "Segna come inviata"}
+                    {markingSent ? "Salvo..." : "Segna come invitato"}
                   </Button>
                 )}
                 {lead.survey_sent_at && lead.survey_status !== "completed" && (
                   <p className="text-[10px] text-muted-foreground">
-                    Inviata {formatDistanceToNow(new Date(lead.survey_sent_at), { locale: it, addSuffix: true })}
+                    Invitato {formatDistanceToNow(new Date(lead.survey_sent_at), { locale: it, addSuffix: true })}
                     {lead.survey_last_step_at && (
                       <> · ultima attività {formatDistanceToNow(new Date(lead.survey_last_step_at), { locale: it, addSuffix: true })}</>
                     )}
@@ -443,7 +443,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
                 )}
                 {lead.survey_completed_at && (
                   <p className="text-[10px] text-emerald-300">
-                    Completata {formatDistanceToNow(new Date(lead.survey_completed_at), { locale: it, addSuffix: true })}
+                    Completato {formatDistanceToNow(new Date(lead.survey_completed_at), { locale: it, addSuffix: true })}
                   </p>
                 )}
               </div>

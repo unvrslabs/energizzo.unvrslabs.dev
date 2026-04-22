@@ -10,11 +10,19 @@ export default async function NetworkAdminLayout({
 }) {
   const supabase = createAdminClient();
 
-  const [{ count: pendingCount }, { count: membersCount }] = await Promise.all([
+  const [
+    { count: pendingCount },
+    { count: invitedCount },
+    { count: membersCount },
+  ] = await Promise.all([
     supabase
       .from("network_join_requests")
       .select("id", { count: "exact", head: true })
       .or("status.eq.pending,status.is.null"),
+    supabase
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .not("survey_sent_at", "is", null),
     supabase
       .from("network_members")
       .select("id", { count: "exact", head: true })
@@ -33,6 +41,7 @@ export default async function NetworkAdminLayout({
 
       <NetworkAdminTabs
         pendingCount={pendingCount ?? 0}
+        invitedCount={invitedCount ?? 0}
         membersCount={membersCount ?? 0}
       />
 

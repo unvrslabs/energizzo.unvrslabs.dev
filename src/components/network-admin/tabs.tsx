@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Inbox, Users2 } from "lucide-react";
+import { Inbox, Send, Users2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NetworkAdminTabs({
   pendingCount,
+  invitedCount,
   membersCount,
 }: {
   pendingCount: number;
+  invitedCount: number;
   membersCount: number;
 }) {
   const pathname = usePathname();
@@ -21,6 +23,13 @@ export function NetworkAdminTabs({
         icon={<Inbox className="h-4 w-4" />}
         label="Richieste"
         badge={pendingCount}
+      />
+      <Tab
+        href="/dashboard/network/invitati"
+        active={pathname?.startsWith("/dashboard/network/invitati") ?? false}
+        icon={<Send className="h-4 w-4" />}
+        label="Invitati"
+        badge={invitedCount}
       />
       <Tab
         href="/dashboard/network/membri"
