@@ -31,21 +31,21 @@ export function FreeNetworkSection() {
           <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 md:gap-10">
             {/* Left: label + big "€0" */}
             <div className="flex flex-col items-center md:items-start gap-4 md:gap-5 shrink-0">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-xs sm:text-[13px] font-bold uppercase tracking-[0.2em] text-primary">
                   100% Gratuito
                 </span>
               </div>
 
-              <div className="flex items-baseline gap-1">
+              <div className="flex items-baseline gap-1.5">
                 <span
-                  className="block text-5xl sm:text-6xl md:text-7xl font-black tracking-tight text-primary"
+                  className="block text-6xl sm:text-7xl md:text-7xl font-black tracking-tight text-primary"
                   style={{ lineHeight: 1.1, paddingBottom: "0.1em" }}
                 >
                   €0
                 </span>
-                <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                <span className="text-sm sm:text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   Per sempre
                 </span>
               </div>
@@ -59,11 +59,11 @@ export function FreeNetworkSection() {
 
             {/* Right: pitch */}
             <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
+              <h3 className="text-xl sm:text-2xl md:text-2xl font-bold text-foreground leading-snug text-balance">
                 Il network è completamente gratuito.{" "}
                 <span className="text-primary">Ora e sempre.</span>
               </h3>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
+              <p className="text-sm sm:text-base md:text-base text-muted-foreground/90 leading-relaxed max-w-xl">
                 Tutti i servizi del Dispaccio sono inclusi: delibere ARERA
                 intelligenti, analizzate e riassunte in bullet point, con un
                 agente AI pronto a spiegartele. Benchmark tariffario live,
@@ -76,7 +76,7 @@ export function FreeNetworkSection() {
                 href="#iscrizione"
                 whileHover={{ scale: 1.03, y: -1 }}
                 whileTap={{ scale: 0.98 }}
-                className="mt-1 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-primary/40"
+                className="mt-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-6 py-3 text-sm sm:text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-primary/40"
               >
                 Richiedi l&apos;accesso
                 <ArrowRight className="w-4 h-4" />
@@ -93,7 +93,7 @@ export function FreeNetworkSection() {
           {/* Bottom: sponsor reveal */}
           <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
             <div className="flex flex-col items-center md:items-start gap-2 shrink-0">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 Reso possibile da
               </span>
               <a
@@ -113,7 +113,7 @@ export function FreeNetworkSection() {
               </a>
             </div>
 
-            <p className="flex-1 text-sm text-muted-foreground leading-relaxed max-w-xl">
+            <p className="flex-1 text-sm sm:text-base text-muted-foreground/90 leading-relaxed max-w-xl">
               Il network è sostenuto da{" "}
               <a
                 href="https://www.energizzo.it"
