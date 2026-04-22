@@ -43,15 +43,15 @@ export function FAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="mx-auto max-w-4xl px-6 py-20 sm:py-24">
-      <div className="mb-12 max-w-3xl">
-        <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
+    <section id="faq" className="mx-auto max-w-4xl px-4 sm:px-6 py-14 sm:py-20 md:py-24">
+      <div className="mb-8 sm:mb-12 max-w-3xl">
+        <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // FAQ
         </div>
-        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">
           Domande frequenti
         </h2>
-        <p className="mt-4 text-base sm:text-lg text-muted-foreground">
+        <p className="mt-3 sm:mt-4 text-sm sm:text-lg text-muted-foreground">
           Tutto quello che ti serve sapere.
         </p>
       </div>

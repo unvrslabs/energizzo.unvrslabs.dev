@@ -7,7 +7,7 @@ export function SponsorSection() {
   return (
     <section
       aria-label="Sponsor ufficiale"
-      className="relative mx-auto max-w-5xl px-6 py-16 md:py-20"
+      className="relative mx-auto max-w-5xl px-4 sm:px-6 py-12 sm:py-16 md:py-20"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ export function SponsorSection() {
           className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none"
         />
 
-        <div className="relative flex flex-col md:flex-row items-center gap-8 md:gap-10 p-8 md:p-10 lg:p-12">
+        <div className="relative flex flex-col md:flex-row items-center gap-6 sm:gap-8 md:gap-10 p-5 sm:p-8 md:p-10 lg:p-12">
           {/* Left: label + logo */}
           <div className="flex flex-col items-center md:items-start gap-4 md:gap-5 shrink-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
@@ -44,7 +44,7 @@ export function SponsorSection() {
               aria-label="Visita energizzo.it"
             >
               <span
-                className="block text-5xl md:text-6xl font-black tracking-tight text-primary"
+                className="block text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-primary"
                 style={{ lineHeight: 1.4, paddingBottom: "0.15em" }}
               >
                 energizzo
@@ -60,11 +60,11 @@ export function SponsorSection() {
 
           {/* Right: pitch + CTA */}
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-            <h3 className="text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
               La piattaforma AI che sostiene la nascita del primo network
               italiano del settore energia.
             </h3>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
               Energizzo è il software AI-native per i reseller di energia:
               fatturazione automatica, onboarding OCR, compliance ARERA e
               assistenza clienti 24/7. Partner strategico de Il Dispaccio.

@@ -160,7 +160,7 @@ export function SurveyRunner({
     <div className="fixed inset-0 text-foreground overflow-hidden">
       <ProgressBar value={progress} />
 
-      <div className="h-full w-full flex items-center justify-center overflow-y-auto px-6 py-14 sm:py-20">
+      <div className="h-full w-full flex items-center justify-center overflow-y-auto px-4 sm:px-6 py-10 sm:py-14 md:py-20">
         <div
           key={current.id}
           className={cn(

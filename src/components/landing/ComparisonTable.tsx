@@ -102,22 +102,95 @@ function MarkCell({
   );
 }
 
+const ALTERNATIVES: {
+  key: "arera" | "assoc" | "linkedin";
+  label: string;
+}[] = [
+  { key: "arera", label: "ARERA / GME" },
+  { key: "assoc", label: "Associazioni" },
+  { key: "linkedin", label: "LinkedIn / Social" },
+];
+
+function MarkInline({ data }: { data: { mark: Mark; note?: string } }) {
+  const icon =
+    data.mark === "yes" ? (
+      <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+    ) : data.mark === "no" ? (
+      <XCircle className="h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0" />
+    ) : (
+      <MinusCircle className="h-3.5 w-3.5 text-amber-400 flex-shrink-0" />
+    );
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs">
+      {icon}
+      <span className="text-muted-foreground">
+        {data.note ?? (data.mark === "no" ? "Non disponibile" : "—")}
+      </span>
+    </span>
+  );
+}
+
 export function ComparisonTable() {
   return (
-    <section id="confronto" className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
-      <div className="mb-12 max-w-3xl">
-        <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
+    <section
+      id="confronto"
+      className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20 md:py-24"
+    >
+      <div className="mb-8 sm:mb-12 max-w-3xl">
+        <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Alternativa a
         </div>
-        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">
           Dove andavi prima
         </h2>
-        <p className="mt-4 text-base sm:text-lg text-muted-foreground">
+        <p className="mt-3 sm:mt-4 text-sm sm:text-lg text-muted-foreground">
           Il Dispaccio sostituisce fonti frammentate, lente e dispersive.
         </p>
       </div>
 
-      <div className="dispaccio-card overflow-hidden">
+      {/* Mobile: stacked cards */}
+      <div className="space-y-3 md:hidden">
+        {ROWS.map((r) => (
+          <article
+            key={r.label}
+            className="dispaccio-card p-4 space-y-3"
+          >
+            <h3 className="text-sm font-bold tracking-tight">{r.label}</h3>
+            <div className="rounded-xl border border-primary/30 bg-primary/10 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary mb-1.5">
+                Il Dispaccio
+              </p>
+              <div className="flex items-center gap-2">
+                {r.dispaccio.mark === "yes" ? (
+                  <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                ) : r.dispaccio.mark === "no" ? (
+                  <XCircle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
+                ) : (
+                  <MinusCircle className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                )}
+                <span className="text-sm text-foreground font-medium">
+                  {r.dispaccio.note ?? "—"}
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-1.5 pt-1">
+              {ALTERNATIVES.map((alt) => (
+                <div key={alt.key} className="flex items-start justify-between gap-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70 shrink-0 pt-0.5">
+                    {alt.label}
+                  </span>
+                  <div className="text-right">
+                    <MarkInline data={r[alt.key]} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {/* Desktop: table */}
+      <div className="hidden md:block dispaccio-card overflow-hidden">
         <div className="overflow-x-auto scroll-x-contained">
           <table className="w-full min-w-[720px]">
             <thead>

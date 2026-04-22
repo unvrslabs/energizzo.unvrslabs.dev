@@ -115,22 +115,22 @@ export function PlatformTabs() {
   return (
     <section
       id="piattaforma"
-      className="mx-auto max-w-6xl px-6 py-20 sm:py-24"
+      className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20 md:py-24"
     >
-      <div className="mb-12 max-w-3xl">
-        <div className="text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
+      <div className="mb-8 sm:mb-12 max-w-3xl">
+        <div className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-primary mb-3 font-mono">
           // Il network
         </div>
-        <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">
           Un hub completo per chi vende energia in Italia
         </h2>
-        <p className="mt-4 text-base sm:text-lg text-muted-foreground">
+        <p className="mt-3 sm:mt-4 text-sm sm:text-lg text-muted-foreground">
           Oltre 80 fonti monitorate, 100+ reseller nel network, un report
           annuale. Dal giorno zero sei operativo.
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
         {TABS.map((t) => {
           const selected = active === t.id;
           return (
@@ -138,7 +138,7 @@ export function PlatformTabs() {
               key={t.id}
               type="button"
               onClick={() => setActive(t.id)}
-              className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all ${
                 selected
                   ? "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(158_64%_42%/0.4)]"
                   : "liquid-glass text-muted-foreground hover:text-foreground"
@@ -151,7 +151,7 @@ export function PlatformTabs() {
         })}
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
           <article
             key={c.title}

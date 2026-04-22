@@ -21,23 +21,23 @@ const UPCOMING: Episode[] = [
 
 export function PodcastSection() {
   return (
-    <section id="podcast" className="mx-auto max-w-6xl px-6 py-20 sm:py-24">
-      <div className="dispaccio-card p-8 sm:p-12 lg:p-16">
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-14 items-center">
+    <section id="podcast" className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20 md:py-24">
+      <div className="dispaccio-card p-5 sm:p-8 md:p-12 lg:p-16">
+        <div className="grid gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-14 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/30 px-3 py-1 mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/30 px-3 py-1 mb-4 sm:mb-6">
               <Video className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-bold text-primary tracking-[0.15em] uppercase">
+              <span className="text-[10px] sm:text-xs font-bold text-primary tracking-[0.15em] uppercase">
                 Podcast video
               </span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-[1.05]">
               Il Reseller,{" "}
               <span className="gradient-text">voci dal mercato.</span>
             </h2>
 
-            <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-4 sm:mt-5 text-sm sm:text-lg text-muted-foreground leading-relaxed">
               Interviste video 1 a 1 di 20 minuti con manager e operatori del
               settore reseller energia. STG, aste, M&amp;A, AI, recupero
               crediti, CER, telemarketing. Zero script, solo tecnicalia
@@ -46,7 +46,7 @@ export function PodcastSection() {
 
             <a
               href="#"
-              className="btn-premium mt-8 px-6 py-3 rounded-full font-semibold text-sm"
+              className="btn-premium mt-6 sm:mt-8 px-6 py-3 rounded-full font-semibold text-sm"
             >
               Guarda gli episodi <ArrowRight className="h-4 w-4" />
             </a>
@@ -139,8 +139,8 @@ export function PodcastSection() {
           </div>
         </div>
 
-        <div className="mt-10 pt-8 border-t border-border/30 flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full liquid-glass px-4 py-2 text-xs font-semibold text-muted-foreground">
+        <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-border/30 flex justify-center">
+          <span className="inline-flex items-center gap-2 rounded-full liquid-glass px-3 sm:px-4 py-2 text-[11px] sm:text-xs font-semibold text-muted-foreground text-center">
             10 episodi a stagione · Interviste video in formato 1 a 1
           </span>
         </div>

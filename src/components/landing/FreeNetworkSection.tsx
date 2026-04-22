@@ -7,7 +7,7 @@ export function FreeNetworkSection() {
   return (
     <section
       aria-label="Network gratuito · Sponsor ufficiale Energizzo"
-      className="relative mx-auto max-w-5xl px-6 py-16 md:py-20"
+      className="relative mx-auto max-w-5xl px-4 sm:px-6 py-12 sm:py-16 md:py-20"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -26,9 +26,9 @@ export function FreeNetworkSection() {
           className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none"
         />
 
-        <div className="relative p-8 md:p-10 lg:p-12">
+        <div className="relative p-5 sm:p-8 md:p-10 lg:p-12">
           {/* Top: main GRATIS message */}
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-10">
+          <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 md:gap-10">
             {/* Left: label + big "€0" */}
             <div className="flex flex-col items-center md:items-start gap-4 md:gap-5 shrink-0">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
@@ -40,12 +40,12 @@ export function FreeNetworkSection() {
 
               <div className="flex items-baseline gap-1">
                 <span
-                  className="block text-6xl md:text-7xl font-black tracking-tight text-primary"
+                  className="block text-5xl sm:text-6xl md:text-7xl font-black tracking-tight text-primary"
                   style={{ lineHeight: 1.1, paddingBottom: "0.1em" }}
                 >
                   €0
                 </span>
-                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                <span className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   Per sempre
                 </span>
               </div>
@@ -59,11 +59,11 @@ export function FreeNetworkSection() {
 
             {/* Right: pitch */}
             <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-              <h3 className="text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
                 Il network è completamente gratuito.{" "}
                 <span className="text-primary">Ora e sempre.</span>
               </h3>
-              <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
                 Tutti i servizi del Dispaccio sono inclusi: delibere ARERA
                 intelligenti, analizzate e riassunte in bullet point, con un
                 agente AI pronto a spiegartele. Benchmark tariffario live,
@@ -87,11 +87,11 @@ export function FreeNetworkSection() {
           {/* Divider */}
           <div
             aria-hidden
-            className="my-8 md:my-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            className="my-6 sm:my-8 md:my-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
           />
 
           {/* Bottom: sponsor reveal */}
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
             <div className="flex flex-col items-center md:items-start gap-2 shrink-0">
               <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 Reso possibile da
@@ -104,7 +104,7 @@ export function FreeNetworkSection() {
                 aria-label="Visita energizzo.it"
               >
                 <span
-                  className="block text-4xl md:text-5xl font-black tracking-tight text-primary"
+                  className="block text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-primary"
                   style={{ lineHeight: 1.3, paddingBottom: "0.1em" }}
                 >
                   energizzo

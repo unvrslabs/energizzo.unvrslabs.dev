@@ -32,7 +32,7 @@ export function SingleChoiceScreen({
   }, [screen.options, onChange]);
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-5 sm:space-y-7">
       {screen.section && <SectionLabel index={screen.section.index} label={screen.section.label} />}
       <h2 className="font-display text-2xl sm:text-4xl font-bold leading-tight tracking-tight">
         {screen.title}
