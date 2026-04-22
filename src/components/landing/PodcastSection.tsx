@@ -63,14 +63,14 @@ export function PodcastSection() {
                 transform: "translateZ(0)",
               }}
             >
-              {/* Decorative bokeh */}
+              {/* Decorative bokeh — kept inside bounds to avoid Safari clip glitches */}
               <div
                 aria-hidden
-                className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary/20 blur-3xl"
+                className="absolute top-8 right-8 w-40 h-40 rounded-full bg-primary/20 blur-3xl pointer-events-none"
               />
               <div
                 aria-hidden
-                className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-accent/15 blur-3xl"
+                className="absolute bottom-8 left-8 w-40 h-40 rounded-full bg-accent/15 blur-3xl pointer-events-none"
               />
 
               {/* faux browser/camera chrome top */}
