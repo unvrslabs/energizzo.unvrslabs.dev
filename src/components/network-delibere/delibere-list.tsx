@@ -24,6 +24,7 @@ import {
 } from "@/lib/delibere/mock";
 import { DeliberaCard } from "./delibera-card";
 import { DeliberaChatDialog } from "./delibera-chat-dialog";
+import { DelibereSidebar } from "./delibere-sidebar";
 
 type SectorFilter = "all" | "eel" | "gas";
 
@@ -217,7 +218,10 @@ export function DelibereList() {
   ) : null;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 max-w-6xl mx-auto">
+      <DelibereSidebar />
+
+      <div className="space-y-6 min-w-0">
       <header className="space-y-2 md:space-y-3">
         {/* MOBILE: search + date together, sector pills in a second card */}
         <div className="md:hidden space-y-2">
@@ -271,6 +275,7 @@ export function DelibereList() {
         onOpenChange={setChatOpen}
         delibera={selected}
       />
+      </div>
     </div>
   );
 }

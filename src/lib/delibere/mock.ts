@@ -29,6 +29,101 @@ export const SECTOR_SHORT: Record<DeliberaSector, string> = {
   com: "COM",
 };
 
+export type DeadlineSeverity = "live" | "imminent" | "upcoming" | "far";
+
+export type DeliberaDeadline = {
+  date: string;
+  label: string;
+  deliberaCode: string;
+  sector: DeliberaSector;
+  severity: DeadlineSeverity;
+};
+
+export const DELIBERE_DEADLINES: DeliberaDeadline[] = [
+  {
+    date: "2026-04-01",
+    label: "Avvio obbligatorio CDISP",
+    deliberaCode: "386/2025/R/EEL",
+    sector: "eel",
+    severity: "live",
+  },
+  {
+    date: "2026-05-15",
+    label: "Chiusura consultazione TIMOE 2026",
+    deliberaCode: "590/2024/R/COM",
+    sector: "com",
+    severity: "imminent",
+  },
+  {
+    date: "2026-06-30",
+    label: "Decorrenza nuove tariffe distribuzione gas",
+    deliberaCode: "475/2024/R/GAS",
+    sector: "gas",
+    severity: "upcoming",
+  },
+  {
+    date: "2026-07-20",
+    label: "Asta STG gas domestici — tornata 2026",
+    deliberaCode: "614/2024/R/EEL",
+    sector: "eel",
+    severity: "upcoming",
+  },
+  {
+    date: "2026-09-30",
+    label: "Aggiornamento quadri d'ambito ATEM",
+    deliberaCode: "475/2024/R/GAS",
+    sector: "gas",
+    severity: "far",
+  },
+];
+
+export type SavedDelibera = {
+  code: string;
+  savedAt: string;
+};
+
+export const SAVED_DELIBERE_MOCK: SavedDelibera[] = [
+  { code: "614/2024/R/EEL", savedAt: "2026-04-15" },
+  { code: "590/2024/R/COM", savedAt: "2026-04-10" },
+  { code: "475/2024/R/GAS", savedAt: "2026-04-02" },
+];
+
+export type MarketSnapshot = {
+  code: string;
+  label: string;
+  value: string;
+  unit: string;
+  delta: string;
+  trend: "up" | "down" | "flat";
+};
+
+export const MARKET_SNAPSHOT: MarketSnapshot[] = [
+  {
+    code: "PUN",
+    label: "Prezzo unico nazionale",
+    value: "143,40",
+    unit: "€/MWh",
+    delta: "+25,3%",
+    trend: "up",
+  },
+  {
+    code: "PSV",
+    label: "Punto scambio virtuale",
+    value: "0,5577",
+    unit: "€/Smc",
+    delta: "+48,0%",
+    trend: "up",
+  },
+  {
+    code: "TTF",
+    label: "Dutch TTF dayahead",
+    value: "14,74",
+    unit: "€/GJ",
+    delta: "+4,1%",
+    trend: "up",
+  },
+];
+
 export const DELIBERE: Delibera[] = [
   {
     code: "614/2024/R/EEL",
