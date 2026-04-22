@@ -233,9 +233,15 @@ export function Hero() {
         </div>
 
         {/* Scrolling service pills */}
-        <div className="mt-10 md:mt-14 overflow-hidden relative">
-          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+        <div
+          className="mt-10 md:mt-14 overflow-hidden relative"
+          style={{
+            maskImage:
+              "linear-gradient(to right, transparent 0, black 3rem, black calc(100% - 3rem), transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0, black 3rem, black calc(100% - 3rem), transparent 100%)",
+          }}
+        >
           <motion.div
             className="flex gap-3 w-max"
             animate={{ x: ["0%", "-50%"] }}
