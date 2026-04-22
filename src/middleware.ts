@@ -12,6 +12,7 @@ function isPublicRoute(pathname: string): boolean {
   return (
     pathname === "/" ||
     pathname.startsWith("/report/") ||
+    pathname.startsWith("/invito-network/") ||
     pathname.startsWith("/podcast/invito") ||
     pathname.startsWith("/api/podcast-invite") ||
     pathname.startsWith("/api/network-join") ||

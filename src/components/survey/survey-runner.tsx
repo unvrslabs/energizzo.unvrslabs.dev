@@ -106,6 +106,18 @@ export function SurveyRunner({
     if (nextScreen && nextScreen.type === "thanks") {
       setSaving(true);
       await completeSurveyResponse(token, currentAnswers);
+      const whatsapp = currentAnswers["Q25_whatsapp"];
+      if (typeof whatsapp === "string" && whatsapp.trim()) {
+        try {
+          await fetch("/api/network/activate-invite", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, whatsapp: whatsapp.trim() }),
+          });
+        } catch (err) {
+          console.error("activate-invite failed", err);
+        }
+      }
       setSaving(false);
     } else {
       persistProgress(newIndex, currentAnswers);

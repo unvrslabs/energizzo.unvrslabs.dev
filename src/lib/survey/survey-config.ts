@@ -523,13 +523,25 @@ export const SURVEY_SCREENS: Screen[] = [
     placeholder: "email@dominio.it",
   },
   {
+    id: "Q25_whatsapp",
+    type: "short_text",
+    section: SEC.s7,
+    title: "Ultimo passaggio: il tuo WhatsApp",
+    description:
+      "Usiamo WhatsApp per inviarti il codice di accesso alla piattaforma. Nessun altro utilizzo: niente marketing, niente spam. Includi il prefisso internazionale (es. +39).",
+    required: true,
+    placeholder: "+39 333 1234567",
+    pattern: /^[+\d\s().\-]{6,30}$/,
+    patternMessage: "Inserisci un numero WhatsApp valido con prefisso.",
+  },
+  {
     id: "thanks",
     type: "thanks",
-    title: "Grazie.",
+    title: "Accesso attivato.",
     description:
-      "La tua partecipazione rende questo report più solido e utile a tutto il settore.\n\nIl benchmark privato della tua azienda arriverà entro 60 giorni dalla chiusura della raccolta risposte.\n\nSe conosci un collega CEO/COO di un altro reseller a cui potrebbe interessare, segnalacelo: scrivici a emanuele@unvrslabs.dev.",
-    buttonText: "Scopri Energizzo",
-    buttonHref: "https://energizzo.it",
+      "Il tuo account nel network Il Dispaccio è pronto.\n\nTi abbiamo riconosciuto dal numero WhatsApp appena indicato. Entra ora nell'area riservata: ti inviamo un codice OTP su WhatsApp per il primo login.",
+    buttonText: "Entra nel network",
+    buttonHref: "/network/login",
   },
 ];
 

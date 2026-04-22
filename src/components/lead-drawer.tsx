@@ -123,7 +123,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     try {
       await navigator.clipboard.writeText(surveyLink);
       setCopied(true);
-      toast.success("Link report copiato");
+      toast.success("Link invito al network copiato");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Impossibile copiare il link");
@@ -135,7 +135,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     startMarkSentTransition(async () => {
       const res = await markSurveySent({ lead_id: lead.id });
       if (!res.ok) toast.error(`Errore: ${res.error}`);
-      else toast.success("Report marcato come inviato");
+      else toast.success("Invito al network marcato come inviato");
     });
   }
 
@@ -412,7 +412,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
             <section className="space-y-3">
               <h3 className="font-display text-xs font-semibold uppercase tracking-widest text-muted-foreground flex items-center justify-between">
                 <span className="inline-flex items-center gap-2">
-                  <ClipboardList className="h-3.5 w-3.5" /> Report 2026
+                  <ClipboardList className="h-3.5 w-3.5" /> Invito al network
                 </span>
                 <SurveyBadge status={lead.survey_status} />
               </h3>
@@ -710,14 +710,14 @@ function ActivityItem({ event }: { event: ActivityEvent }) {
     return wrap(
       "bg-amber-500/80",
       <Send className="h-2.5 w-2.5 text-background" />,
-      <p>Link report inviato</p>,
+      <p>Invito al network inviato</p>,
     );
   }
   if (event.event_type === "report_completed") {
     return wrap(
       "bg-emerald-500",
       <Check className="h-2.5 w-2.5 text-background" />,
-      <p>Report completato</p>,
+      <p>Questionario di adesione completato</p>,
     );
   }
   return wrap(

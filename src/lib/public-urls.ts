@@ -14,7 +14,7 @@ export function getAdminSiteUrl(): string {
 }
 
 export function getSurveyUrl(token: string): string {
-  return `${getPublicSiteUrl()}/report/${token}`;
+  return `${getPublicSiteUrl()}/invito-network/${token}`;
 }
 
 export function getPodcastInviteUrl(token: string): string {

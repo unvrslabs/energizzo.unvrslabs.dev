@@ -1,10 +1,17 @@
 "use client";
 
 import { useMemo } from "react";
-import { ArrowRight, BarChart3, Lock, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Gift,
+  Mic,
+  Sparkles,
+  Users2,
+} from "lucide-react";
 import type { LeadForSurvey } from "@/lib/survey/survey-client";
 
-const EMOJI = ["🎉", "🎊", "🏆", "✨", "📊", "⭐", "🎈", "🥳"];
+const EMOJI = ["🎉", "🎊", "🏆", "✨", "⚡", "⭐", "🎈", "🥳"];
 
 export function SurveyWelcome({
   lead,
@@ -36,7 +43,6 @@ export function SurveyWelcome({
       <div className="min-h-full px-6 py-16 sm:py-20 flex items-center">
         <div className="mx-auto max-w-3xl w-full animate-fade-in-up space-y-8">
           <header className="relative liquid-glass-card p-8 sm:p-10 text-center space-y-4 overflow-hidden">
-            {/* confetti layer */}
             <div aria-hidden className="absolute inset-0 pointer-events-none">
               {confetti.map((c, i) => (
                 <span
@@ -64,57 +70,98 @@ export function SurveyWelcome({
                 Complimenti! 🎉
               </h1>
               <p className="text-base sm:text-lg">
-                <strong>{lead.ragione_sociale}</strong> è stata selezionata per entrare nel
-                primo <span className="text-primary font-semibold">report indipendente</span>{" "}
-                sullo stato del reseller energia in Italia.
+                <strong>{lead.ragione_sociale}</strong> è stata selezionata per
+                entrare nel primo network italiano dei reseller energia:{" "}
+                <span className="text-primary font-semibold">Il Dispaccio</span>.
               </p>
               <p className="text-sm text-muted-foreground">
-                Grazie per aver scansionato la card di invito.
+                Hai accesso riservato. Attivalo compilando il questionario qui
+                sotto.
               </p>
             </div>
           </header>
 
           <section className="liquid-glass-card p-6 sm:p-7 space-y-3">
-            <h2 className="font-display text-xl tracking-wide">Di cosa si tratta</h2>
-            <p className="text-sm leading-relaxed">
-              Compilando <strong>24 domande in 3-5 minuti</strong> contribuisci al primo
-              benchmark operativo del settore reseller energia. In cambio riceverai entro 60
-              giorni un <strong>report privato</strong> con il posizionamento della tua
-              azienda confrontata in anonimato con i peer della tua fascia dimensionale.
+            <h2 className="font-display text-xl tracking-wide">
+              Cosa trovi nel network
+            </h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Il Dispaccio è lo spazio di lavoro comune dei reseller energia
+              italiani. Un luogo indipendente dove comprendere il mercato,
+              confrontarsi tra pari e anticipare le decisioni dei regolatori.
             </p>
-            <p className="text-sm leading-relaxed">
-              Tutte le risposte sono <strong>aggregate</strong>. Nessun dato individuale
-              sarà mai pubblicato o associato al nome della tua azienda.
-            </p>
+            <div className="grid sm:grid-cols-2 gap-3 pt-2">
+              <Feature
+                icon={BookOpen}
+                title="Delibere intelligenti"
+                body="Ogni delibera ARERA analizzata dall'AI con impatto operativo sul tuo business."
+              />
+              <Feature
+                icon={Sparkles}
+                title="Report mensile"
+                body="Benchmark indipendente del mercato reseller Italia, aggiornato ogni mese."
+              />
+              <Feature
+                icon={Mic}
+                title="Il Reseller · Podcast"
+                body="Conversazioni con i CEO/COO del settore. Accesso in anteprima agli episodi."
+              />
+              <Feature
+                icon={Users2}
+                title="Community riservata"
+                body="Spazio di confronto tra reseller ammessi. Zero fornitori, zero consulenti, zero spam."
+              />
+            </div>
           </section>
 
-          <div className="grid sm:grid-cols-3 gap-3">
-            <Feature
-              icon={BarChart3}
-              title="Benchmark privato"
-              body="Confronta la tua azienda in anonimato con i peer."
-            />
-            <Feature
-              icon={Lock}
-              title="Dati aggregati"
-              body="Nessun dato individuale associato al nome azienda."
-            />
-            <Feature
-              icon={Sparkles}
-              title="3–5 minuti"
-              body="24 domande. Benchmark entro 60 giorni."
-            />
-          </div>
+          <section className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/[0.12] via-primary/[0.04] to-transparent backdrop-blur-sm p-6 sm:p-7">
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 border border-primary/40">
+                <Gift className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-display text-xl tracking-wide mb-1">
+                  100% gratuito. Per sempre.
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  L&apos;iscrizione al network è gratuita e tutte le
+                  funzionalità lo resteranno. Non ci sarà{" "}
+                  <strong className="text-foreground">mai</strong> alcun costo
+                  per la tua azienda: niente fee di ingresso, niente
+                  abbonamento, niente upgrade a pagamento.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="liquid-glass-card p-6 sm:p-7 space-y-2">
+            <h2 className="font-display text-xl tracking-wide">
+              Come attivi l&apos;accesso
+            </h2>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Compila il questionario di ingresso (
+              <strong className="text-foreground">24 domande, 3–5 minuti</strong>
+              ). Il questionario serve a capire come sei posizionato nel mercato
+              e a calibrare i contenuti del network.
+            </p>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Alla fine lasci il tuo WhatsApp e{" "}
+              <strong className="text-foreground">
+                accedi subito alla piattaforma
+              </strong>
+              : zero attese, zero approvazioni manuali.
+            </p>
+          </section>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
             <button
               onClick={onStart}
               className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold h-12 px-7 text-base shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
             >
-              Inizia ora <ArrowRight className="h-4 w-4" />
+              Attiva il mio accesso <ArrowRight className="h-4 w-4" />
             </button>
             <p className="text-xs text-muted-foreground">
-              Il progresso viene salvato automaticamente: puoi riprendere in ogni momento.
+              Il progresso viene salvato: puoi riprendere in qualsiasi momento.
             </p>
           </div>
         </div>
