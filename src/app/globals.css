@@ -558,6 +558,34 @@
   animation: aurora-drift-d 24s ease-in-out infinite;
 }
 
+/* Variante sobria/professionale per la dashboard network */
+.aurora-stage--calm {
+  background-color: hsl(218 40% 8%);
+}
+.aurora-stage--calm .aurora-blob {
+  opacity: 0.22;
+  filter: blur(120px);
+  mix-blend-mode: normal;
+}
+.aurora-stage--calm .aurora-blob--a {
+  background: radial-gradient(circle at 30% 30%, hsl(158 50% 38% / 0.6), transparent 60%);
+}
+.aurora-stage--calm .aurora-blob--b {
+  background: radial-gradient(circle at 60% 40%, hsl(200 40% 35% / 0.5), transparent 60%);
+}
+.aurora-stage--calm .aurora-blob--c {
+  background: radial-gradient(circle at 50% 50%, hsl(215 35% 25% / 0.5), transparent 65%);
+}
+.aurora-stage--calm .aurora-blob--d {
+  background: radial-gradient(circle at 45% 45%, hsl(170 40% 30% / 0.45), transparent 65%);
+}
+.aurora-stage--calm .aurora-grid {
+  opacity: 0.25;
+}
+.aurora-stage--calm .aurora-vignette {
+  background: radial-gradient(ellipse at center, transparent 35%, hsl(218 50% 5% / 0.9) 100%);
+}
+
 @keyframes aurora-drift-a {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   33% { transform: translate3d(6rem, 3rem, 0) scale(1.12); }

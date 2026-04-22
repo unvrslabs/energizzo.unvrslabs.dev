@@ -18,7 +18,7 @@ export default async function NetworkProtectedLayout({
 
   return (
     <div className="relative min-h-screen">
-      <AnimatedBackground />
+      <AnimatedBackground variant="calm" />
       <NetworkNavbar
         member={{
           referente: member.referente,
