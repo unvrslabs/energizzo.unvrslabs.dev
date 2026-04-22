@@ -4,6 +4,7 @@ import { loadEpisode } from "@/lib/podcast-content";
 import { PublicEpisodeRenderer } from "@/components/podcast/public-episode-renderer";
 import { InviteConfirmForm } from "@/components/podcast/invite-confirm-form";
 import { WelcomeHero } from "@/components/podcast/welcome-hero";
+import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 import type { PodcastGuest } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +30,9 @@ export default async function InvitoPage({
   const alreadyConfirmed = !!g.response_confirmed_at;
 
   return (
-    <div className="min-h-screen py-10 px-4 md:px-6">
-      <div className="mx-auto max-w-3xl space-y-6">
+    <main className="relative min-h-screen py-10 px-4 md:px-6">
+      <AnimatedBackground />
+      <div className="mx-auto max-w-3xl space-y-6 relative z-10">
         <WelcomeHero />
 
         <section className="liquid-glass rounded-2xl p-6 space-y-3">
@@ -161,6 +163,6 @@ export default async function InvitoPage({
           Prodotto da <span className="text-primary font-semibold">UNVRS Labs</span>
         </footer>
       </div>
-    </div>
+    </main>
   );
 }

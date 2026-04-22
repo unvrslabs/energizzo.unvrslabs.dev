@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SurveyPage } from "@/components/survey/survey-page";
+import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 
 export const dynamic = "force-dynamic";
 
@@ -24,5 +25,10 @@ export default async function InvitoNetworkPage({
     notFound();
   }
 
-  return <SurveyPage token={codice} />;
+  return (
+    <main className="relative min-h-screen">
+      <AnimatedBackground />
+      <SurveyPage token={codice} />
+    </main>
+  );
 }

@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { loadDoc, listDocs } from "@/lib/podcast-content";
 import { KnowledgeRenderer } from "@/components/podcast/knowledge-renderer";
+import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,9 @@ export default async function PublicKnowledgePage({
   const allDocs = listDocs();
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-6">
-      <div className="mx-auto max-w-3xl space-y-4">
+    <main className="relative min-h-screen py-8 px-4 md:px-6">
+      <AnimatedBackground />
+      <div className="mx-auto max-w-3xl space-y-4 relative z-10">
         <Link
           href={`/podcast/invito/${token}`}
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -60,6 +62,6 @@ export default async function PublicKnowledgePage({
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
