@@ -178,7 +178,7 @@ export function Hero() {
     >
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12 xl:gap-16">
-          {/* Left — Text content */}
+          {/* Left column */}
           <div className="flex-1 text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -230,7 +230,7 @@ export function Hero() {
 
           </div>
 
-          {/* Right — Join request card (nudged slightly left on large screens) */}
+          {/* Right column: join request card (nudged slightly left on large screens) */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}

@@ -26,7 +26,7 @@ export function PodcastSection() {
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.05]">
-              Il Reseller —{" "}
+              Il Reseller,{" "}
               <span className="gradient-text">voci dal mercato.</span>
             </h2>
 

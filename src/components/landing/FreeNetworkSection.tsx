@@ -65,8 +65,8 @@ export function FreeNetworkSection() {
               </h3>
               <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
                 Tutti i servizi del Dispaccio sono inclusi: delibere ARERA
-                intelligenti — analizzate, riassunte in bullet point con un
-                agente AI pronto a spiegartele — benchmark tariffario live,
+                intelligenti, analizzate e riassunte in bullet point, con un
+                agente AI pronto a spiegartele. Benchmark tariffario live,
                 podcast &quot;Il Reseller&quot;, report indipendente annuale e
                 community peer-to-peer. Nessuna quota d&apos;ingresso, nessun
                 abbonamento, nessun costo nascosto.

@@ -47,7 +47,7 @@ export function Footer() {
 
       <div className="border-t border-border/20">
         <div className="mx-auto max-w-6xl px-6 py-6 text-[11px] text-muted-foreground/60 text-center">
-          © {new Date().getFullYear()} UNVRS Labs S.r.l. — Tutti i diritti
+          © {new Date().getFullYear()} UNVRS Labs S.r.l. · Tutti i diritti
           riservati
         </div>
       </div>

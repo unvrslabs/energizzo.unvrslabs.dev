@@ -66,7 +66,7 @@ const CONTENT: Record<TabId, TabCard[]> = {
     {
       pill: "Audio",
       title: "Podcast",
-      desc: '"Il Reseller" — 10 episodi a stagione con voci operative del mercato energia italiano.',
+      desc: '"Il Reseller": 10 episodi a stagione con voci operative del mercato energia italiano.',
     },
     {
       pill: "Weekly",
