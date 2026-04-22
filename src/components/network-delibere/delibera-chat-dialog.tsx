@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Sparkles, Send, Bot, User, Loader2 } from "lucide-react";
 import type { Delibera } from "@/lib/delibere/mock";
 
@@ -78,21 +78,21 @@ export function DeliberaChatDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl h-[80vh] sm:h-[75vh] p-0 overflow-hidden flex flex-col">
-        <DialogHeader className="p-4 sm:p-5 border-b border-white/10 bg-primary/5">
-          <DialogTitle className="flex items-center gap-2 text-base">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="flex flex-col h-full overflow-hidden p-0">
+        <SheetHeader className="p-4 sm:p-5 border-b border-white/10 bg-primary/5 space-y-0">
+          <SheetTitle className="flex items-center gap-2 text-base pr-8">
             <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 border border-primary/30 text-primary">
               <Sparkles className="h-4 w-4" />
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 text-left">
               <p className="font-bold truncate">Agente AI · {delibera?.code ?? ""}</p>
               <p className="text-[11px] font-normal text-muted-foreground truncate">
                 {delibera?.title ?? ""}
               </p>
             </div>
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
 
         <div
           ref={scrollRef}
@@ -154,8 +154,8 @@ export function DeliberaChatDialog({
             </button>
           </form>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 
