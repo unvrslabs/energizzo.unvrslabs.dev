@@ -146,12 +146,12 @@ export function Hero() {
 
           </div>
 
-          {/* Right — Join request card */}
+          {/* Right — Join request card (nudged slightly left on large screens) */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="lg:w-[440px] xl:w-[480px] shrink-0"
+            className="lg:w-[440px] xl:w-[480px] shrink-0 lg:-translate-x-8 xl:-translate-x-12"
           >
             <NetworkJoinCard />
           </motion.div>
