@@ -15,11 +15,11 @@ const FAQS: QA[] = [
   },
   {
     q: "Quanto costa l'accesso?",
-    a: "Per i venditori energia operativi in Italia l'accesso al network è gratuito, in cambio della partecipazione al survey annuale che alimenta il report di settore. Nessun abbonamento, nessuna quota.",
+    a: "Per i venditori energia operativi in Italia l'accesso al network è gratuito, in cambio della partecipazione al sondaggio annuale che alimenta il report di settore. Nessun abbonamento, nessuna quota.",
   },
   {
     q: "Come faccio a entrare?",
-    a: "Richiedi l'invito inviando una mail a emanuele@unvrslabs.dev con ragione sociale, P.IVA e nome del referente. Valuteremo il profilo e ti risponderemo entro 2 giorni lavorativi con il link al survey.",
+    a: "Compila il form di richiesta che trovi in cima alla pagina con ragione sociale, P.IVA, referente e WhatsApp. La tua candidatura verrà presa in carico e analizzata: se il profilo rispetta i requisiti ti ricontattiamo e ti spieghiamo la procedura di ammissione.",
   },
   {
     q: "Cosa include il report privato?",
@@ -30,12 +30,12 @@ const FAQS: QA[] = [
     a: "Sì. Tutte le risposte sono aggregate: nessun dato individuale sarà mai pubblicato o associato al nome della tua azienda. Solo il benchmark di fascia verrà condiviso, e solo con i partecipanti.",
   },
   {
-    q: "Il podcast dove lo ascolto?",
-    a: "Il podcast 'Il Reseller' è disponibile su Spotify, Apple Podcasts, YouTube. I membri del network hanno accesso anche alle trascrizioni complete, alle knowledge base degli episodi e possono proporre temi e ospiti.",
+    q: "Il podcast dove lo vedo?",
+    a: "Il Reseller è un podcast video. Ogni episodio viene pubblicato su YouTube, LinkedIn, Instagram, X e direttamente sulla piattaforma del Dispaccio. I membri del network hanno accesso anche alle trascrizioni complete e alla knowledge base degli episodi, e possono proporre temi e ospiti.",
   },
   {
     q: "Chi gestisce Il Dispaccio?",
-    a: "Il Dispaccio è un'iniziativa UNVRS Labs, la software house che sviluppa Energizzo (piattaforma AI per reseller energia). La redazione è indipendente dai vendor di settore.",
+    a: "Il Dispaccio è una piattaforma indipendente sponsorizzata da Energizzo. La sponsorizzazione copre i costi operativi: redazione, contenuti e community restano indipendenti dai vendor di settore.",
   },
 ];
 
