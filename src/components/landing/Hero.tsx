@@ -185,9 +185,9 @@ export function Hero() {
               transition={{ duration: 0.8 }}
               className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full liquid-glass border-primary/30 mb-6 md:mb-8"
             >
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs md:text-sm font-medium text-primary tracking-wide">
-                Il network dei reseller energia in Italia
+              <Mic className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+              <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
+                Il Dispaccio
               </span>
             </motion.div>
 
