@@ -208,7 +208,10 @@ export function DelibereList() {
                 <ChevronDown className="h-3.5 w-3.5 opacity-60" />
               </button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-[220px] p-0">
+            <PopoverContent
+              align="start"
+              className="w-[220px] p-0 border-primary/20 bg-card/40 backdrop-blur-xl dispaccio-card rounded-2xl"
+            >
               <div className="py-1 border-b border-white/10">
                 {PERIODS.map((p) => {
                   const active = period === p.v && year === null;

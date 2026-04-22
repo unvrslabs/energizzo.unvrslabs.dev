@@ -219,7 +219,10 @@ function ProfileMenu({
           {initial}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[280px] p-0 overflow-hidden">
+      <PopoverContent
+        align="end"
+        className="w-[280px] p-0 overflow-hidden border-primary/20 bg-card/40 backdrop-blur-xl dispaccio-card rounded-2xl"
+      >
         <div className="p-4 border-b border-white/10 bg-primary/5">
           <div className="flex items-center gap-3">
             <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 border border-primary/40 text-primary font-bold">
