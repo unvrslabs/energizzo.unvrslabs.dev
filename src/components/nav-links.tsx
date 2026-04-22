@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users2, Target, Mic, ClipboardList, Network } from "lucide-react";
+import { Users2, Target, Mic, ClipboardList, Network, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICONS = {
@@ -11,6 +11,7 @@ const ICONS = {
   mic: Mic,
   clipboard: ClipboardList,
   network: Network,
+  calculator: Calculator,
 } as const;
 
 type Item = { href: string; label: string; icon: keyof typeof ICONS };
