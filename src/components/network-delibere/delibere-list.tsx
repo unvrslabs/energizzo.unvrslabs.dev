@@ -154,8 +154,8 @@ export function DelibereList() {
       </header>
 
       {/* Sticky filter rail */}
-      <div className="sticky top-[88px] z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-5 pb-4 bg-gradient-to-b from-[hsl(218_32%_7%)] via-[hsl(218_32%_7%/0.95)] to-transparent backdrop-blur-sm">
-        <div className="flex items-stretch border border-white/[0.1] rounded-xl bg-[hsl(218_28%_10%)] overflow-hidden">
+      <div className="sticky top-[88px] z-30 -mx-4 md:-mx-6 px-4 md:px-6 pt-5 pb-4 bg-gradient-to-b from-[hsl(215_20%_15%)] via-[hsl(215_20%_15%/0.92)] to-transparent backdrop-blur-sm">
+        <div className="flex items-stretch border border-white/[0.1] rounded-xl bg-[hsl(215_18%_19%)] overflow-hidden">
           {/* Search */}
           <label className="flex items-center gap-3 px-4 md:px-5 flex-1 min-w-0 border-r border-white/[0.08]">
             <Search className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -235,7 +235,7 @@ export function DelibereList() {
         </div>
 
         {/* Mobile sector row */}
-        <div className="md:hidden mt-2 flex items-center gap-1 border border-white/[0.1] rounded-xl bg-[hsl(218_28%_10%)] overflow-hidden">
+        <div className="md:hidden mt-2 flex items-center gap-1 border border-white/[0.1] rounded-xl bg-[hsl(215_18%_19%)] overflow-hidden">
           {SECTORS.map((s) => {
             const active = sector === s.v;
             const count = sectorCounts[s.v];
@@ -377,7 +377,7 @@ function DatePopoverTrigger({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-[220px] p-0 border-white/10 bg-[hsl(218_28%_10%)] rounded-xl overflow-hidden"
+        className="w-[220px] p-0 border-white/10 bg-[hsl(215_18%_19%)] rounded-xl overflow-hidden"
       >
         <div className="py-1 border-b border-white/[0.08]">
           {PERIODS.map((p) => {

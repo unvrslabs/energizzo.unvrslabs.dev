@@ -50,10 +50,16 @@ function sectorCode(sector: DeliberaSector): string {
   return "COM";
 }
 
+function sectorGlyphColor(sector: DeliberaSector): string {
+  if (sector === "eel") return "text-amber-300";
+  if (sector === "gas") return "text-sky-300";
+  return "text-primary";
+}
+
 function SectorChip({ sector }: { sector: DeliberaSector }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] px-2.5 py-1 text-[11px] font-semibold tracking-[0.12em] text-foreground/85">
-      <span className="text-primary">{sectorGlyph(sector)}</span>
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.15] bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold tracking-[0.12em] text-foreground/90">
+      <span className={sectorGlyphColor(sector)}>{sectorGlyph(sector)}</span>
       {sectorCode(sector)}
     </span>
   );
@@ -71,7 +77,7 @@ export function DeliberaCard({
   return (
     <article className="net-card overflow-hidden">
       {/* Header · date + sector chips + code */}
-      <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-white/[0.06] flex-wrap">
+      <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-white/[0.1] flex-wrap">
         <span className="net-mono font-bold text-[13px] tracking-[0.06em] text-foreground">
           {day}
           <span className="text-muted-foreground/70 mx-0.5">·</span>
@@ -134,7 +140,7 @@ export function DeliberaCard({
               · {String(delibera.attachments.length).padStart(2, "0")}
             </span>
           </p>
-          <div className="mt-4 border-t border-white/[0.06] border-b">
+          <div className="mt-4 border-t border-white/[0.1] border-b">
             {delibera.attachments.map((a, i) => (
               <button
                 key={a.label}
@@ -147,7 +153,7 @@ export function DeliberaCard({
                 }}
                 className={`group w-full grid grid-cols-[48px_minmax(0,1fr)_auto_auto] items-center gap-4 px-6 py-3 text-left text-[14px] text-foreground/85 hover:text-foreground hover:bg-white/[0.02] transition-colors ${
                   i < delibera.attachments.length - 1
-                    ? "border-b border-white/[0.06]"
+                    ? "border-b border-white/[0.1]"
                     : ""
                 }`}
               >
