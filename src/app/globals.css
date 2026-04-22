@@ -58,11 +58,6 @@
   .font-mono {
     font-family: var(--font-mono), ui-monospace, monospace;
   }
-  section, main {
-    will-change: transform;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
 }
 
 @layer utilities {
