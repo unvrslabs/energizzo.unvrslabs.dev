@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getGuestDashboardUrl } from "@/lib/public-urls";
 
 const BodySchema = z.object({
   token: z.string().uuid(),
@@ -46,9 +47,7 @@ async function notifyTelegram(r: ConfirmResult) {
 
   const waDigits = (r.response_whatsapp ?? "").replace(/\D/g, "");
   const episodeLabel = r.episode_slug ? EPISODE_LABELS[r.episode_slug] ?? r.episode_slug : "—";
-  const guestUrl = r.guest_id
-    ? `https://leads.energizzo.it/dashboard/podcast/ospiti/${r.guest_id}`
-    : "";
+  const guestUrl = r.guest_id ? getGuestDashboardUrl(r.guest_id) : "";
 
   const lines = [
     "🎙️ *Nuova conferma podcast*",

@@ -1,7 +1,52 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
+const ADMIN_HOST = "dash.ildispaccio.energy";
+const PUBLIC_HOSTS = new Set(["ildispaccio.energy", "www.ildispaccio.energy"]);
+const PUBLIC_SITE_URL = "https://ildispaccio.energy";
+const ADMIN_SITE_URL = "https://dash.ildispaccio.energy";
+
+function isPublicRoute(pathname: string): boolean {
+  return (
+    pathname === "/" ||
+    pathname.startsWith("/report/") ||
+    pathname.startsWith("/podcast/invito") ||
+    pathname.startsWith("/api/podcast-invite")
+  );
+}
+
+function isAdminRoute(pathname: string): boolean {
+  return (
+    pathname === "/login" ||
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/")
+  );
+}
+
 export async function middleware(request: NextRequest) {
+  const host = (request.headers.get("host") ?? "").toLowerCase();
+  const pathname = request.nextUrl.pathname;
+
+  // dash.ildispaccio.energy → solo rotte admin
+  if (host === ADMIN_HOST) {
+    if (pathname === "/") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    if (isPublicRoute(pathname) && !isAdminRoute(pathname)) {
+      return NextResponse.redirect(new URL(pathname, PUBLIC_SITE_URL));
+    }
+    return updateSession(request);
+  }
+
+  // ildispaccio.energy + www → solo rotte pubbliche
+  if (PUBLIC_HOSTS.has(host)) {
+    if (isAdminRoute(pathname)) {
+      return NextResponse.redirect(new URL(pathname, ADMIN_SITE_URL));
+    }
+    return NextResponse.next({ request });
+  }
+
+  // Host sconosciuto (localhost, preview VPS diretto, legacy) → comportamento admin default
   return updateSession(request);
 }
 

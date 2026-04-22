@@ -24,9 +24,7 @@ import { firstPhone, cn } from "@/lib/utils";
 import { updateLeadEmail, updateLeadContacts } from "@/actions/update-lead";
 import { addNote } from "@/actions/add-note";
 import { createClient } from "@/lib/supabase/client";
-
-const SURVEY_BASE_URL =
-  process.env.NEXT_PUBLIC_SURVEY_BASE_URL ?? "https://report.unvrslabs.dev";
+import { getSurveyUrl } from "@/lib/public-urls";
 
 type Props = {
   lead: Lead | null;
@@ -118,7 +116,7 @@ export function LeadDrawer({ lead, open, onClose }: Props) {
     });
   }
 
-  const surveyLink = lead ? `${SURVEY_BASE_URL}/s/${lead.survey_token}` : "";
+  const surveyLink = lead ? getSurveyUrl(lead.survey_token) : "";
 
   async function copySurveyLink() {
     if (!surveyLink) return;

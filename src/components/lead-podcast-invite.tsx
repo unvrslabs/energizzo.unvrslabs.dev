@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { createGuestFromLead, updateGuest } from "@/actions/podcast-guest";
 import type { PodcastGuest } from "@/lib/types";
+import { getPodcastInviteUrl } from "@/lib/public-urls";
 
 const EPISODES: { slug: string; label: string }[] = [
   { slug: "01-transizione-stg-mercato-libero", label: "01 · STG verso libero" },
@@ -67,13 +68,7 @@ export function LeadPodcastInvite({ leadId }: { leadId: string }) {
     }
   }
 
-  const origin =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : "https://leads.energizzo.it";
-  const inviteUrl = guest?.invite_token
-    ? `${origin}/podcast/invito/${guest.invite_token}`
-    : null;
+  const inviteUrl = guest?.invite_token ? getPodcastInviteUrl(guest.invite_token) : null;
 
   async function copyLink() {
     if (!inviteUrl) return;

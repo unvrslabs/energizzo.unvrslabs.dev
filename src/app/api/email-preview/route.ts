@@ -2,11 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { render } from "@react-email/render";
 import { createClient } from "@/lib/supabase/server";
 import SurveyInviteEmail from "@/emails/SurveyInviteEmail";
-
-const SURVEY_BASE_URL =
-  process.env.SURVEY_BASE_URL ??
-  process.env.NEXT_PUBLIC_SURVEY_BASE_URL ??
-  "https://report.unvrslabs.dev";
+import { getSurveyUrl } from "@/lib/public-urls";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -34,7 +30,7 @@ export async function GET(req: NextRequest) {
     senderRole: searchParams.get("sender_role") ?? undefined,
     videoUrl: searchParams.get("video_url") ?? undefined,
     videoThumbnailUrl: searchParams.get("video_thumbnail_url") ?? undefined,
-    surveyUrl: `${SURVEY_BASE_URL}/s/${lead.survey_token}`,
+    surveyUrl: getSurveyUrl(lead.survey_token),
   };
 
   if (format === "text") {

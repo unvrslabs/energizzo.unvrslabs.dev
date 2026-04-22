@@ -26,7 +26,9 @@ type Props = {
   logoUrl?: string;
 };
 
-const DEFAULT_LOGO = "https://leads.energizzo.it/logo-energizzo.png";
+import { getPublicSiteUrl } from "@/lib/public-urls";
+
+const DEFAULT_LOGO = `${getPublicSiteUrl()}/logo-energizzo.png`;
 
 export default function SurveyInviteEmail({
   recipientName,

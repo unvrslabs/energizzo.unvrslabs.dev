@@ -1,5 +1,4 @@
 // Labels map used by the CRM to render survey responses in the lead drawer.
-// Keep in sync with the standalone survey site at report.unvrslabs.dev.
 
 export const SURVEY_QUESTION_LABELS: Record<string, string> = {
   Q1: "Nome dell'azienda",

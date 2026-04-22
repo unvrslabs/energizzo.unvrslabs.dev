@@ -5,6 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const LETTERS = "ABCDEFGHIJKL";
+export function keyFor(i: number): string {
+  return LETTERS[i] ?? String(i + 1);
+}
+
 export function contrastText(hex: string): "light" | "dark" {
   const c = hex.replace("#", "");
   const r = parseInt(c.slice(0, 2), 16);
