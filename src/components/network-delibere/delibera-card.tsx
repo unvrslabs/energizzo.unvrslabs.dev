@@ -56,7 +56,7 @@ function SectorBadge({ sector }: { sector: DeliberaSector }) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
         <Zap className="h-3 w-3" />
-        Elettrico
+        Energia
       </span>
     );
   }

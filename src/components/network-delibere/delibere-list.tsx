@@ -11,9 +11,15 @@ type Filter = "all" | "eel" | "gas";
 
 const FILTERS: { v: Filter; label: string; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
   { v: "all", label: "Tutte", icon: Layers, color: "text-muted-foreground" },
-  { v: "eel", label: "Energia elettrica", icon: Zap, color: "text-amber-300" },
+  { v: "eel", label: "Energia", icon: Zap, color: "text-amber-300" },
   { v: "gas", label: "Gas", icon: Flame, color: "text-sky-300" },
 ];
+
+function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
+  return [...items].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+}
 
 export function DelibereList() {
   const [filter, setFilter] = useState<Filter>("all");
@@ -21,10 +27,11 @@ export function DelibereList() {
   const [selected, setSelected] = useState<Delibera | null>(null);
 
   const visible = useMemo(() => {
-    if (filter === "all") return DELIBERE;
-    return DELIBERE.filter((d) =>
-      (d.sectors as DeliberaSector[]).includes(filter),
-    );
+    const base =
+      filter === "all"
+        ? DELIBERE
+        : DELIBERE.filter((d) => (d.sectors as DeliberaSector[]).includes(filter));
+    return sortByDateDesc(base);
   }, [filter]);
 
   const counts = useMemo(
@@ -109,7 +116,7 @@ export function DelibereList() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
+        <div className="max-w-3xl mx-auto flex flex-col gap-4 sm:gap-5">
           {visible.map((d) => (
             <DeliberaCard
               key={d.code}
