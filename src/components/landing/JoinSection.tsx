@@ -39,41 +39,40 @@ export function JoinSection() {
         </article>
 
         {/* CENTER (highlighted) */}
-        <article
-          className="liquid-glass-card p-8 flex flex-col relative md:scale-[1.03] border border-primary/40"
-          style={{
-            boxShadow:
-              "0 0 0 1px hsl(158 64% 42% / 0.25), 0 20px 60px hsl(158 64% 42% / 0.2)",
-          }}
-        >
-          <span className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em]">
+        <div className="relative md:scale-[1.03]">
+          <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-primary/40">
             Accesso completo
           </span>
-
-          <h3 className="text-2xl font-bold tracking-tight">
-            Network Core
-          </h3>
-          <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-            Tutte le sezioni: delibere, tariffe, podcast, eventi, report
-            privato, community CEO. Su invito, post survey.
-          </p>
-
-          <ul className="mt-6 space-y-2.5 flex-1">
-            {CORE_FEATURES.map((f) => (
-              <li key={f} className="flex items-center gap-2 text-sm">
-                <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-
-          <a
-            href="mailto:emanuele@unvrslabs.dev?subject=Richiesta%20accesso%20Il%20Dispaccio"
-            className="btn-premium mt-8 px-6 py-3 rounded-full font-semibold text-sm w-full"
+          <article
+            className="liquid-glass-card p-8 flex flex-col h-full border border-primary/40"
+            style={{
+              boxShadow:
+                "0 0 0 1px hsl(158 64% 42% / 0.25), 0 20px 60px hsl(158 64% 42% / 0.2)",
+            }}
           >
-            Richiedi invito <ArrowRight className="h-4 w-4" />
-          </a>
-        </article>
+            <h3 className="text-2xl font-bold tracking-tight">Network Core</h3>
+            <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+              Tutte le sezioni: delibere, tariffe, podcast, eventi, report
+              privato, community CEO. Su invito, post survey.
+            </p>
+
+            <ul className="mt-6 space-y-2.5 flex-1">
+              {CORE_FEATURES.map((f) => (
+                <li key={f} className="flex items-center gap-2 text-sm">
+                  <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href="mailto:emanuele@unvrslabs.dev?subject=Richiesta%20accesso%20Il%20Dispaccio"
+              className="btn-premium mt-8 px-6 py-3 rounded-full font-semibold text-sm w-full"
+            >
+              Richiedi invito <ArrowRight className="h-4 w-4" />
+            </a>
+          </article>
+        </div>
 
         {/* RIGHT */}
         <article className="liquid-glass-card liquid-glass-hover p-8 flex flex-col">
