@@ -158,5 +158,5 @@ export async function POST(req: NextRequest) {
     domain: process.env.NETWORK_SESSION_COOKIE_DOMAIN || undefined,
   });
 
-  return NextResponse.json({ ok: true, redirect: "/network" });
+  return NextResponse.json({ ok: true, redirect: "/network/delibere" });
 }
