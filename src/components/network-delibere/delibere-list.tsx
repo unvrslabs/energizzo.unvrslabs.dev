@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BookOpen, Filter, Zap, Flame, Layers } from "lucide-react";
+import { BookOpen, Zap, Flame, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DELIBERE, type Delibera, type DeliberaSector } from "@/lib/delibere/mock";
 import { DeliberaCard } from "./delibera-card";
@@ -68,10 +68,6 @@ export function DelibereList() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">
-            <Filter className="h-3 w-3" />
-            Filtra
-          </span>
           {FILTERS.map((f) => {
             const active = filter === f.v;
             const Icon = f.icon;
