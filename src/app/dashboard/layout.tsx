@@ -35,7 +35,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </header>
       </div>
-      <main className="mx-auto max-w-[1600px] px-4 md:px-6 py-4">{children}</main>
+      <main className="mx-auto max-w-[1600px] px-4 md:px-6 pt-8 md:pt-10 pb-8">{children}</main>
       <AgentBubble />
     </div>
   );
