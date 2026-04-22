@@ -40,8 +40,9 @@ export function SurveyWelcome({
                   Complimenti.
                 </h1>
                 <p className="text-base sm:text-lg leading-relaxed">
-                  <strong>{lead.ragione_sociale}</strong> è stata selezionata
-                  per entrare nel primo network italiano dei reseller energia:{" "}
+                  <strong>{lead.ragione_sociale}</strong> sei stata
+                  selezionata per entrare nel primo network italiano dei
+                  reseller energia:{" "}
                   <span className="text-primary font-semibold">
                     Il Dispaccio
                   </span>
