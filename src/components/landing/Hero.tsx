@@ -22,6 +22,59 @@ import {
   Phone,
 } from "lucide-react";
 
+function TypingText({
+  text,
+  speed = 28,
+  startDelay = 400,
+}: {
+  text: string;
+  speed?: number;
+  startDelay?: number;
+}) {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started) {
+          const t = setTimeout(() => setStarted(true), startDelay);
+          return () => clearTimeout(t);
+        }
+      },
+      { threshold: 0.3 },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [started, startDelay]);
+
+  useEffect(() => {
+    if (!started) return;
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      setDisplayed(text.slice(0, i));
+      if (i >= text.length) {
+        clearInterval(timer);
+        setDone(true);
+      }
+    }, speed);
+    return () => clearInterval(timer);
+  }, [started, text, speed]);
+
+  return (
+    <span ref={ref}>
+      {displayed}
+      <span
+        aria-hidden
+        className={`inline-block w-[2px] h-[1em] -mb-1 ml-[2px] align-baseline bg-primary ${done ? "opacity-0" : "animate-pulse"}`}
+      />
+    </span>
+  );
+}
+
 function AnimatedNumber({
   value,
   decimals = 0,
@@ -126,11 +179,13 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-3xl md:text-6xl lg:text-7xl font-black text-foreground leading-[1.1] tracking-tight mb-5 md:mb-7"
+              className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground leading-[1.1] tracking-tight mb-5 md:mb-7"
             >
-              Il punto di riferimento.
-              <br />
-              <span className="gradient-text">Per chi vende energia.</span>
+              Il primo network italiano per i{" "}
+              <span className="gradient-text">
+                protagonisti del settore energetico
+              </span>
+              .
             </motion.h1>
 
             <motion.p
@@ -139,9 +194,7 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-base md:text-xl text-muted-foreground max-w-[680px] mx-auto lg:mx-0 mb-8 md:mb-10 leading-relaxed px-2 lg:px-0 text-balance"
             >
-              Delibere ARERA decifrate, tariffe benchmark, podcast operativo,
-              eventi privati e un report indipendente sullo stato del mercato.
-              Tutto in un unico network.
+              <TypingText text="Reseller, dispacciatori, trader, produttori. La corrente passa da qui." />
             </motion.p>
 
             <motion.div
