@@ -218,10 +218,7 @@ export function DelibereList() {
   ) : null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 max-w-6xl mx-auto">
-      <DelibereSidebar />
-
-      <div className="space-y-6 min-w-0">
+    <div className="max-w-6xl mx-auto space-y-6">
       <header className="space-y-2 md:space-y-3">
         {/* MOBILE: search + date together, sector pills in a second card */}
         <div className="md:hidden space-y-2">
@@ -252,30 +249,35 @@ export function DelibereList() {
         </p>
       </header>
 
-      {visible.length === 0 ? (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-          <p className="text-sm text-muted-foreground">
-            Nessuna delibera nel filtro corrente.
-          </p>
+      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8 items-start">
+        <DelibereSidebar />
+
+        <div className="space-y-5 min-w-0">
+          {visible.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                Nessuna delibera nel filtro corrente.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 sm:gap-5">
+              {visible.map((d) => (
+                <DeliberaCard
+                  key={d.code}
+                  delibera={d}
+                  onAskAgent={openChat}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="flex flex-col gap-4 sm:gap-5">
-          {visible.map((d) => (
-            <DeliberaCard
-              key={d.code}
-              delibera={d}
-              onAskAgent={openChat}
-            />
-          ))}
-        </div>
-      )}
+      </div>
 
       <DeliberaChatDialog
         open={chatOpen}
         onOpenChange={setChatOpen}
         delibera={selected}
       />
-      </div>
     </div>
   );
 }
