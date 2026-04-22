@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Inbox, Send, Users2 } from "lucide-react";
+import { Inbox, Send, Users2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function NetworkAdminTabs({
@@ -37,13 +37,6 @@ export function NetworkAdminTabs({
         icon={<Users2 className="h-4 w-4" />}
         label="Membri"
         badge={membersCount}
-      />
-      <Tab
-        href="/dashboard/network/statistiche"
-        active={pathname?.startsWith("/dashboard/network/statistiche") ?? false}
-        icon={<BarChart3 className="h-4 w-4" />}
-        label="Statistiche"
-        badge={0}
       />
     </nav>
   );
