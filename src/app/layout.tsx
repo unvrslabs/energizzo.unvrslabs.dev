@@ -31,20 +31,20 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Energizzo CRM",
-    template: "%s · Energizzo CRM",
+    default: "Il Dispaccio",
+    template: "%s · Il Dispaccio",
   },
-  description: "CRM UNVRS per la vendita di Energizzo ai reseller di energia italiani.",
-  applicationName: "Energizzo CRM",
+  description: "Il primo network italiano dei reseller energia.",
+  applicationName: "Il Dispaccio",
   authors: [{ name: "UNVRS Labs" }],
   creator: "UNVRS Labs",
   publisher: "UNVRS Labs",
   robots: { index: false, follow: false },
   openGraph: {
-    title: "Energizzo CRM",
-    description: "Dashboard 819 reseller energia italiani · UNVRS Labs",
+    title: "Il Dispaccio",
+    description: "Il primo network italiano dei reseller energia.",
     type: "website",
-    siteName: "Energizzo CRM",
+    siteName: "Il Dispaccio",
     locale: "it_IT",
   },
 };

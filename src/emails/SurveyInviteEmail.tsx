@@ -23,23 +23,17 @@ type Props = {
   customMessage?: string;
   videoUrl?: string;
   videoThumbnailUrl?: string;
-  logoUrl?: string;
 };
-
-import { getPublicSiteUrl } from "@/lib/public-urls";
-
-const DEFAULT_LOGO = `${getPublicSiteUrl()}/logo-energizzo.png`;
 
 export default function SurveyInviteEmail({
   recipientName,
   companyName,
   surveyUrl,
   senderName = "Emanuele Maccari",
-  senderRole = "Founder, Energizzo",
+  senderRole = "Il Dispaccio",
   customMessage,
   videoUrl,
   videoThumbnailUrl,
-  logoUrl = DEFAULT_LOGO,
 }: Props) {
   const greeting = recipientName ? `Ciao ${recipientName},` : `Ciao team ${companyName},`;
 
@@ -64,31 +58,30 @@ export default function SurveyInviteEmail({
               padding: "24px 16px 40px",
             }}
           >
-            {/* Logo + brand */}
-            <Section style={{ textAlign: "center", padding: "16px 0 8px" }}>
-              <Img
-                src={logoUrl}
-                alt="Energizzo"
-                width="72"
-                height="72"
+            {/* Brand wordmark */}
+            <Section style={{ textAlign: "center", padding: "24px 0 8px" }}>
+              <Text
                 style={{
-                  display: "block",
-                  margin: "0 auto",
-                  borderRadius: "18px",
-                  boxShadow: "0 8px 24px rgba(16,185,129,0.35)",
+                  margin: 0,
+                  fontSize: "22px",
+                  fontWeight: 800,
+                  letterSpacing: "-0.01em",
+                  color: "#10b981",
                 }}
-              />
+              >
+                • Il Dispaccio
+              </Text>
               <Text
                 style={{
                   fontSize: "11px",
                   letterSpacing: "0.25em",
                   textTransform: "uppercase",
                   color: "#94a3b8",
-                  marginTop: "12px",
+                  marginTop: "8px",
                   fontWeight: 600,
                 }}
               >
-                Piattaforma AI · Reseller Energia
+                Network dei reseller energia italiani
               </Text>
             </Section>
 
