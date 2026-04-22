@@ -184,7 +184,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="flex flex-wrap items-center gap-2 mb-6 md:mb-8"
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-6 md:mb-8"
             >
               <span className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full liquid-glass border-primary/30">
                 <Mic className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
