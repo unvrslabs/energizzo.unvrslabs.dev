@@ -22,7 +22,8 @@ export default async function NetworkAdminLayout({
     supabase
       .from("leads")
       .select("id", { count: "exact", head: true })
-      .not("survey_sent_at", "is", null),
+      .not("survey_sent_at", "is", null)
+      .neq("survey_status", "completed"),
     supabase
       .from("network_members")
       .select("id", { count: "exact", head: true })

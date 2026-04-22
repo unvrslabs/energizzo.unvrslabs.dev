@@ -74,6 +74,7 @@ export default async function NetworkInvitedPage() {
       "id, ragione_sociale, piva, whatsapp, telefono, survey_token, survey_status, survey_sent_at, survey_last_step_at, survey_completed_at",
     )
     .not("survey_sent_at", "is", null)
+    .neq("survey_status", "completed")
     .order("survey_sent_at", { ascending: false });
 
   if (error) {

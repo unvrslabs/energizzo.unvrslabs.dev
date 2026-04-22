@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Users2, Building2, CheckCircle2, Ban } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MemberActions } from "@/components/network-admin/member-actions";
@@ -64,9 +65,12 @@ export default async function NetworkMembersPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Building2 className="h-4 w-4 text-primary shrink-0" />
-                  <h3 className="text-base md:text-lg font-bold text-foreground truncate">
+                  <Link
+                    href={`/dashboard/network/membri/${m.id}`}
+                    className="text-base md:text-lg font-bold text-foreground hover:text-primary transition-colors truncate"
+                  >
                     {m.ragione_sociale}
-                  </h3>
+                  </Link>
                   <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono uppercase text-muted-foreground">
                     {m.piva}
                   </span>
