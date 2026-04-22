@@ -15,6 +15,7 @@ import { SurveyBadge } from "./survey-badge";
 import { PodcastStatusBadge } from "./podcast-status-badge";
 import { EnrichButton } from "./enrich-button";
 import { firstPhone, cn } from "@/lib/utils";
+import { CATEGORIA_CONFIG, type Categoria } from "@/lib/status-config";
 import type { Lead } from "@/lib/types";
 
 type Props = {
@@ -25,6 +26,7 @@ type Props = {
 const COLS = [
   { key: "ragione", label: "Ragione sociale", width: "minmax(240px, 1.6fr)" },
   { key: "stato", label: "Stato", width: "150px" },
+  { key: "categoria", label: "Categoria", width: "140px" },
   { key: "network", label: "Network", width: "120px" },
   { key: "report", label: "Report", width: "130px" },
   { key: "podcast", label: "Podcast", width: "130px" },
@@ -36,6 +38,30 @@ const COLS = [
   { key: "tel", label: "Telefono", width: "140px" },
   { key: "titolari", label: "Titolari", width: "minmax(130px, 0.3fr)" },
 ] as const;
+
+function CategoriaBadge({ categoria }: { categoria: Categoria | null }) {
+  if (!categoria) {
+    return (
+      <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+        —
+      </span>
+    );
+  }
+  const cfg = CATEGORIA_CONFIG[categoria];
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+      style={{
+        borderColor: `${cfg.color}80`,
+        backgroundColor: `${cfg.color}1f`,
+        color: cfg.color,
+      }}
+    >
+      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: cfg.color }} />
+      {cfg.short}
+    </span>
+  );
+}
 
 function NetworkBadge({
   status,
@@ -113,6 +139,9 @@ export function LeadsTable({ leads, onSelect }: Props) {
               </div>
               <div className="px-4 py-3">
                 <StatusBadge status={l.status} />
+              </div>
+              <div className="px-4 py-3">
+                <CategoriaBadge categoria={l.categoria} />
               </div>
               <div className="px-4 py-3">
                 <NetworkBadge status={l.network_status} />

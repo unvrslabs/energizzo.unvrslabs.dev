@@ -1,4 +1,4 @@
-import type { Status, TipoServizio } from "./status-config";
+import type { Categoria, Status, TipoServizio } from "./status-config";
 import type { SurveyStatus } from "./survey-questions";
 
 export type Lead = {
@@ -7,6 +7,12 @@ export type Lead = {
   piva: string;
   id_arera: string | null;
   tipo_servizio: TipoServizio;
+  categoria: Categoria | null;
+  commodity: "DUAL" | "SOLO_ELETTRICO" | "SOLO_GAS" | "NESSUNA" | null;
+  servizio_tutela: boolean | null;
+  in_gruppo: boolean | null;
+  macroarea: string | null;
+  completezza_contatti: number | null;
   comune: string | null;
   provincia: string | null;
   indirizzo: string | null;

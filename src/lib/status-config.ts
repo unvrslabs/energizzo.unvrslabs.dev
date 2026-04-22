@@ -44,3 +44,19 @@ export const DEMO_DONE_STATUSES: Status[] = [
 
 export const TIPO_SERVIZIO_VALUES = ["Dual (Ele+Gas)", "Solo Elettrico", "Solo Gas"] as const;
 export type TipoServizio = (typeof TIPO_SERVIZIO_VALUES)[number];
+
+export const CATEGORIA_CONFIG = {
+  RESELLER_PURO: { label: "Reseller", short: "Reseller", color: "#10b981", order: 0 },
+  DISPACCIATORE_DUAL: { label: "Dispacciatore Dual", short: "Disp. Dual", color: "#8b5cf6", order: 1 },
+  DISPACCIATORE_ELE: { label: "Dispacciatore Ele", short: "Disp. Ele", color: "#eab308", order: 2 },
+  DISPACCIATORE_GAS: { label: "Dispacciatore Gas", short: "Disp. Gas", color: "#3b82f6", order: 3 },
+  SOLO_PRODUTTORE: { label: "Solo Produttore", short: "Produttore", color: "#f97316", order: 4 },
+} as const;
+
+export type Categoria = keyof typeof CATEGORIA_CONFIG;
+
+export const CATEGORIE_IN_ORDER = (
+  Object.entries(CATEGORIA_CONFIG) as [Categoria, (typeof CATEGORIA_CONFIG)[Categoria]][]
+)
+  .sort(([, a], [, b]) => a.order - b.order)
+  .map(([k]) => k);

@@ -11,6 +11,7 @@ import {
   Activity,
   Zap,
   Network,
+  Tag,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -20,6 +21,9 @@ import {
   type Status,
   TIPO_SERVIZIO_VALUES,
   type TipoServizio,
+  CATEGORIA_CONFIG,
+  CATEGORIE_IN_ORDER,
+  type Categoria,
 } from "@/lib/status-config";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +37,7 @@ export function FilterBar({ provinces }: Props) {
 
   const currentStatus = (search.get("status")?.split(",").filter(Boolean) ?? []) as Status[];
   const currentTipo = (search.get("tipo")?.split(",").filter(Boolean) ?? []) as TipoServizio[];
+  const currentCategoria = (search.get("categoria")?.split(",").filter(Boolean) ?? []) as Categoria[];
   const currentProv = search.get("prov")?.split(",").filter(Boolean) ?? [];
   const currentNetwork = (search.get("network") ?? "") as "" | "invited" | "member";
   const q = search.get("q") ?? "";
@@ -74,6 +79,7 @@ export function FilterBar({ provinces }: Props) {
   const totalFilters =
     currentStatus.length +
     currentTipo.length +
+    currentCategoria.length +
     currentProv.length +
     (currentNetwork ? 1 : 0) +
     (q ? 1 : 0);
@@ -94,6 +100,11 @@ export function FilterBar({ provinces }: Props) {
         <TipoPicker
           selected={currentTipo}
           onChange={(arr) => updateParam("tipo", arr)}
+        />
+
+        <CategoriaPicker
+          selected={currentCategoria}
+          onChange={(arr) => updateParam("categoria", arr)}
         />
 
         <StatusPicker
@@ -224,6 +235,101 @@ function TipoPicker({
                 </span>
                 <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: TIPO_ACCENT[t] }} />
                 <span className="truncate">{t}</span>
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function CategoriaPicker({
+  selected,
+  onChange,
+}: {
+  selected: Categoria[];
+  onChange: (next: Categoria[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const label =
+    selected.length === 0
+      ? "Tutte le categorie"
+      : selected.length === 1
+        ? CATEGORIA_CONFIG[selected[0]].short
+        : `${selected.length} categorie`;
+
+  const activeColor =
+    selected.length === 1 ? CATEGORIA_CONFIG[selected[0]].color : undefined;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border bg-white/5 backdrop-blur-md px-4 h-11 text-sm transition-all whitespace-nowrap max-w-[220px]",
+            selected.length > 0
+              ? "border-primary text-foreground shadow-sm shadow-primary/20"
+              : "border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/50",
+          )}
+        >
+          {activeColor ? (
+            <span
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: activeColor }}
+            />
+          ) : (
+            <Tag className="h-4 w-4 shrink-0" />
+          )}
+          <span className="truncate">{label}</span>
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[240px] p-0" align="start">
+        {selected.length > 0 && (
+          <div className="border-b border-border/60 px-2 py-1.5 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {selected.length} selezionate
+            </span>
+            <button
+              type="button"
+              onClick={() => onChange([])}
+              className="text-[11px] text-primary hover:underline"
+            >
+              Cancella
+            </button>
+          </div>
+        )}
+        <div className="py-1">
+          {CATEGORIE_IN_ORDER.map((c) => {
+            const cfg = CATEGORIA_CONFIG[c];
+            const active = selected.includes(c);
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() =>
+                  onChange(active ? selected.filter((x) => x !== c) : [...selected, c])
+                }
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-colors text-left",
+                  active
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-3.5 w-3.5 items-center justify-center rounded-sm border shrink-0",
+                    active ? "bg-primary border-primary" : "border-border/60",
+                  )}
+                >
+                  {active && <Check className="h-3 w-3 text-primary-foreground" />}
+                </span>
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: cfg.color }} />
+                <span className="truncate">{cfg.label}</span>
               </button>
             );
           })}

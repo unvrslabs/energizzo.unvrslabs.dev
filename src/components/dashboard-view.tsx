@@ -8,12 +8,14 @@ import {
   DEMO_DONE_STATUSES,
   type Status,
   type TipoServizio,
+  type Categoria,
 } from "@/lib/status-config";
 
 type SearchParams = {
   q?: string;
   status?: string;
   tipo?: string;
+  categoria?: string;
   prov?: string;
   network?: string;
 };
@@ -40,6 +42,10 @@ export async function DashboardView({
   if (sp.tipo) {
     const arr = sp.tipo.split(",").filter(Boolean) as TipoServizio[];
     if (arr.length) query = query.in("tipo_servizio", arr);
+  }
+  if (sp.categoria) {
+    const arr = sp.categoria.split(",").filter(Boolean) as Categoria[];
+    if (arr.length) query = query.in("categoria", arr);
   }
   if (sp.prov) {
     const arr = sp.prov.split(",").filter(Boolean);
