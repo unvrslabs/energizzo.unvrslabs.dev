@@ -40,13 +40,16 @@ export function SponsorSection() {
               href="https://www.energizzo.it"
               target="_blank"
               rel="noopener noreferrer"
-              className="group/logo inline-flex items-end gap-1.5 transition-opacity hover:opacity-90 py-1"
+              className="group/logo inline-flex items-end gap-1.5 transition-opacity hover:opacity-90"
               aria-label="Visita energizzo.it"
             >
-              <span className="block text-5xl md:text-6xl font-black tracking-tight gradient-text-emerald leading-[1.3] overflow-visible">
+              <span
+                className="block text-5xl md:text-6xl font-black tracking-tight text-primary"
+                style={{ lineHeight: 1.4, paddingBottom: "0.15em" }}
+              >
                 energizzo
               </span>
-              <span className="block text-sm font-medium text-muted-foreground mb-2">
+              <span className="block text-sm font-medium text-muted-foreground mb-3">
                 .it
               </span>
             </a>
