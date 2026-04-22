@@ -15,6 +15,7 @@ import {
   completeSurveyResponse,
 } from "@/lib/survey/survey-client";
 import { ProgressBar } from "./progress-bar";
+import { SurveyProgressContext } from "./progress-context";
 import { WelcomeScreen } from "./screens/welcome-screen";
 import { StatementScreen } from "./screens/statement-screen";
 import { ShortTextScreen } from "./screens/short-text-screen";
@@ -146,7 +147,16 @@ export function SurveyRunner({
 
   if (!current) return null;
 
+  const progressCounter =
+    current.type === "welcome" || current.type === "thanks"
+      ? { current: 0, total: 0 }
+      : {
+          current: progressIndex + 1,
+          total: progressList.length,
+        };
+
   return (
+    <SurveyProgressContext.Provider value={progressCounter}>
     <div className="fixed inset-0 text-foreground overflow-hidden">
       <ProgressBar value={progress} />
 
@@ -201,6 +211,7 @@ export function SurveyRunner({
         </div>
       )}
     </div>
+    </SurveyProgressContext.Provider>
   );
 }
 

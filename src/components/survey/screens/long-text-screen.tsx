@@ -28,7 +28,6 @@ export function LongTextScreen({
       {screen.section && <SectionLabel index={screen.section.index} label={screen.section.label} />}
       <h2 className="font-display text-2xl sm:text-4xl font-bold leading-tight tracking-tight">
         {screen.title}
-        {screen.required && <span className="text-primary ml-1">*</span>}
       </h2>
       {screen.description && (
         <p className="text-muted-foreground text-base">{screen.description}</p>
