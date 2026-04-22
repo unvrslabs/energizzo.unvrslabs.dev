@@ -1,17 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
 import {
   ArrowRight,
+  Award,
   BookOpen,
   Gift,
   Mic,
+  ShieldCheck,
   Sparkles,
   Users2,
 } from "lucide-react";
 import type { LeadForSurvey } from "@/lib/survey/survey-client";
-
-const EMOJI = ["🎉", "🎊", "🏆", "✨", "⚡", "⭐", "🎈", "🥳"];
 
 export function SurveyWelcome({
   lead,
@@ -20,64 +19,36 @@ export function SurveyWelcome({
   lead: LeadForSurvey;
   onStart: () => void;
 }) {
-  const confetti = useMemo(
-    () =>
-      Array.from({ length: 14 }).map((_, i) => {
-        const seed = ((i * 2654435761) % 1000) / 1000;
-        const seed2 = ((i * 1597 + 31) % 1000) / 1000;
-        const seed3 = ((i * 7919 + 13) % 1000) / 1000;
-        return {
-          emoji: EMOJI[i % EMOJI.length],
-          left: `${5 + seed * 90}%`,
-          top: `${5 + seed2 * 80}%`,
-          delay: `${-(seed3 * 2).toFixed(2)}s`,
-          rotate: `${(seed3 - 0.5) * 60}deg`,
-          size: 0.8 + seed * 0.6,
-        };
-      }),
-    [],
-  );
-
   return (
     <div className="fixed inset-0 overflow-y-auto">
       <div className="min-h-full px-6 py-16 sm:py-20 flex items-center">
         <div className="mx-auto max-w-3xl w-full animate-fade-in-up space-y-8">
-          <header className="relative liquid-glass-card p-8 sm:p-10 text-center space-y-4 overflow-hidden">
-            <div aria-hidden className="absolute inset-0 pointer-events-none">
-              {confetti.map((c, i) => (
-                <span
-                  key={i}
-                  className="absolute animate-bounce opacity-50"
-                  style={{
-                    left: c.left,
-                    top: c.top,
-                    animationDelay: c.delay,
-                    animationDuration: "2.4s",
-                    transform: `rotate(${c.rotate}) scale(${c.size})`,
-                    fontSize: "1.25rem",
-                  }}
-                >
-                  {c.emoji}
-                </span>
-              ))}
+          <header className="relative liquid-glass-card p-8 sm:p-10 space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 text-primary px-3 py-1 text-[10px] uppercase tracking-[0.25em] font-bold">
+              <ShieldCheck className="h-3 w-3" />
+              Azienda selezionata
             </div>
-
-            <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 text-primary px-3 py-1 text-[10px] uppercase tracking-[0.25em] font-bold">
-                🏆 Azienda selezionata
+            <div className="flex items-start gap-4">
+              <div className="shrink-0 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/40">
+                <Award className="h-7 w-7 text-primary" strokeWidth={1.75} />
               </div>
-              <h1 className="font-display text-3xl sm:text-5xl tracking-tight">
-                Complimenti! 🎉
-              </h1>
-              <p className="text-base sm:text-lg">
-                <strong>{lead.ragione_sociale}</strong> è stata selezionata per
-                entrare nel primo network italiano dei reseller energia:{" "}
-                <span className="text-primary font-semibold">Il Dispaccio</span>.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Hai accesso riservato. Attivalo compilando il questionario qui
-                sotto.
-              </p>
+              <div className="space-y-2">
+                <h1 className="font-display text-3xl sm:text-5xl tracking-tight leading-[1.05]">
+                  Complimenti.
+                </h1>
+                <p className="text-base sm:text-lg leading-relaxed">
+                  <strong>{lead.ragione_sociale}</strong> è stata selezionata
+                  per entrare nel primo network italiano dei reseller energia:{" "}
+                  <span className="text-primary font-semibold">
+                    Il Dispaccio
+                  </span>
+                  .
+                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Hai accesso riservato. Attivalo compilando il questionario
+                  qui sotto.
+                </p>
+              </div>
             </div>
           </header>
 
