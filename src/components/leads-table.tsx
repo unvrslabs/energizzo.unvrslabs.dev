@@ -98,11 +98,11 @@ export function LeadsTable({ leads, onSelect }: Props) {
 
   return (
     <div className="liquid-glass rounded-[1.25rem] overflow-hidden">
-      <div className="max-h-[72vh] overflow-auto scroll-contained">
-        <div className="min-w-[1650px] w-full">
+      <div className="max-h-[72vh] overflow-auto scroll-contained overscroll-contain">
+        <div className="min-w-[1920px] w-full">
           {/* Header */}
           <div
-            className="sticky top-0 z-10 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
+            className="sticky top-0 z-20 grid items-center gap-0 bg-[hsl(215_35%_14%)] border-b border-primary/25"
             style={{ gridTemplateColumns: gridTemplate }}
           >
             {COLS.map((c) => (
