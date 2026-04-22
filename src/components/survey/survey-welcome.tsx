@@ -25,17 +25,7 @@ export function SurveyWelcome({
 }) {
   return (
     <div className="fixed inset-0 overflow-y-auto">
-      {/* Mobile: sticky top CTA, card scroll behind */}
-      <div className="sm:hidden fixed top-0 inset-x-0 z-50 bg-gradient-to-b from-[hsl(218,48%,14%)] via-[hsl(218,48%,14%)]/95 to-transparent px-4 pt-3 pb-4">
-        <button
-          onClick={onStart}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold h-12 px-7 text-sm shadow-lg shadow-primary/40"
-        >
-          Attiva il mio accesso <ArrowRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="min-h-full px-4 sm:px-6 pt-24 pb-10 sm:py-16 md:py-20 flex sm:items-center">
+      <div className="min-h-full px-4 sm:px-6 py-8 sm:py-16 md:py-20 flex sm:items-center">
         <div className="mx-auto max-w-3xl w-full animate-fade-in-up space-y-4 sm:space-y-6">
           <header className="relative liquid-glass-card p-5 sm:p-8 md:p-10 space-y-4 sm:space-y-5">
             <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-primary/30 bg-primary/10 text-primary px-2.5 sm:px-3 py-1 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.25em] font-bold">
@@ -197,22 +187,17 @@ export function SurveyWelcome({
             </p>
           </section>
 
-          {/* Desktop CTA — on mobile the sticky top one is used */}
-          <div className="hidden sm:flex flex-row items-center gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
             <button
               onClick={onStart}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold h-12 px-7 text-base shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold h-12 px-7 text-sm sm:text-base shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
             >
               Attiva il mio accesso <ArrowRight className="h-4 w-4" />
             </button>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] sm:text-xs text-muted-foreground text-center sm:text-left">
               Il progresso viene salvato: puoi riprendere in qualsiasi momento.
             </p>
           </div>
-
-          <p className="sm:hidden text-[11px] text-muted-foreground/70 text-center pt-1">
-            Il progresso viene salvato: puoi riprendere in qualsiasi momento.
-          </p>
         </div>
       </div>
     </div>
