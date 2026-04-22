@@ -197,12 +197,12 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="text-3xl md:text-6xl lg:text-7xl font-black text-foreground leading-[1.1] tracking-tight mb-5 md:mb-7"
             >
-              Il primo network{" "}
-              <ItalianFlag className="h-[0.78em] w-auto rounded-sm shadow-[0_6px_18px_rgba(0,140,69,0.35)] ring-1 ring-white/15" />{" "}
-              per i{" "}
-              <span className="gradient-text">
-                protagonisti del settore energetico
-              </span>
+              Il 1° Network{" "}
+              <ItalianFlag className="h-[0.78em] w-auto rounded-sm shadow-[0_6px_18px_rgba(0,140,69,0.35)] ring-1 ring-white/15" />
+              <br />
+              per i <span className="gradient-text">Protagonisti del</span>
+              <br />
+              <span className="gradient-text">Settore Energetico</span>
             </motion.h1>
 
             <motion.div
