@@ -160,6 +160,33 @@
     background-clip: text;
   }
 
+  /* Shiny/shimmer text — sweeping highlight over a readable base */
+  .shiny-text {
+    background: linear-gradient(
+      110deg,
+      hsl(0 0% 100% / 0.92) 0%,
+      hsl(0 0% 100% / 0.92) 40%,
+      hsl(158 80% 70%) 50%,
+      hsl(0 0% 100% / 0.92) 60%,
+      hsl(0 0% 100% / 0.92) 100%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: shiny-sweep 3.5s linear infinite;
+    text-shadow: 0 0 24px hsl(158 64% 50% / 0.2);
+  }
+  @keyframes shiny-sweep {
+    0% {
+      background-position: 180% 0;
+    }
+    100% {
+      background-position: -180% 0;
+    }
+  }
+
   /* Premium button */
   .btn-premium {
     @apply relative overflow-hidden px-6 py-2.5 rounded-full font-semibold transition-all duration-300 inline-flex items-center justify-center gap-2;

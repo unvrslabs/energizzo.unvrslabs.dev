@@ -179,23 +179,28 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground leading-[1.1] tracking-tight mb-5 md:mb-7"
+              className="font-serif text-4xl md:text-6xl lg:text-7xl font-normal text-foreground leading-[1.05] tracking-tight mb-6 md:mb-8"
             >
               Il primo network italiano per i{" "}
-              <span className="gradient-text">
+              <em className="italic text-primary">
                 protagonisti del settore energetico
-              </span>
+              </em>
               .
             </motion.h1>
 
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-base md:text-xl text-muted-foreground max-w-[680px] mx-auto lg:mx-0 mb-8 md:mb-10 leading-relaxed px-2 lg:px-0 text-balance"
+              className="max-w-[680px] mx-auto lg:mx-0 mb-8 md:mb-10 px-2 lg:px-0 space-y-2"
             >
-              <TypingText text="Reseller, dispacciatori, trader, produttori. La corrente passa da qui." />
-            </motion.p>
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-balance">
+                <TypingText text="Reseller, dispacciatori, trader, produttori." />
+              </p>
+              <p className="font-serif italic text-2xl md:text-3xl lg:text-4xl leading-tight tracking-tight">
+                <span className="shiny-text">La corrente passa da qui.</span>
+              </p>
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 30 }}
