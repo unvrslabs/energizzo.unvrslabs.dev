@@ -130,7 +130,7 @@ export function PlatformTabs() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
+      <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex sm:flex-wrap gap-2 mb-6 sm:mb-8 overflow-x-auto scroll-x-contained">
         {TABS.map((t) => {
           const selected = active === t.id;
           return (
@@ -138,7 +138,7 @@ export function PlatformTabs() {
               key={t.id}
               type="button"
               onClick={() => setActive(t.id)}
-              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all ${
+              className={`shrink-0 whitespace-nowrap px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all ${
                 selected
                   ? "bg-primary text-primary-foreground shadow-[0_4px_20px_hsl(158_64%_42%/0.4)]"
                   : "liquid-glass text-muted-foreground hover:text-foreground"
