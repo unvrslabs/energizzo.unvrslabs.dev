@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NetworkAdminTabs } from "@/components/network-admin/tabs";
+import { NetworkOverviewStats } from "@/components/network-admin/overview-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,8 @@ export default async function NetworkAdminLayout({
   const [
     { count: pendingCount },
     { count: invitedCount },
+    { count: inProgressCount },
+    { count: completedCount },
     { count: membersCount },
   ] = await Promise.all([
     supabase
@@ -25,10 +28,20 @@ export default async function NetworkAdminLayout({
       .not("survey_sent_at", "is", null)
       .neq("survey_status", "completed"),
     supabase
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("survey_status", "partial"),
+    supabase
+      .from("leads")
+      .select("id", { count: "exact", head: true })
+      .eq("survey_status", "completed"),
+    supabase
       .from("network_members")
       .select("id", { count: "exact", head: true })
       .is("revoked_at", null),
   ]);
+
+  const invitedTotal = (invitedCount ?? 0) + (completedCount ?? 0);
 
   return (
     <div className="space-y-6">
@@ -39,6 +52,16 @@ export default async function NetworkAdminLayout({
           Dispaccio.
         </p>
       </div>
+
+      <NetworkOverviewStats
+        data={{
+          pendingRequests: pendingCount ?? 0,
+          invited: invitedTotal,
+          inProgress: inProgressCount ?? 0,
+          completed: completedCount ?? 0,
+          activeMembers: membersCount ?? 0,
+        }}
+      />
 
       <NetworkAdminTabs
         pendingCount={pendingCount ?? 0}
