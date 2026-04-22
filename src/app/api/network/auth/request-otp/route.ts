@@ -14,8 +14,6 @@ const OTP_TTL_SECONDS = 300;
 const RATE_WINDOW_MINUTES = 15;
 const RATE_MAX_PER_PHONE = 3;
 
-const GENERIC_OK = { ok: true as const, expiresInSeconds: OTP_TTL_SECONDS };
-
 function clientIp(req: NextRequest): string | null {
   return (
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -47,17 +45,6 @@ export async function POST(req: NextRequest) {
   const ip = clientIp(req);
   const userAgent = req.headers.get("user-agent");
 
-  const rateSince = new Date(Date.now() - RATE_WINDOW_MINUTES * 60_000).toISOString();
-  const { count: recentCount } = await supabase
-    .from("network_otp_codes")
-    .select("id", { count: "exact", head: true })
-    .eq("phone", phone)
-    .gte("created_at", rateSince);
-
-  if ((recentCount ?? 0) >= RATE_MAX_PER_PHONE) {
-    return NextResponse.json(GENERIC_OK);
-  }
-
   const { data: member } = await supabase
     .from("network_members")
     .select("id")
@@ -66,7 +53,32 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (!member) {
-    return NextResponse.json(GENERIC_OK);
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Questo numero non è autorizzato ad accedere al network privato Il Dispaccio.",
+      },
+      { status: 403 },
+    );
+  }
+
+  const rateSince = new Date(Date.now() - RATE_WINDOW_MINUTES * 60_000).toISOString();
+  const { count: recentCount } = await supabase
+    .from("network_otp_codes")
+    .select("id", { count: "exact", head: true })
+    .eq("phone", phone)
+    .gte("created_at", rateSince);
+
+  if ((recentCount ?? 0) >= RATE_MAX_PER_PHONE) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Troppi codici richiesti. Riprova tra qualche minuto.",
+      },
+      { status: 429 },
+    );
   }
 
   const code = generateOtpCode();
@@ -83,7 +95,10 @@ export async function POST(req: NextRequest) {
 
   if (insertError) {
     console.error("network otp insert failed", insertError);
-    return NextResponse.json(GENERIC_OK);
+    return NextResponse.json(
+      { ok: false, error: "Errore invio codice. Riprova." },
+      { status: 500 },
+    );
   }
 
   const text = `Il Dispaccio — Codice accesso: ${code}\nValido 5 minuti. Non condividerlo con nessuno.`;
@@ -91,7 +106,11 @@ export async function POST(req: NextRequest) {
     await sendWhatsAppText(phone, text);
   } catch (err) {
     console.error("wasender send failed", err);
+    return NextResponse.json(
+      { ok: false, error: "Invio WhatsApp non riuscito. Riprova tra poco." },
+      { status: 502 },
+    );
   }
 
-  return NextResponse.json(GENERIC_OK);
+  return NextResponse.json({ ok: true, expiresInSeconds: OTP_TTL_SECONDS });
 }

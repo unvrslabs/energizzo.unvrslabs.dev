@@ -199,8 +199,7 @@ export function NetworkLoginForm({ next }: { next?: string }) {
               )}
 
               <p className="text-[11px] text-muted-foreground/70 leading-relaxed text-center pt-1">
-                Se il numero appartiene a un membro del network, riceverai il
-                codice entro pochi secondi.
+                Network privato. Solo i numeri autorizzati possono accedere.
               </p>
             </motion.form>
           ) : (
