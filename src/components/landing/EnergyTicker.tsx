@@ -38,9 +38,7 @@ function TickerPill({ item }: { item: TickerItem }) {
       <span className="ticker-pill__code">{item.code}</span>
       <span className="ticker-pill__value">{item.value}</span>
       <span className="ticker-pill__unit">{item.unit}</span>
-      <span
-        className={`ticker-pill__delta ticker-pill__delta--${item.trend}`}
-      >
+      <span className={`ticker-pill__delta ticker-pill__delta--${item.trend}`}>
         <TrendIcon trend={item.trend} />
         {item.delta}
       </span>
@@ -51,31 +49,38 @@ function TickerPill({ item }: { item: TickerItem }) {
 export function EnergyTicker() {
   const doubled = [...ITEMS, ...ITEMS];
   return (
-    <div
-      className="relative w-full border-y border-white/5 bg-white/[0.015]"
-      aria-label="Indici di mercato energetico in tempo reale"
+    <section
+      className="relative py-10 md:py-14"
+      aria-label="Indici di mercato energetico"
     >
-      <div className="absolute left-0 top-0 bottom-0 w-24 pointer-events-none z-10 bg-gradient-to-r from-[hsl(218_48%_10%)] to-transparent" />
-      <div className="absolute right-0 top-0 bottom-0 w-24 pointer-events-none z-10 bg-gradient-to-l from-[hsl(218_48%_10%)] to-transparent" />
-
-      <div className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 items-center gap-2 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-md px-3 py-1">
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-        </span>
-        <Activity className="h-3 w-3 text-primary" />
-        <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-primary">
-          Live market
-        </span>
-      </div>
-
-      <div className="py-3 overflow-hidden">
-        <div className="ticker-track">
-          {doubled.map((item, i) => (
-            <TickerPill key={`${item.code}-${i}`} item={item} />
-          ))}
+      <div className="container mx-auto px-4 flex justify-center mb-4 md:mb-5">
+        <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-md px-3.5 py-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+          </span>
+          <Activity className="h-3.5 w-3.5 text-primary" />
+          <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-primary">
+            Live market
+          </span>
+          <span className="text-[10px] font-medium text-muted-foreground tracking-wide">
+            · Aprile 2026
+          </span>
         </div>
       </div>
-    </div>
+
+      <div className="relative w-full border-y border-white/5 bg-white/[0.015]">
+        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-24 pointer-events-none z-10 bg-gradient-to-r from-[hsl(218_48%_9%)] to-transparent" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-24 pointer-events-none z-10 bg-gradient-to-l from-[hsl(218_48%_9%)] to-transparent" />
+
+        <div className="py-3 overflow-hidden">
+          <div className="ticker-track">
+            {doubled.map((item, i) => (
+              <TickerPill key={`${item.code}-${i}`} item={item} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

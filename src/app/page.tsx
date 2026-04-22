@@ -27,10 +27,10 @@ export default function HomePage() {
       <AnimatedBackground />
       <Navbar />
       <Hero />
-      <EnergyTicker />
       <FreeNetworkSection />
       <HowItWorks />
       <PlatformTabs />
+      <EnergyTicker />
       <ReportSpotlight />
       <JoinSection />
       <PodcastSection />
