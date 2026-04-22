@@ -92,8 +92,10 @@ export function SurveyWelcome({
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   La tua posizione resta riservata per{" "}
                   <strong className="text-foreground">3 giorni</strong>. Per
-                  attivarla basta un breve questionario (3–5 minuti). Dopo quel
-                  termine il posto passa al prossimo in lista d&apos;attesa.
+                  attivarla basta un questionario da{" "}
+                  <strong className="text-foreground">2 minuti</strong>. Dopo
+                  quel termine il posto passa al prossimo in lista
+                  d&apos;attesa.
                 </p>
               </div>
             </div>
@@ -168,11 +170,11 @@ export function SurveyWelcome({
               Come attivi l&apos;accesso
             </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Compila il questionario di ingresso (
+              Compila il questionario di ingresso:{" "}
               <strong className="text-foreground">
-                24 domande, 3–5 minuti
+                circa 2 minuti
               </strong>
-              ). Serve a capire come sei posizionato e a calibrare i contenuti
+              . Serve a capire come sei posizionato e a calibrare i contenuti
               che il network ti farà vedere per primi.
             </p>
             <p className="text-sm leading-relaxed text-muted-foreground">
