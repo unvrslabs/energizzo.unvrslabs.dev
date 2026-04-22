@@ -1,8 +1,6 @@
 // Labels map used by the CRM to render survey responses in the lead drawer.
 
 export const SURVEY_QUESTION_LABELS: Record<string, string> = {
-  Q1: "Nome dell'azienda",
-  Q2: "Partita IVA",
   Q3: "Ruolo del compilatore",
   Q4: "Anno di avvio dell'attività",
   Q5: "Tipologia di servizio",
@@ -25,19 +23,15 @@ export const SURVEY_QUESTION_LABELS: Record<string, string> = {
   Q19: "Gestionale usato",
   Q20: "Processi automatizzati",
   Q21: "Adozione AI generativa",
-  Q22: "Ranking pressioni business (18 mesi)",
-  Q23: "Priorità strategica 2026 – 2027",
-  Q24: "Modalità consegna benchmark",
-  Q24b: "Email alternativa",
+  Q25_whatsapp: "WhatsApp accesso network",
 };
 
 export const SURVEY_QUESTION_ORDER: string[] = [
-  "Q1","Q2","Q3","Q4","Q5","Q6","Q7a","Q7b","Q7c","Q7d","Q8",
+  "Q3","Q4","Q5","Q6","Q7a","Q7b","Q7c","Q7d","Q8",
   "Q9","Q10","Q11","Q12","Q13","Q14",
   "Q15","Q16","Q17","Q18",
   "Q19","Q20","Q21",
-  "Q22","Q23",
-  "Q24","Q24b",
+  "Q25_whatsapp",
 ];
 
 export type SurveyStatus = "not_sent" | "sent" | "partial" | "completed";
