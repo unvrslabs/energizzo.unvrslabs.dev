@@ -16,7 +16,7 @@ export default async function NetworkProtectedLayout({
   }
 
   return (
-    <div className="net-bg">
+    <div className="mesh-gradient relative min-h-screen">
       <NetworkNavbar
         member={{
           referente: member.referente,

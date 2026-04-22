@@ -1,6 +1,17 @@
 "use client";
 
-import { ArrowUpRight, MessageSquare } from "lucide-react";
+import {
+  ExternalLink,
+  MessageSquare,
+  FileText,
+  FileSpreadsheet,
+  FileArchive,
+  FileCode,
+  Calendar,
+  Download,
+  Zap,
+  Flame,
+} from "lucide-react";
 import type {
   Delibera,
   DeliberaAttachment,
@@ -22,45 +33,44 @@ const MONTHS_IT = [
   "dic",
 ];
 
-function formatEditorialDate(iso: string): { day: string; mon: string; yr: string } {
+function formatDate(iso: string): string {
   const d = new Date(iso);
-  return {
-    day: String(d.getDate()).padStart(2, "0"),
-    mon: MONTHS_IT[d.getMonth()],
-    yr: String(d.getFullYear()),
-  };
+  return `${d.getDate()} ${MONTHS_IT[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-function typeLabel(kind: DeliberaAttachment["kind"]): string {
-  if (kind === "xlsx") return "XLS";
-  if (kind === "docx") return "DOC";
-  if (kind === "zip") return "ZIP";
-  return "PDF";
+function attachmentIcon(kind: DeliberaAttachment["kind"]) {
+  switch (kind) {
+    case "xlsx":
+      return <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-300" />;
+    case "zip":
+      return <FileArchive className="h-3.5 w-3.5 text-amber-300" />;
+    case "docx":
+      return <FileCode className="h-3.5 w-3.5 text-sky-300" />;
+    default:
+      return <FileText className="h-3.5 w-3.5 text-primary" />;
+  }
 }
 
-function sectorGlyph(sector: DeliberaSector): string {
-  if (sector === "eel") return "⚡";
-  if (sector === "gas") return "◈";
-  return "·";
-}
-
-function sectorCode(sector: DeliberaSector): string {
-  if (sector === "eel") return "EEL";
-  if (sector === "gas") return "GAS";
-  return "COM";
-}
-
-function sectorGlyphColor(sector: DeliberaSector): string {
-  if (sector === "eel") return "text-amber-300";
-  if (sector === "gas") return "text-sky-300";
-  return "text-primary";
-}
-
-function SectorChip({ sector }: { sector: DeliberaSector }) {
+function SectorBadge({ sector }: { sector: DeliberaSector }) {
+  if (sector === "eel") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+        <Zap className="h-3 w-3" />
+        Energia
+      </span>
+    );
+  }
+  if (sector === "gas") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-300 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+        <Flame className="h-3 w-3" />
+        Gas
+      </span>
+    );
+  }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.15] bg-white/[0.04] px-2.5 py-1 text-[11px] font-semibold tracking-[0.12em] text-foreground/90">
-      <span className={sectorGlyphColor(sector)}>{sectorGlyph(sector)}</span>
-      {sectorCode(sector)}
+    <span className="inline-flex items-center rounded-full border border-white/15 bg-white/[0.05] text-muted-foreground px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+      Comune
     </span>
   );
 }
@@ -72,76 +82,60 @@ export function DeliberaCard({
   delibera: Delibera;
   onAskAgent: (d: Delibera) => void;
 }) {
-  const { day, mon, yr } = formatEditorialDate(delibera.date);
-
   return (
-    <article className="net-card overflow-hidden">
-      {/* Header · date + sector chips + code */}
-      <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-white/[0.1] flex-wrap">
-        <span className="net-mono font-bold text-[13px] tracking-[0.06em] text-foreground">
-          {day}
-          <span className="text-muted-foreground/70 mx-0.5">·</span>
-          {mon}
-          <span className="text-muted-foreground/70 mx-0.5">·</span>
-          {yr}
-        </span>
-        <div className="inline-flex items-center gap-3 flex-wrap">
+    <article className="dispaccio-card p-5 sm:p-6 flex flex-col gap-4">
+      {/* Header: sectors + date + code */}
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-1.5 flex-wrap">
           {delibera.sectors.map((s) => (
-            <SectorChip key={s} sector={s} />
+            <SectorBadge key={s} sector={s} />
           ))}
-          <span className="net-mono text-[11px] tracking-[0.1em] text-muted-foreground/80 uppercase">
-            {delibera.code}
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            {formatDate(delibera.date)}
           </span>
         </div>
+        <span className="inline-flex items-center rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono text-muted-foreground">
+          {delibera.code}
+        </span>
       </div>
 
-      {/* Body · title + lede */}
-      <div className="px-6 pt-6">
-        <h3 className="text-[20px] sm:text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-foreground mb-3 max-w-[40ch]">
-          {delibera.title}
-        </h3>
-        <p className="net-serif font-light text-[15px] leading-[1.55] text-foreground/85 max-w-[62ch]">
-          {delibera.summary}
-        </p>
-      </div>
+      {/* Title */}
+      <h3 className="text-base sm:text-lg font-bold leading-snug tracking-tight text-foreground">
+        {delibera.title}
+      </h3>
 
-      {/* Cose da sapere */}
-      <div className="px-6 pt-6">
-        <p className="net-rule mb-4">
-          <span>Cose da sapere</span>
-          <span className="text-muted-foreground/50">
-            · {String(delibera.bullets.length).padStart(2, "0")}
-          </span>
+      {/* Summary */}
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {delibera.summary}
+      </p>
+
+      {/* Bullets */}
+      <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-3 sm:p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-2">
+          Cose da sapere
         </p>
-        <ul className="pl-9 space-y-2.5">
+        <ul className="space-y-1.5">
           {delibera.bullets.map((b, i) => (
             <li
               key={i}
-              className="relative text-[14px] leading-[1.55] text-foreground/85 tracking-[-0.005em]"
+              className="flex gap-2 text-xs sm:text-[13px] text-foreground/90 leading-relaxed"
             >
-              <span
-                aria-hidden
-                className="net-mono absolute -left-6 top-0 text-primary font-bold"
-              >
-                →
-              </span>
-              {b}
+              <span className="mt-1.5 h-1 w-1 rounded-full bg-primary shrink-0" />
+              <span>{b}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Allegati */}
+      {/* Attachments */}
       {delibera.attachments.length > 0 && (
-        <div className="pt-6">
-          <p className="net-rule mb-0 px-6">
-            <span>Allegati</span>
-            <span className="text-muted-foreground/50">
-              · {String(delibera.attachments.length).padStart(2, "0")}
-            </span>
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+            Allegati
           </p>
-          <div className="mt-4 border-t border-white/[0.1] border-b">
-            {delibera.attachments.map((a, i) => (
+          <div className="flex flex-col gap-1.5">
+            {delibera.attachments.map((a) => (
               <button
                 key={a.label}
                 type="button"
@@ -151,45 +145,38 @@ export function DeliberaCard({
                     "I file della delibera saranno scaricabili quando collegheremo il crawler ARERA.",
                   );
                 }}
-                className={`group w-full grid grid-cols-[48px_minmax(0,1fr)_auto_auto] items-center gap-4 px-6 py-3 text-left text-[14px] text-foreground/85 hover:text-foreground hover:bg-white/[0.02] transition-colors ${
-                  i < delibera.attachments.length - 1
-                    ? "border-b border-white/[0.1]"
-                    : ""
-                }`}
+                className="group inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] px-3 py-2 text-xs text-foreground/90 transition-colors text-left"
               >
-                <span className="net-mono text-[10px] font-bold text-center tracking-[0.18em] text-muted-foreground group-hover:text-foreground px-0 py-1 border border-white/[0.12] group-hover:border-white/25 rounded-[4px] transition-colors">
-                  {typeLabel(a.kind)}
-                </span>
-                <span className="truncate tracking-[-0.005em]">{a.label}</span>
+                {attachmentIcon(a.kind)}
+                <span className="flex-1 truncate">{a.label}</span>
                 {a.size && (
-                  <span className="net-mono text-[11.5px] text-muted-foreground/70 tracking-[0.06em] shrink-0">
+                  <span className="text-[10px] text-muted-foreground/70 shrink-0">
                     {a.size}
                   </span>
                 )}
-                <span className="net-mono text-[10.5px] tracking-[0.12em] uppercase text-muted-foreground/60 group-hover:text-primary transition-colors shrink-0">
-                  Scarica ↓
-                </span>
+                <Download className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors shrink-0" />
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Footer · actions */}
-      <div className="flex items-center justify-between gap-3 px-6 py-5 flex-wrap">
+      {/* Footer actions */}
+      <div className="flex items-center gap-2 pt-1 mt-auto">
         <a
           href={delibera.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-lg border border-white/[0.12] px-4 py-2.5 net-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/85 hover:text-foreground hover:border-white/25 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowUpRight className="h-3.5 w-3.5" />
-          Apri su ARERA
+          <ExternalLink className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Apri su ARERA</span>
+          <span className="sm:hidden">ARERA</span>
         </a>
         <button
           type="button"
           onClick={() => onAskAgent(delibera)}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary text-[hsl(158_80%_10%)] px-4 py-2.5 text-[13px] font-bold tracking-[-0.005em] transition-all hover:-translate-y-px hover:shadow-[0_8px_24px_hsl(158_72%_40%/0.3)]"
+          className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary to-emerald-600 text-primary-foreground px-3.5 py-1.5 text-xs font-semibold shadow-md shadow-primary/25 hover:shadow-primary/40 transition-shadow ml-auto"
         >
           <MessageSquare className="h-3.5 w-3.5" />
           Chiedi all&apos;agente
