@@ -26,7 +26,7 @@ type Props = {
   logoUrl?: string;
 };
 
-const DEFAULT_LOGO = "https://energizzo.unvrslabs.dev/logo-energizzo.png";
+const DEFAULT_LOGO = "https://leads.energizzo.it/logo-energizzo.png";
 
 export default function SurveyInviteEmail({
   recipientName,

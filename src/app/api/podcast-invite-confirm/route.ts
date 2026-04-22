@@ -47,7 +47,7 @@ async function notifyTelegram(r: ConfirmResult) {
   const waDigits = (r.response_whatsapp ?? "").replace(/\D/g, "");
   const episodeLabel = r.episode_slug ? EPISODE_LABELS[r.episode_slug] ?? r.episode_slug : "—";
   const guestUrl = r.guest_id
-    ? `https://energizzo.unvrslabs.dev/dashboard/podcast/ospiti/${r.guest_id}`
+    ? `https://leads.energizzo.it/dashboard/podcast/ospiti/${r.guest_id}`
     : "";
 
   const lines = [

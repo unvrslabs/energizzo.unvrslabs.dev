@@ -70,7 +70,7 @@ export function LeadPodcastInvite({ leadId }: { leadId: string }) {
   const origin =
     typeof window !== "undefined"
       ? window.location.origin
-      : "https://energizzo.unvrslabs.dev";
+      : "https://leads.energizzo.it";
   const inviteUrl = guest?.invite_token
     ? `${origin}/podcast/invito/${guest.invite_token}`
     : null;
