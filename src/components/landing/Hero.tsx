@@ -182,7 +182,7 @@ export function Hero() {
               className="text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-[1.1] tracking-tight mb-6 md:mb-8"
             >
               Il primo network italiano per i{" "}
-              <span className="gradient-text font-bold">
+              <span className="gradient-text-emerald font-bold">
                 protagonisti del settore energetico
               </span>
               .

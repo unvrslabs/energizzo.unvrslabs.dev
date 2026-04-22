@@ -153,6 +153,19 @@
     color: transparent;
   }
 
+  /* Emerald gradient text matching the Login button (primary → accent) */
+  .gradient-text-emerald {
+    background: linear-gradient(
+      to right,
+      hsl(var(--primary)),
+      hsl(var(--accent))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
   .gradient-text-primary {
     background: linear-gradient(135deg, hsl(158 64% 50%), hsl(160 70% 38%));
     -webkit-background-clip: text;
