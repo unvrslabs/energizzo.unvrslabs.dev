@@ -121,7 +121,7 @@ export function ComparisonTable() {
         <div className="overflow-x-auto scroll-x-contained">
           <table className="w-full min-w-[720px]">
             <thead>
-              <tr className="border-b border-border/40">
+              <tr className="border-b border-primary/20">
                 <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
                   Cosa cerchi
                 </th>
@@ -144,7 +144,7 @@ export function ComparisonTable() {
                 <tr
                   key={r.label}
                   className={
-                    idx !== ROWS.length - 1 ? "border-b border-border/20" : ""
+                    idx !== ROWS.length - 1 ? "border-b border-primary/10" : ""
                   }
                 >
                   <td className="px-4 py-4 text-sm font-semibold align-top">

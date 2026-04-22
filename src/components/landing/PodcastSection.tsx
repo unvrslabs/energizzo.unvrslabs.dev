@@ -54,7 +54,7 @@ export function PodcastSection() {
 
           {/* Video card mockup */}
           <div className="space-y-4">
-            <article className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-primary/[0.12] via-background/40 to-accent/[0.08] aspect-video cursor-pointer">
+            <article className="group dispaccio-card aspect-video cursor-pointer">
               {/* Decorative bokeh */}
               <div
                 aria-hidden
@@ -124,7 +124,7 @@ export function PodcastSection() {
               {UPCOMING.map((e) => (
                 <div
                   key={e.num}
-                  className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2.5 text-sm hover:bg-white/[0.04] transition-colors cursor-pointer"
+                  className="dispaccio-card dispaccio-card-hover flex items-center gap-3 !rounded-xl px-3 py-2.5 text-sm cursor-pointer"
                 >
                   <span className="text-xs font-mono text-muted-foreground/70 w-8">
                     {e.num}
