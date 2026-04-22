@@ -13,8 +13,8 @@ const navLinks = [
   { label: "Confronto", href: "#confronto" },
 ];
 
-const CTA_HREF =
-  "mailto:emanuele@unvrslabs.dev?subject=Richiesta%20accesso%20Il%20Dispaccio";
+const CTA_HREF = "https://dash.ildispaccio.energy/login";
+const CTA_LABEL = "Login";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -54,8 +54,7 @@ export function Navbar() {
         }}
       >
         <a href="#" className="pr-4 pl-2">
-          <span className="text-lg font-bold gradient-text">il dispaccio</span>
-          <span className="text-sm text-muted-foreground ml-1">by UNVRS</span>
+          <span className="text-lg font-bold gradient-text">Il Dispaccio</span>
         </a>
 
         <div className="w-px h-5 bg-white/15 mx-1" />
@@ -101,7 +100,7 @@ export function Navbar() {
           }}
           whileTap={{ scale: 0.98 }}
         >
-          Entra nel network
+          {CTA_LABEL}
         </motion.a>
       </motion.div>
 
@@ -112,7 +111,7 @@ export function Navbar() {
           "liquid-glass-nav",
         )}
       >
-        <span className="gradient-text font-bold text-lg">il dispaccio</span>
+        <span className="gradient-text font-bold text-lg">Il Dispaccio</span>
         <motion.button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="text-foreground p-2 rounded-full liquid-glass"
