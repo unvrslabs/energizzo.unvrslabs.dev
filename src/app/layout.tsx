@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Orbitron,
-  Plus_Jakarta_Sans,
-  JetBrains_Mono,
-  Instrument_Serif,
-} from "next/font/google";
+import { Orbitron, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -13,20 +8,14 @@ const orbitron = Orbitron({
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-display",
 });
-const jakarta = Plus_Jakarta_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-sans",
 });
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-});
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
 });
 
 export const metadata: Metadata = {
@@ -53,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="it"
-      className={`${orbitron.variable} ${jakarta.variable} ${jetbrains.variable} ${instrumentSerif.variable}`}
+      className={`${orbitron.variable} ${inter.variable} ${jetbrains.variable}`}
     >
       <body>
         {children}

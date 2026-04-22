@@ -21,6 +21,8 @@ import {
   List,
   Phone,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { AnimatedShinyText } from "@/components/magicui/animated-shiny-text";
 
 function TypingText({
   text,
@@ -150,8 +152,6 @@ const servicePills = [
   { icon: Phone, label: "Telemarketing" },
 ];
 
-const CTA_HREF =
-  "mailto:emanuele@unvrslabs.dev?subject=Richiesta%20accesso%20Il%20Dispaccio";
 
 export function Hero() {
   return (
@@ -179,12 +179,12 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-serif text-4xl md:text-6xl lg:text-7xl font-normal text-foreground leading-[1.05] tracking-tight mb-6 md:mb-8"
+              className="text-4xl md:text-6xl lg:text-7xl font-black text-foreground leading-[1.05] tracking-tight mb-6 md:mb-8"
             >
               Il primo network italiano per i{" "}
-              <em className="italic text-primary">
+              <span className="gradient-text">
                 protagonisti del settore energetico
-              </em>
+              </span>
               .
             </motion.h1>
 
@@ -197,34 +197,31 @@ export function Hero() {
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-balance">
                 <TypingText text="Reseller, dispacciatori, trader, produttori." />
               </p>
-              <p className="font-serif italic text-2xl md:text-3xl lg:text-4xl leading-tight tracking-tight">
+              <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
                 <span className="shiny-text">La corrente passa da qui.</span>
               </p>
             </motion.div>
 
+            {/* Sponsor badge */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="flex gap-3 md:gap-4 justify-center lg:justify-start flex-wrap mb-10 lg:mb-0"
+              className="flex justify-center lg:justify-start mb-10 lg:mb-0"
             >
-              <motion.a
-                href={CTA_HREF}
-                className="btn-premium inline-flex items-center gap-2 text-sm md:text-base px-6 py-3 md:px-8 md:py-4"
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.98 }}
+              <a
+                href="https://www.energizzo.it"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "group rounded-full border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur transition-all",
+                )}
               >
-                Entra nel network
-                <ArrowRight className="w-5 h-5" />
-              </motion.a>
-              <motion.a
-                href="#sezioni"
-                className="hidden md:inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-base text-foreground liquid-glass transition-all duration-300"
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Scopri le sezioni
-              </motion.a>
+                <AnimatedShinyText className="inline-flex items-center justify-center px-5 py-1.5 text-sm">
+                  <span>✨ Sponsor Ufficiale · Energizzo</span>
+                  <ArrowRight className="ml-2 size-3.5 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
+                </AnimatedShinyText>
+              </a>
             </motion.div>
           </div>
 
