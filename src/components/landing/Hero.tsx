@@ -22,6 +22,22 @@ import {
 } from "lucide-react";
 import { NetworkJoinCard } from "./NetworkJoinCard";
 
+function ItalianFlag({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 3 2"
+      preserveAspectRatio="none"
+      aria-label="Italia"
+      role="img"
+      className={className}
+    >
+      <rect width="1" height="2" x="0" fill="#008C45" />
+      <rect width="1" height="2" x="1" fill="#F4F5F0" />
+      <rect width="1" height="2" x="2" fill="#CD212A" />
+    </svg>
+  );
+}
+
 function TypingText({
   text,
   speed = 28,
@@ -123,11 +139,12 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="text-3xl md:text-6xl lg:text-7xl font-black text-foreground leading-[1.1] tracking-tight mb-5 md:mb-7"
             >
-              Il primo network italiano per i{" "}
+              Il primo network{" "}
+              <ItalianFlag className="inline-block align-[-0.12em] mx-1 md:mx-2 h-[0.78em] w-auto rounded-sm shadow-[0_3px_12px_rgba(0,140,69,0.35)] ring-1 ring-white/10" />{" "}
+              per i{" "}
               <span className="gradient-text">
                 protagonisti del settore energetico
               </span>
-              .
             </motion.h1>
 
             <motion.div
@@ -137,10 +154,10 @@ export function Hero() {
               className="max-w-[680px] mx-auto lg:mx-0 mb-8 md:mb-10 px-2 lg:px-0 space-y-2"
             >
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed text-balance">
-                <TypingText text="Reseller, Dispacciatori, Trader, Produttori." />
+                <TypingText text="Reseller, Dispacciatori, Trader, Produttori" />
               </p>
               <p className="text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
-                <span className="shiny-text">La corrente passa da qui.</span>
+                <span className="shiny-text">La corrente passa da qui</span>
               </p>
             </motion.div>
 
