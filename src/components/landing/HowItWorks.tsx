@@ -54,16 +54,18 @@ export function HowItWorks() {
             key={s.num}
             className="dispaccio-card dispaccio-card-hover p-5 sm:p-8 flex flex-col relative overflow-hidden"
           >
-            <span
-              className="font-black leading-none gradient-text select-none text-5xl sm:text-[6rem]"
-              aria-hidden
-            >
-              {s.num}
-            </span>
-            <div className="mt-2 inline-flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-              <s.Icon className="h-5 w-5" />
+            <div className="flex items-start justify-between gap-3">
+              <span
+                className="font-black leading-none gradient-text select-none text-5xl sm:text-[6rem]"
+                aria-hidden
+              >
+                {s.num}
+              </span>
+              <div className="inline-flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 border border-primary/25 text-primary">
+                <s.Icon className="h-5 w-5" />
+              </div>
             </div>
-            <h3 className="mt-3 sm:mt-4 text-xl sm:text-2xl font-bold tracking-tight">
+            <h3 className="mt-5 sm:mt-6 text-xl sm:text-2xl font-bold tracking-tight">
               {s.title}
             </h3>
             <p className="mt-2 sm:mt-3 text-sm text-muted-foreground leading-relaxed">
