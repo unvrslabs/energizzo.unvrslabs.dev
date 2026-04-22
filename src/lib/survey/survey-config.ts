@@ -122,14 +122,6 @@ export const SURVEY_SCREENS: Screen[] = [
     ],
   },
   {
-    id: "sec2_intro",
-    type: "statement",
-    section: SEC.s2,
-    title: "📐 Profilo aziendale",
-    description:
-      "Cinque domande veloci per inquadrare dimensione e perimetro della vostra attività. Circa 2 minuti.",
-  },
-  {
     id: "Q4",
     type: "single_choice",
     section: SEC.s2,
@@ -210,14 +202,6 @@ export const SURVEY_SCREENS: Screen[] = [
       "Considera l'organico totale, anche se una parte non è dedicata alla vendita energia.",
     required: true,
     options: ["1 – 5", "6 – 15", "16 – 40", "41 – 100", "101 – 300", "Oltre 300"],
-  },
-  {
-    id: "sec3_intro",
-    type: "statement",
-    section: SEC.s3,
-    title: "💰 Economics e unit economics",
-    description:
-      "Sei domande sui KPI economici chiave. Sappiamo che alcuni sono sensibili — tutte le risposte sono aggregate per fascia dimensionale e area geografica, e non vengono mai pubblicate singolarmente. Se un KPI non lo misurate in modo strutturato, c'è sempre l'opzione per dirlo.",
   },
   {
     id: "Q9",
@@ -320,14 +304,6 @@ export const SURVEY_SCREENS: Screen[] = [
     ],
   },
   {
-    id: "sec4_intro",
-    type: "statement",
-    section: SEC.s4,
-    title: "⚙️ Operations e tempi di processo",
-    description:
-      "Quattro domande sui tempi e sul dimensionamento operativo del back-office. Siamo a metà del questionario.",
-  },
-  {
     id: "Q15",
     type: "single_choice",
     section: SEC.s4,
@@ -384,13 +360,6 @@ export const SURVEY_SCREENS: Screen[] = [
     title: "Reclami formali al mese per 10.000 clienti (media 2024)",
     required: true,
     options: ["Meno di 5", "5 – 15", "15 – 30", "30 – 50", "Oltre 50"],
-  },
-  {
-    id: "sec5_intro",
-    type: "statement",
-    section: SEC.s5,
-    title: "💻 Stack tecnologico",
-    description: "Tre domande veloci sull'infrastruttura che usate. Siamo quasi alla fine.",
   },
   {
     id: "Q19",
