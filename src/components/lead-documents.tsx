@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import {
   FileText,
   Download,
+  Eye,
   Trash2,
   Upload,
   Loader2,
@@ -139,14 +140,28 @@ export function LeadDocuments({ leadId }: { leadId: string }) {
     });
   }
 
+  async function getSignedUrl(doc: Document, mode: "view" | "download") {
+    const res = await fetch(
+      `/api/dashboard/leads/${leadId}/documents/${doc.id}?mode=${mode}`,
+    );
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.error ?? "Errore");
+    return data.url as string;
+  }
+
+  async function handleOpen(doc: Document) {
+    try {
+      const url = await getSignedUrl(doc, "view");
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Errore apertura");
+    }
+  }
+
   async function handleDownload(doc: Document) {
     try {
-      const res = await fetch(
-        `/api/dashboard/leads/${leadId}/documents/${doc.id}`,
-      );
-      const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error ?? "Errore");
-      window.open(data.url, "_blank", "noopener,noreferrer");
+      const url = await getSignedUrl(doc, "download");
+      window.open(url, "_blank", "noopener,noreferrer");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Errore download");
     }
@@ -245,6 +260,14 @@ export function LeadDocuments({ leadId }: { leadId: string }) {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleOpen(d)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border/60 hover:border-primary hover:text-primary transition-colors"
+                    title="Apri nel browser"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleDownload(d)}

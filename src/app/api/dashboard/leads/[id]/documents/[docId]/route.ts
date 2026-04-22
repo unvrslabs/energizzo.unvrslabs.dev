@@ -31,9 +31,12 @@ export async function GET(
 
   if (!doc) return NextResponse.json({ ok: false }, { status: 404 });
 
+  const mode = req.nextUrl.searchParams.get("mode") === "download" ? "download" : "view";
+  const options = mode === "download" ? { download: doc.file_name } : undefined;
+
   const { data: signed, error } = await supabase.storage
     .from(BUCKET)
-    .createSignedUrl(doc.file_path, 120, { download: doc.file_name });
+    .createSignedUrl(doc.file_path, 120, options);
 
   if (error || !signed) {
     return NextResponse.json(
