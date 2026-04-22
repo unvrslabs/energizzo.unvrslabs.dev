@@ -189,6 +189,10 @@ export function Hero() {
               <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
                 Il Dispaccio
               </span>
+              <span className="text-primary/40">·</span>
+              <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
+                100% Gratuito
+              </span>
             </motion.div>
 
             <motion.h1

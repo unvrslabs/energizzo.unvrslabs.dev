@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 
 export function FreeNetworkSection() {
   return (
     <section
-      aria-label="Network gratuito"
+      aria-label="Network gratuito · Sponsor ufficiale Energizzo"
       className="relative mx-auto max-w-5xl px-6 py-16 md:py-20"
     >
       <motion.div
@@ -26,59 +26,108 @@ export function FreeNetworkSection() {
           className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-accent/10 blur-3xl pointer-events-none"
         />
 
-        <div className="relative flex flex-col md:flex-row items-center gap-8 md:gap-10 p-8 md:p-10 lg:p-12">
-          {/* Left: label + big "€0" */}
-          <div className="flex flex-col items-center md:items-start gap-4 md:gap-5 shrink-0">
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
-                100% Gratuito
-              </span>
+        <div className="relative p-8 md:p-10 lg:p-12">
+          {/* Top: main GRATIS message */}
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-10">
+            {/* Left: label + big "€0" */}
+            <div className="flex flex-col items-center md:items-start gap-4 md:gap-5 shrink-0">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">
+                  100% Gratuito
+                </span>
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span
+                  className="block text-6xl md:text-7xl font-black tracking-tight text-primary"
+                  style={{ lineHeight: 1.1, paddingBottom: "0.1em" }}
+                >
+                  €0
+                </span>
+                <span className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  Per sempre
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-baseline gap-1">
-              <span
-                className="block text-6xl md:text-7xl font-black tracking-tight text-primary"
-                style={{ lineHeight: 1.1, paddingBottom: "0.1em" }}
+            {/* Divider on md+ */}
+            <div
+              aria-hidden
+              className="hidden md:block w-px self-stretch bg-gradient-to-b from-transparent via-white/10 to-transparent"
+            />
+
+            {/* Right: pitch */}
+            <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
+              <h3 className="text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
+                Il network è completamente gratuito.{" "}
+                <span className="text-primary">Ora e sempre.</span>
+              </h3>
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
+                Tutti i servizi del Dispaccio — delibere ARERA decifrate,
+                benchmark tariffario, podcast &quot;Il Reseller&quot;, eventi
+                privati, report indipendente e community peer-to-peer — sono
+                offerti gratuitamente ai reseller operativi del mercato
+                italiano. Nessuna quota d&apos;ingresso, nessun abbonamento,
+                nessun costo nascosto.
+              </p>
+
+              <motion.a
+                href="#iscrizione"
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-1 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-primary/40"
               >
-                €0
-              </span>
-              <span className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Per sempre
-              </span>
+                Richiedi l&apos;accesso
+                <ArrowRight className="w-4 h-4" />
+              </motion.a>
             </div>
           </div>
 
-          {/* Divider on md+ */}
+          {/* Divider */}
           <div
             aria-hidden
-            className="hidden md:block w-px self-stretch bg-gradient-to-b from-transparent via-white/10 to-transparent"
+            className="my-8 md:my-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
           />
 
-          {/* Right: pitch */}
-          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4">
-            <h3 className="text-xl md:text-2xl font-semibold text-foreground leading-snug text-balance">
-              Il network è completamente gratuito.{" "}
-              <span className="text-primary">Ora e sempre.</span>
-            </h3>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed max-w-xl">
-              Tutti i servizi del Dispaccio — delibere ARERA decifrate,
-              benchmark tariffario, podcast &quot;Il Reseller&quot;, eventi
-              privati, report indipendente e community peer-to-peer — sono
-              offerti gratuitamente ai reseller operativi del mercato italiano.
-              Nessuna quota d&apos;ingresso, nessun abbonamento, nessun costo
-              nascosto.
-            </p>
+          {/* Bottom: sponsor reveal */}
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left">
+            <div className="flex flex-col items-center md:items-start gap-2 shrink-0">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                Reso possibile da
+              </span>
+              <a
+                href="https://www.energizzo.it"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-baseline gap-1.5 transition-opacity hover:opacity-90"
+                aria-label="Visita energizzo.it"
+              >
+                <span
+                  className="block text-4xl md:text-5xl font-black tracking-tight text-primary"
+                  style={{ lineHeight: 1.3, paddingBottom: "0.1em" }}
+                >
+                  energizzo
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-primary opacity-70 transition-all group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
+            </div>
 
-            <motion.a
-              href="#iscrizione"
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              className="mt-1 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-primary/40"
-            >
-              Richiedi l&apos;accesso
-              <ArrowRight className="w-4 h-4" />
-            </motion.a>
+            <p className="flex-1 text-sm text-muted-foreground leading-relaxed max-w-xl">
+              Il network è sostenuto da{" "}
+              <a
+                href="https://www.energizzo.it"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-foreground font-semibold hover:text-primary transition-colors"
+              >
+                Energizzo
+              </a>
+              , la piattaforma AI-native per reseller di energia. La
+              sponsorizzazione copre tutti i costi operativi: per questo il
+              servizio resta e resterà gratuito, senza pubblicità e senza
+              vincoli commerciali sui contenuti.
+            </p>
           </div>
         </div>
       </motion.div>
