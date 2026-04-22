@@ -19,6 +19,7 @@ import {
   Handshake,
   List,
   Phone,
+  Sparkles,
 } from "lucide-react";
 import { NetworkJoinCard } from "./NetworkJoinCard";
 
@@ -183,15 +184,19 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full liquid-glass border-primary/30 mb-6 md:mb-8"
+              className="flex flex-wrap items-center gap-2 mb-6 md:mb-8"
             >
-              <Mic className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
-              <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
-                Il Dispaccio
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full liquid-glass border-primary/30">
+                <Mic className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
+                  Il Reseller
+                </span>
               </span>
-              <span className="text-primary/40">·</span>
-              <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
-                100% Gratuito
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 md:px-5 md:py-2 rounded-full liquid-glass border-primary/30">
+                <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
+                <span className="text-xs md:text-sm font-semibold text-primary tracking-wide">
+                  100% Gratuito
+                </span>
               </span>
             </motion.div>
 
