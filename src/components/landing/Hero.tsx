@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { NetworkJoinCard } from "./NetworkJoinCard";
+import { FloatingEnergyIcons } from "./FloatingEnergyIcons";
 
 function ItalianFlag({ className }: { className?: string }) {
   return (
@@ -176,6 +177,7 @@ export function Hero() {
       className="relative min-h-screen flex items-center overflow-hidden pt-32 pb-16 md:pt-32 md:pb-24"
       aria-label="Il Dispaccio · Il network dei reseller energia in Italia"
     >
+      <FloatingEnergyIcons />
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row lg:items-center lg:gap-12 xl:gap-16">
           {/* Left column */}

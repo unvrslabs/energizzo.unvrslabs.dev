@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 
+import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
+import { EnergyTicker } from "@/components/landing/EnergyTicker";
 import { FreeNetworkSection } from "@/components/landing/FreeNetworkSection";
 import { PlatformTabs } from "@/components/landing/PlatformTabs";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -21,9 +23,11 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen text-foreground mesh-gradient">
+    <main className="relative min-h-screen text-foreground">
+      <AnimatedBackground />
       <Navbar />
       <Hero />
+      <EnergyTicker />
       <FreeNetworkSection />
       <HowItWorks />
       <PlatformTabs />

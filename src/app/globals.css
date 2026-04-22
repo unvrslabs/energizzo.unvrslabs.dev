@@ -460,6 +460,219 @@
   font-weight: 700 !important;
 }
 
+/* ============ Energy landing background & motion ============ */
+
+.aurora-stage {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background-color: hsl(218 48% 10%);
+  pointer-events: none;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  opacity: 0.6;
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+
+.aurora-blob--a {
+  width: 44rem;
+  height: 44rem;
+  left: -10rem;
+  top: -14rem;
+  background: radial-gradient(circle at 30% 30%, hsl(158 80% 55% / 0.9), transparent 60%);
+  animation: aurora-drift-a 22s ease-in-out infinite;
+}
+
+.aurora-blob--b {
+  width: 36rem;
+  height: 36rem;
+  right: -8rem;
+  top: 10%;
+  background: radial-gradient(circle at 60% 40%, hsl(195 75% 55% / 0.85), transparent 60%);
+  animation: aurora-drift-b 26s ease-in-out infinite;
+}
+
+.aurora-blob--c {
+  width: 40rem;
+  height: 40rem;
+  left: 20%;
+  bottom: -14rem;
+  background: radial-gradient(circle at 50% 50%, hsl(265 75% 60% / 0.55), transparent 65%);
+  animation: aurora-drift-c 30s ease-in-out infinite;
+}
+
+.aurora-blob--d {
+  width: 28rem;
+  height: 28rem;
+  right: 10%;
+  bottom: 8%;
+  background: radial-gradient(circle at 45% 45%, hsl(175 65% 50% / 0.6), transparent 65%);
+  animation: aurora-drift-d 24s ease-in-out infinite;
+}
+
+@keyframes aurora-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(6rem, 3rem, 0) scale(1.12); }
+  66% { transform: translate3d(-3rem, 6rem, 0) scale(0.95); }
+}
+@keyframes aurora-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  40% { transform: translate3d(-5rem, 4rem, 0) scale(1.1); }
+  70% { transform: translate3d(4rem, -3rem, 0) scale(0.9); }
+}
+@keyframes aurora-drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  35% { transform: translate3d(4rem, -4rem, 0) scale(1.08); }
+  65% { transform: translate3d(-6rem, 2rem, 0) scale(0.92); }
+}
+@keyframes aurora-drift-d {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-3rem, -4rem, 0) scale(1.15); }
+}
+
+.aurora-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 100% / 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+  opacity: 0.55;
+}
+
+.aurora-scanline {
+  position: absolute;
+  inset-inline: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(158 80% 60% / 0.55), transparent);
+  opacity: 0.45;
+  animation: scanline-move 14s linear infinite;
+  filter: blur(1px);
+}
+
+@keyframes scanline-move {
+  0% { top: -5%; }
+  100% { top: 105%; }
+}
+
+.aurora-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 45%, hsl(218 60% 6% / 0.85) 100%);
+  pointer-events: none;
+}
+
+/* Floating icons in hero */
+.float-icon {
+  position: absolute;
+  color: hsl(158 70% 60% / 0.55);
+  filter: drop-shadow(0 0 10px hsl(158 80% 55% / 0.35));
+  animation: float-bob 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes float-bob {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25% { transform: translate3d(-8px, -14px, 0) rotate(-4deg); }
+  50% { transform: translate3d(6px, -6px, 0) rotate(3deg); }
+  75% { transform: translate3d(10px, 10px, 0) rotate(5deg); }
+}
+
+/* Ticker marquee */
+.ticker-track {
+  display: flex;
+  gap: 1.25rem;
+  animation: ticker-scroll 60s linear infinite;
+  width: max-content;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.ticker-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(0 0% 100% / 0.08);
+  background: hsl(0 0% 100% / 0.03);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  font-feature-settings: "tnum" 1;
+}
+
+.ticker-pill__code {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: hsl(0 0% 100% / 0.85);
+}
+
+.ticker-pill__value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: hsl(0 0% 100% / 0.95);
+}
+
+.ticker-pill__unit {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: hsl(0 0% 100% / 0.5);
+  letter-spacing: 0.03em;
+}
+
+.ticker-pill__delta {
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  font-feature-settings: "tnum" 1;
+}
+
+.ticker-pill__delta--up {
+  color: hsl(158 70% 65%);
+  background: hsl(158 70% 50% / 0.12);
+  border: 1px solid hsl(158 70% 50% / 0.25);
+}
+
+.ticker-pill__delta--down {
+  color: hsl(0 80% 70%);
+  background: hsl(0 80% 60% / 0.12);
+  border: 1px solid hsl(0 80% 60% / 0.25);
+}
+
+.ticker-pill__delta--flat {
+  color: hsl(0 0% 70%);
+  background: hsl(0 0% 100% / 0.05);
+  border: 1px solid hsl(0 0% 100% / 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob,
+  .aurora-scanline,
+  .float-icon,
+  .ticker-track {
+    animation: none !important;
+  }
+}
+
+
 /* Safari fallback: Tailwind backdrop-blur utilities emit only
    `backdrop-filter`; without -webkit-backdrop-filter Safari <18 renders
    nothing. Duplicate here explicitly so Safari sees a supported property. */
