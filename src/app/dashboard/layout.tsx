@@ -1,17 +1,13 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { signOut } from "@/actions/auth";
 import { NavLinks } from "@/components/nav-links";
 import { AgentBubble } from "@/components/agent/agent-bubble";
+import { getAdminMember } from "@/lib/admin/session";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login");
+  const admin = await getAdminMember();
+  if (!admin) redirect("/login");
 
   return (
     <div className="min-h-screen">

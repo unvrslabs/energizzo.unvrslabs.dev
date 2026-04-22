@@ -2,7 +2,8 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminMember } from "@/lib/admin/session";
 
 const NoteSchema = z.object({
   lead_id: z.string().uuid(),
@@ -11,16 +12,14 @@ const NoteSchema = z.object({
 
 export async function addNote(input: unknown) {
   const parsed = NoteSchema.parse(input);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false as const, error: "Non autenticato" };
+  const admin = await getAdminMember();
+  if (!admin) return { ok: false as const, error: "Non autenticato" };
 
+  const supabase = createAdminClient();
   const { error } = await supabase.from("notes").insert({
     lead_id: parsed.lead_id,
     body: parsed.body,
-    author_id: user.id,
+    author_id: admin.id,
   });
   if (error) return { ok: false as const, error: error.message };
   revalidatePath("/dashboard");

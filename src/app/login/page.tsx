@@ -1,118 +1,47 @@
-"use client";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { OtpLoginForm } from "@/components/auth/otp-login-form";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { toast } from "sonner";
-import { LogIn, UserPlus } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+export const metadata = {
+  title: "Accesso admin — Il Dispaccio",
+  robots: { index: false, follow: false },
+};
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const supabase = createClient();
-    try {
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Accesso effettuato");
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        toast.success("Account creato. Verifica l'email se richiesto.");
-        setMode("login");
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Errore imprevisto";
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
-  }
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const params = await searchParams;
+  const nextRaw = params.next;
+  const next =
+    nextRaw && nextRaw.startsWith("/dashboard") ? nextRaw : undefined;
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="liquid-glass-card w-full max-w-md p-10 animate-pulse-glow">
-        <div className="mb-8 flex flex-col items-center gap-4">
-          <Image
-            src="/logo-energizzo.png"
-            alt="Energizzo"
-            width={80}
-            height={80}
-            priority
-            className="rounded-2xl shadow-lg shadow-primary/40"
-          />
-
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-glass mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-[10px] font-semibold text-primary tracking-[0.15em] uppercase">
-                Reseller Italia
-              </span>
-            </div>
-            <h1 className="font-display text-4xl font-black tracking-tight gradient-text">
-              ENERGIZZO CRM
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">Accedi al pannello</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.it"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <Button type="submit" disabled={loading} size="lg" className="w-full">
-            {mode === "login" ? (
-              <>
-                <LogIn /> {loading ? "Accesso..." : "Accedi"}
-              </>
-            ) : (
-              <>
-                <UserPlus /> {loading ? "Creazione..." : "Crea account"}
-              </>
-            )}
-          </Button>
-        </form>
-
-        <button
-          type="button"
-          onClick={() => setMode(mode === "login" ? "signup" : "login")}
-          className="mt-5 w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+    <main className="mesh-gradient relative min-h-screen flex flex-col">
+      <header className="relative z-10 p-6 md:p-8">
+        <Link
+          href="https://ildispaccio.energy"
+          className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm px-4 py-2 text-sm font-semibold text-foreground/90 hover:text-foreground hover:bg-white/[0.08] hover:border-primary/30 transition-all"
         >
-          {mode === "login" ? "Crea il tuo account" : "Hai già un account? Accedi"}
-        </button>
+          <ArrowLeft className="w-3.5 h-3.5 text-primary transition-transform group-hover:-translate-x-0.5" />
+          <span className="gradient-text">Il Dispaccio</span>
+        </Link>
+      </header>
+
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 pb-16">
+        <div className="w-full max-w-md">
+          <OtpLoginForm
+            apiBase="/api/admin/auth"
+            badgeLabel="Admin"
+            title="Il Dispaccio · Admin"
+            subtitle="Accesso riservato al team. Ti inviamo un codice di accesso sul tuo WhatsApp autorizzato."
+            phoneFooter="Solo i numeri admin autorizzati possono accedere."
+            defaultRedirect="/dashboard"
+            next={next}
+          />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

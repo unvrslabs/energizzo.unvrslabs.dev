@@ -1,12 +1,13 @@
-"use server";
-
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashSessionToken } from "@/lib/network/crypto";
 import { ADMIN_COOKIE_NAME } from "@/lib/admin/session";
 
-export async function signOut() {
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function POST() {
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
 
@@ -18,7 +19,7 @@ export async function signOut() {
         .update({ revoked_at: new Date().toISOString() })
         .eq("token_hash", hashSessionToken(token));
     } catch (err) {
-      console.error("admin signOut revoke failed", err);
+      console.error("admin logout revoke failed", err);
     }
   }
 
@@ -33,5 +34,5 @@ export async function signOut() {
     domain: process.env.ADMIN_SESSION_COOKIE_DOMAIN || undefined,
   });
 
-  redirect("/login");
+  return NextResponse.json({ ok: true });
 }

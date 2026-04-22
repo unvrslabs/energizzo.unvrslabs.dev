@@ -1,5 +1,4 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
 
 const ADMIN_HOST = "dash.ildispaccio.energy";
 const PUBLIC_HOSTS = new Set(["ildispaccio.energy", "www.ildispaccio.energy"]);
@@ -7,6 +6,7 @@ const PUBLIC_SITE_URL = "https://ildispaccio.energy";
 const ADMIN_SITE_URL = "https://dash.ildispaccio.energy";
 
 const NETWORK_COOKIE_NAME = "ildispaccio_network";
+const ADMIN_COOKIE_NAME = "ildispaccio_admin";
 
 function isPublicRoute(pathname: string): boolean {
   return (
@@ -20,11 +20,22 @@ function isPublicRoute(pathname: string): boolean {
   );
 }
 
+function isAdminProtectedRoute(pathname: string): boolean {
+  return (
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname.startsWith("/api/email-preview") ||
+    pathname.startsWith("/api/agent-chat")
+  );
+}
+
 function isAdminRoute(pathname: string): boolean {
   return (
     pathname === "/login" ||
-    pathname === "/dashboard" ||
-    pathname.startsWith("/dashboard/")
+    isAdminProtectedRoute(pathname) ||
+    pathname.startsWith("/api/admin/") ||
+    pathname.startsWith("/api/email-preview") ||
+    pathname.startsWith("/api/agent-chat")
   );
 }
 
@@ -33,6 +44,30 @@ function isNetworkProtectedRoute(pathname: string): boolean {
     (pathname === "/network" || pathname.startsWith("/network/")) &&
     pathname !== "/network/login"
   );
+}
+
+function handleAdmin(request: NextRequest, pathname: string) {
+  const cookie = request.cookies.get(ADMIN_COOKIE_NAME);
+  const hasCookie = !!cookie?.value;
+
+  if (pathname === "/login") {
+    if (hasCookie) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+    return NextResponse.next({ request });
+  }
+
+  if (isAdminProtectedRoute(pathname)) {
+    if (!hasCookie) {
+      const url = new URL("/login", request.url);
+      if (pathname !== "/dashboard") {
+        url.searchParams.set("next", pathname);
+      }
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return NextResponse.next({ request });
 }
 
 export async function middleware(request: NextRequest) {
@@ -47,7 +82,7 @@ export async function middleware(request: NextRequest) {
     if (isPublicRoute(pathname) && !isAdminRoute(pathname)) {
       return NextResponse.redirect(new URL(pathname, PUBLIC_SITE_URL));
     }
-    return updateSession(request);
+    return handleAdmin(request, pathname);
   }
 
   // ildispaccio.energy + www → solo rotte pubbliche
@@ -69,7 +104,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Host sconosciuto (localhost, preview VPS diretto, legacy):
-  // /network/* segue la logica pubblica, il resto va al default admin.
+  // /network/* segue la logica pubblica, resto applica admin.
   if (pathname === "/network/login" || pathname.startsWith("/api/network/")) {
     return NextResponse.next({ request });
   }
@@ -84,7 +119,7 @@ export async function middleware(request: NextRequest) {
     }
     return NextResponse.next({ request });
   }
-  return updateSession(request);
+  return handleAdmin(request, pathname);
 }
 
 export const config = {
