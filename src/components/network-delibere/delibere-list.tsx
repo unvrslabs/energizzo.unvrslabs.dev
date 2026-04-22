@@ -67,7 +67,6 @@ export function DelibereList() {
   const [period, setPeriod] = useState<PeriodFilter>("all");
   const [year, setYear] = useState<number | null>(null);
   const [query, setQuery] = useState("");
-  const [yearOpen, setYearOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [selected, setSelected] = useState<Delibera | null>(null);
 
@@ -118,6 +117,13 @@ export function DelibereList() {
     setChatOpen(true);
   }
 
+  function resetAll() {
+    setSector("all");
+    setPeriod("all");
+    setYear(null);
+    setQuery("");
+  }
+
   const hasAnyFilter =
     sector !== "all" || period !== "all" || year !== null || query !== "";
   const periodLabel =
@@ -126,165 +132,113 @@ export function DelibereList() {
       : PERIODS.find((p) => p.v === period)?.label ?? "Tutte le date";
   const periodActive = period !== "all" || year !== null;
 
+  const searchField = (
+    <div className="relative flex-1 min-w-0">
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Cerca per titolo, codice, contenuto…"
+        className="w-full rounded-full bg-transparent pl-10 pr-9 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
+      />
+      {query && (
+        <button
+          type="button"
+          onClick={() => setQuery("")}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Pulisci ricerca"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+
+  const datePopover = (
+    <DatePopoverPill
+      label={periodLabel}
+      active={periodActive}
+      period={period}
+      year={year}
+      availableYears={availableYears}
+      onSelectPeriod={(p) => {
+        setPeriod(p);
+        setYear(null);
+      }}
+      onSelectYear={(y) => {
+        setYear(y);
+        setPeriod("all");
+      }}
+    />
+  );
+
+  const sectorPills = FILTERS.map((f) => {
+    const active = sector === f.v;
+    const Icon = f.icon;
+    const count = sectorCounts[f.v];
+    return (
+      <button
+        key={f.v}
+        type="button"
+        onClick={() => setSector(f.v)}
+        className={cn(
+          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
+          active
+            ? "border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20"
+            : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25",
+        )}
+      >
+        <Icon
+          className={cn("h-3.5 w-3.5", active ? "text-primary" : f.color)}
+        />
+        {f.label}
+        <span
+          className={cn(
+            "inline-flex items-center justify-center rounded-full px-1.5 min-w-[1.2rem] h-4 text-[10px] font-bold",
+            active ? "bg-primary/25 text-primary" : "bg-white/10",
+          )}
+        >
+          {count}
+        </span>
+      </button>
+    );
+  });
+
+  const clearButton = hasAnyFilter ? (
+    <button
+      type="button"
+      onClick={resetAll}
+      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25 px-3 py-1.5 text-xs font-semibold transition-colors"
+    >
+      <X className="h-3.5 w-3.5" />
+      Pulisci
+    </button>
+  ) : null;
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <header className="space-y-3">
-        <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 sm:p-3 flex flex-col md:flex-row md:items-center gap-2">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cerca per titolo, codice, contenuto…"
-              className="w-full rounded-full bg-transparent pl-10 pr-10 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Pulisci ricerca"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+      <header className="space-y-2 md:space-y-3">
+        {/* MOBILE: search + date together, sector pills in a second card */}
+        <div className="md:hidden space-y-2">
+          <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 flex items-center gap-2">
+            {searchField}
+            {datePopover}
           </div>
+          <div className="liquid-glass-nav rounded-[1.75rem] p-2.5 flex items-center gap-1.5 flex-wrap">
+            {sectorPills}
+            {clearButton}
+          </div>
+        </div>
 
-          <div
-            aria-hidden
-            className="hidden md:block w-px h-6 bg-white/10"
-          />
-
+        {/* DESKTOP: everything in one liquid-glass bar */}
+        <div className="hidden md:flex liquid-glass-nav rounded-[1.75rem] p-3 items-center gap-2">
+          {searchField}
+          <div aria-hidden className="w-px h-6 bg-white/10" />
           <div className="flex items-center gap-1.5 flex-wrap">
-          {FILTERS.map((f) => {
-            const active = sector === f.v;
-            const Icon = f.icon;
-            const count = sectorCounts[f.v];
-            return (
-              <button
-                key={f.v}
-                type="button"
-                onClick={() => setSector(f.v)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
-                  active
-                    ? "border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20"
-                    : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25",
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "h-3.5 w-3.5",
-                    active ? "text-primary" : f.color,
-                  )}
-                />
-                {f.label}
-                <span
-                  className={cn(
-                    "inline-flex items-center justify-center rounded-full px-1.5 min-w-[1.2rem] h-4 text-[10px] font-bold",
-                    active ? "bg-primary/25 text-primary" : "bg-white/10",
-                  )}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-
-          <Popover open={yearOpen} onOpenChange={setYearOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
-                  periodActive
-                    ? "border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20"
-                    : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25",
-                )}
-              >
-                <Calendar className="h-3.5 w-3.5" />
-                {periodLabel}
-                <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="start"
-              className="w-[220px] p-0 border-primary/20 bg-card/40 backdrop-blur-xl dispaccio-card rounded-2xl"
-            >
-              <div className="py-1 border-b border-white/10">
-                {PERIODS.map((p) => {
-                  const active = period === p.v && year === null;
-                  return (
-                    <button
-                      key={p.v}
-                      type="button"
-                      onClick={() => {
-                        setPeriod(p.v);
-                        setYear(null);
-                        setYearOpen(false);
-                      }}
-                      className={cn(
-                        "w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-left transition-colors",
-                        active
-                          ? "bg-primary/10 text-foreground"
-                          : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
-                      )}
-                    >
-                      {p.label}
-                      {active && <Check className="h-3.5 w-3.5 text-primary" />}
-                    </button>
-                  );
-                })}
-              </div>
-              {availableYears.length > 0 && (
-                <div className="py-1">
-                  <p className="px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-                    Per anno
-                  </p>
-                  {availableYears.map((y) => {
-                    const active = year === y;
-                    return (
-                      <button
-                        key={y}
-                        type="button"
-                        onClick={() => {
-                          setYear(y);
-                          setPeriod("all");
-                          setYearOpen(false);
-                        }}
-                        className={cn(
-                          "w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-left transition-colors",
-                          active
-                            ? "bg-primary/10 text-foreground"
-                            : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
-                        )}
-                      >
-                        {y}
-                        {active && <Check className="h-3.5 w-3.5 text-primary" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </PopoverContent>
-          </Popover>
-
-            {hasAnyFilter && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSector("all");
-                  setPeriod("all");
-                  setYear(null);
-                  setQuery("");
-                }}
-                className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25 px-3 py-1.5 text-xs font-semibold transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
-                Pulisci
-              </button>
-            )}
+            {sectorPills}
+            {datePopover}
+            {clearButton}
           </div>
         </div>
 
@@ -318,5 +272,103 @@ export function DelibereList() {
         delibera={selected}
       />
     </div>
+  );
+}
+
+function DatePopoverPill({
+  label,
+  active,
+  period,
+  year,
+  availableYears,
+  onSelectPeriod,
+  onSelectYear,
+}: {
+  label: string;
+  active: boolean;
+  period: PeriodFilter;
+  year: number | null;
+  availableYears: number[];
+  onSelectPeriod: (p: PeriodFilter) => void;
+  onSelectYear: (y: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all shrink-0",
+            active
+              ? "border-primary bg-primary/15 text-primary shadow-sm shadow-primary/20"
+              : "border-white/10 bg-white/[0.03] text-muted-foreground hover:text-foreground hover:border-white/25",
+          )}
+        >
+          <Calendar className="h-3.5 w-3.5" />
+          <span className="truncate max-w-[140px]">{label}</span>
+          <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-[220px] p-0 border-primary/20 bg-card/40 backdrop-blur-xl dispaccio-card rounded-2xl"
+      >
+        <div className="py-1 border-b border-white/10">
+          {PERIODS.map((p) => {
+            const active = period === p.v && year === null;
+            return (
+              <button
+                key={p.v}
+                type="button"
+                onClick={() => {
+                  onSelectPeriod(p.v);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-left transition-colors",
+                  active
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                )}
+              >
+                {p.label}
+                {active && <Check className="h-3.5 w-3.5 text-primary" />}
+              </button>
+            );
+          })}
+        </div>
+        {availableYears.length > 0 && (
+          <div className="py-1">
+            <p className="px-3 py-1 text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
+              Per anno
+            </p>
+            {availableYears.map((y) => {
+              const active = year === y;
+              return (
+                <button
+                  key={y}
+                  type="button"
+                  onClick={() => {
+                    onSelectYear(y);
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-left transition-colors",
+                    active
+                      ? "bg-primary/10 text-foreground"
+                      : "text-muted-foreground hover:bg-accent/10 hover:text-foreground",
+                  )}
+                >
+                  {y}
+                  {active && <Check className="h-3.5 w-3.5 text-primary" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }
