@@ -6,13 +6,17 @@ const PUBLIC_HOSTS = new Set(["ildispaccio.energy", "www.ildispaccio.energy"]);
 const PUBLIC_SITE_URL = "https://ildispaccio.energy";
 const ADMIN_SITE_URL = "https://dash.ildispaccio.energy";
 
+const NETWORK_COOKIE_NAME = "ildispaccio_network";
+
 function isPublicRoute(pathname: string): boolean {
   return (
     pathname === "/" ||
     pathname.startsWith("/report/") ||
     pathname.startsWith("/podcast/invito") ||
     pathname.startsWith("/api/podcast-invite") ||
-    pathname.startsWith("/api/network-join")
+    pathname.startsWith("/api/network-join") ||
+    pathname === "/network/login" ||
+    pathname.startsWith("/api/network/")
   );
 }
 
@@ -21,6 +25,13 @@ function isAdminRoute(pathname: string): boolean {
     pathname === "/login" ||
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/")
+  );
+}
+
+function isNetworkProtectedRoute(pathname: string): boolean {
+  return (
+    (pathname === "/network" || pathname.startsWith("/network/")) &&
+    pathname !== "/network/login"
   );
 }
 
@@ -44,10 +55,35 @@ export async function middleware(request: NextRequest) {
     if (isAdminRoute(pathname)) {
       return NextResponse.redirect(new URL(pathname, ADMIN_SITE_URL));
     }
+    if (isNetworkProtectedRoute(pathname)) {
+      const cookie = request.cookies.get(NETWORK_COOKIE_NAME);
+      if (!cookie?.value) {
+        const url = new URL("/network/login", request.url);
+        if (pathname !== "/network") {
+          url.searchParams.set("next", pathname);
+        }
+        return NextResponse.redirect(url);
+      }
+    }
     return NextResponse.next({ request });
   }
 
-  // Host sconosciuto (localhost, preview VPS diretto, legacy) → comportamento admin default
+  // Host sconosciuto (localhost, preview VPS diretto, legacy):
+  // /network/* segue la logica pubblica, il resto va al default admin.
+  if (pathname === "/network/login" || pathname.startsWith("/api/network/")) {
+    return NextResponse.next({ request });
+  }
+  if (isNetworkProtectedRoute(pathname)) {
+    const cookie = request.cookies.get(NETWORK_COOKIE_NAME);
+    if (!cookie?.value) {
+      const url = new URL("/network/login", request.url);
+      if (pathname !== "/network") {
+        url.searchParams.set("next", pathname);
+      }
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next({ request });
+  }
   return updateSession(request);
 }
 
