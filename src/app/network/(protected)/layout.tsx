@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getNetworkMember } from "@/lib/network/session";
 import { maskPhone } from "@/lib/network/phone";
 import { NetworkNavbar } from "@/components/network/navbar";
-import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +16,7 @@ export default async function NetworkProtectedLayout({
   }
 
   return (
-    <div className="relative min-h-screen">
-      <AnimatedBackground variant="calm" />
+    <div className="mesh-gradient relative min-h-screen">
       <NetworkNavbar
         member={{
           referente: member.referente,
