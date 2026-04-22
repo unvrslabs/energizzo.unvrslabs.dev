@@ -1,17 +1,7 @@
-import {
-  ArrowUpRight,
-  ArrowDownRight,
-  Bookmark,
-  CalendarClock,
-  Flame,
-  Minus,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
+import { Bookmark, CalendarClock, Flame, Zap } from "lucide-react";
 import {
   DELIBERE,
   DELIBERE_DEADLINES,
-  MARKET_SNAPSHOT,
   SAVED_DELIBERE_MOCK,
   type DeadlineSeverity,
   type DeliberaSector,
@@ -64,64 +54,6 @@ function SectorIcon({ sector }: { sector: DeliberaSector }) {
   if (sector === "gas") return <Flame className="h-3 w-3 text-sky-300" />;
   if (sector === "eel") return <Zap className="h-3 w-3 text-amber-300" />;
   return <Zap className="h-3 w-3 text-muted-foreground" />;
-}
-
-function MarketCard() {
-  return (
-    <section className="dispaccio-card rounded-2xl p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25">
-          <TrendingUp className="h-3.5 w-3.5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-xs font-bold tracking-tight">Market · Aprile 2026</h3>
-          <p className="text-[10px] text-muted-foreground">Ultimo mese chiuso</p>
-        </div>
-      </div>
-
-      <ul className="space-y-1.5">
-        {MARKET_SNAPSHOT.map((m) => {
-          const Arrow =
-            m.trend === "up"
-              ? ArrowUpRight
-              : m.trend === "down"
-                ? ArrowDownRight
-                : Minus;
-          const color =
-            m.trend === "up"
-              ? "text-emerald-300 bg-emerald-500/10 border-emerald-500/25"
-              : m.trend === "down"
-                ? "text-rose-300 bg-rose-500/10 border-rose-500/25"
-                : "text-muted-foreground bg-white/5 border-white/10";
-          return (
-            <li
-              key={m.code}
-              className="flex items-center justify-between gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2.5 py-1.5"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-bold font-mono tracking-wide">
-                  {m.code}
-                </p>
-                <p className="text-[9px] text-muted-foreground/70 truncate">
-                  {m.unit}
-                </p>
-              </div>
-              <p className="text-sm font-bold tabular-nums">{m.value}</p>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[10px] font-bold tabular-nums",
-                  color,
-                )}
-              >
-                <Arrow className="h-2.5 w-2.5" />
-                {m.delta}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
 }
 
 function DeadlinesCard() {
@@ -239,7 +171,6 @@ function SavedCard() {
 export function DelibereSidebar() {
   return (
     <aside className="space-y-3 lg:sticky lg:top-28 lg:self-start">
-      <MarketCard />
       <DeadlinesCard />
       <SavedCard />
     </aside>
