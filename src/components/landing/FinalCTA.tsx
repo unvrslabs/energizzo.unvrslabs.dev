@@ -17,19 +17,20 @@ export function FinalCTA() {
         </h2>
 
         <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Compila il survey, ottieni il tuo benchmark privato, accedi a tutte
-          le sezioni.
+          Compila il form di richiesta in cima alla pagina. La tua candidatura
+          verrà analizzata dal team: se rispetti i requisiti ti ricontattiamo e
+          ti spieghiamo la procedura di ammissione.
         </p>
 
         <a
-          href="mailto:emanuele@unvrslabs.dev?subject=Richiesta%20accesso%20Il%20Dispaccio"
+          href="#iscrizione"
           className="btn-premium mt-10 px-8 py-4 rounded-full font-semibold text-sm sm:text-base"
         >
           Richiedi il tuo invito <ArrowRight className="h-4 w-4" />
         </a>
 
         <p className="mt-6 text-xs text-muted-foreground/70">
-          Risposta entro 2 giorni lavorativi · Nessuna quota · Su invito
+          Nessuna quota · Accesso 100% gratuito · Su invito
         </p>
       </div>
     </section>
