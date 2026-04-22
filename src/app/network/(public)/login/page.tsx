@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { NetworkLoginForm } from "@/components/network/login-form";
 
 export const metadata = {
@@ -24,9 +25,10 @@ export default async function NetworkLoginPage({
       <header className="relative z-10 p-6 md:p-8">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/90 hover:text-foreground transition-colors"
+          className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm px-4 py-2 text-sm font-semibold text-foreground/90 hover:text-foreground hover:bg-white/[0.08] hover:border-primary/30 transition-all"
         >
-          <span className="text-primary">•</span> Il Dispaccio
+          <ArrowLeft className="w-3.5 h-3.5 text-primary transition-transform group-hover:-translate-x-0.5" />
+          <span className="gradient-text">Il Dispaccio</span>
         </Link>
       </header>
 
