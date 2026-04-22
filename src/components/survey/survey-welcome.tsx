@@ -5,6 +5,7 @@ import {
   Award,
   Calendar,
   Clock,
+  ExternalLink,
   FileText,
   Gift,
   Mic,
@@ -48,6 +49,15 @@ export function SurveyWelcome({
                   </span>
                   .
                 </p>
+                <a
+                  href="https://ildispaccio.energy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary px-3.5 py-1.5 text-xs font-semibold transition-colors"
+                >
+                  Scopri Il Dispaccio
+                  <ExternalLink className="h-3 w-3" />
+                </a>
               </div>
             </div>
           </header>
