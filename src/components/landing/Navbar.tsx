@@ -48,14 +48,8 @@ export function Navbar() {
           "liquid-glass-nav",
         )}
         style={{
-          background: scrolled
-            ? "linear-gradient(135deg, hsl(215 30% 10% / 0.88) 0%, hsl(215 30% 12% / 0.82) 100%)"
-            : "linear-gradient(135deg, hsl(0 0% 100% / 0.08) 0%, hsl(0 0% 100% / 0.04) 100%)",
-          borderColor: scrolled
-            ? "hsl(0 0% 100% / 0.1)"
-            : "hsl(0 0% 100% / 0.08)",
           boxShadow: scrolled
-            ? "0 12px 40px hsl(0 0% 0% / 0.45), inset 0 1px 0 0 hsl(0 0% 100% / 0.08)"
+            ? "0 12px 40px hsl(0 0% 0% / 0.35), inset 0 1px 0 0 hsl(0 0% 100% / 0.1)"
             : "0 4px 24px hsl(0 0% 0% / 0.15), inset 0 1px 0 0 hsl(0 0% 100% / 0.08)",
         }}
       >
@@ -116,11 +110,6 @@ export function Navbar() {
           "lg:hidden flex items-center justify-between w-full px-5 py-3 rounded-full transition-all duration-500",
           "liquid-glass-nav",
         )}
-        style={{
-          background: scrolled
-            ? "linear-gradient(135deg, hsl(215 30% 10% / 0.88) 0%, hsl(215 30% 12% / 0.82) 100%)"
-            : "linear-gradient(135deg, hsl(0 0% 100% / 0.08) 0%, hsl(0 0% 100% / 0.04) 100%)",
-        }}
       >
         <span className="gradient-text font-bold text-lg">Il Dispaccio</span>
         <motion.button
