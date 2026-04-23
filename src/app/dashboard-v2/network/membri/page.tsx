@@ -27,6 +27,16 @@ export default async function MembriPage() {
 
   const rows = data ?? [];
 
+  // Recupero lead_id per ciascun membro tramite piva → per aprire la pagina profilo lead
+  const pivas = rows.map((r) => r.piva).filter(Boolean) as string[];
+  const leadIdByPiva = new Map<string, string>();
+  if (pivas.length) {
+    const { data: leads } = await supabase.from("leads").select("id, piva").in("piva", pivas);
+    for (const l of (leads ?? []) as { id: string; piva: string }[]) {
+      leadIdByPiva.set(l.piva, l.id);
+    }
+  }
+
   const GRID = "minmax(260px, 1.6fr) minmax(140px, 1fr) 170px 120px 130px 100px 120px";
 
   return (
@@ -58,6 +68,10 @@ export default async function MembriPage() {
             ) : (
               rows.map((m) => {
                 const revoked = !!m.revoked_at;
+                const leadId = m.piva ? leadIdByPiva.get(m.piva) : null;
+                const profileHref = leadId
+                  ? `/dashboard-v2/lead/${leadId}`
+                  : `/dashboard-v2/network/membri/${m.id}`;
                 return (
                   <li
                     key={m.id}
@@ -68,61 +82,61 @@ export default async function MembriPage() {
                       opacity: revoked ? 0.5 : 1,
                     }}
                   >
-                <div className="flex items-center gap-2 min-w-0">
-                  <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
-                  <div className="min-w-0">
-                    <Link
-                      href={`/dashboard-v2/network/membri/${m.id}`}
-                      className="text-[13px] font-medium truncate block hover:underline"
-                      style={{ color: "hsl(var(--v2-text))" }}
-                    >
-                      {m.ragione_sociale ?? "—"}
-                    </Link>
-                    <div className="v2-mono text-[10.5px] truncate" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                      {m.piva ?? "—"}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
+                      <div className="min-w-0">
+                        <Link
+                          href={profileHref}
+                          className="text-[13px] font-medium truncate block hover:underline"
+                          style={{ color: "hsl(var(--v2-text))" }}
+                        >
+                          {m.ragione_sociale ?? "—"}
+                        </Link>
+                        <div className="v2-mono text-[10.5px] truncate" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                          {m.piva ?? "—"}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                <span className="text-[12.5px] truncate" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                  {m.referente ?? "—"}
-                </span>
+                    <span className="text-[12.5px] truncate" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                      {m.referente ?? "—"}
+                    </span>
 
-                <Link
-                  href={`https://wa.me/${onlyDigits(m.phone)}`}
-                  target="_blank"
-                  className="v2-mono text-[11.5px] inline-flex items-center gap-1 hover:underline"
-                  style={{ color: "hsl(var(--v2-accent))" }}
-                >
-                  <MessageCircle className="w-3 h-3" />
-                  {m.phone}
-                </Link>
+                    <Link
+                      href={`https://wa.me/${onlyDigits(m.phone)}`}
+                      target="_blank"
+                      className="v2-mono text-[11.5px] inline-flex items-center gap-1 hover:underline"
+                      style={{ color: "hsl(var(--v2-accent))" }}
+                    >
+                      <MessageCircle className="w-3 h-3" />
+                      {m.phone}
+                    </Link>
 
-                <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                  {fmtDate(m.approved_at)}
-                </span>
+                    <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                      {fmtDate(m.approved_at)}
+                    </span>
 
-                <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                  {m.last_login_at ? fmtDate(m.last_login_at) : "mai"}
-                </span>
+                    <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                      {m.last_login_at ? fmtDate(m.last_login_at) : "mai"}
+                    </span>
 
-                <span
-                  className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded w-fit"
-                  style={{
-                    background: revoked ? "hsl(var(--v2-danger) / 0.14)" : "hsl(var(--v2-accent) / 0.14)",
-                    color: revoked ? "hsl(var(--v2-danger))" : "hsl(var(--v2-accent))",
-                  }}
-                >
-                  {revoked ? "Revocato" : "Attivo"}
-                </span>
+                    <span
+                      className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded w-fit"
+                      style={{
+                        background: revoked ? "hsl(var(--v2-danger) / 0.14)" : "hsl(var(--v2-accent) / 0.14)",
+                        color: revoked ? "hsl(var(--v2-danger))" : "hsl(var(--v2-accent))",
+                      }}
+                    >
+                      {revoked ? "Revocato" : "Attivo"}
+                    </span>
 
-                <div className="flex justify-end">
-                  <MemberActionsV2 id={m.id} revoked={revoked} />
-                </div>
-              </li>
-            );
-          })
-        )}
+                    <div className="flex justify-end">
+                      <MemberActionsV2 id={m.id} revoked={revoked} />
+                    </div>
+                  </li>
+                );
+              })
+            )}
           </ul>
         </div>
       </div>

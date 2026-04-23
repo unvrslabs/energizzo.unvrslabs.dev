@@ -10,6 +10,7 @@ import {
   Building2,
   Check,
   ClipboardList,
+  Clock,
   Copy,
   ExternalLink,
   Globe,
@@ -23,6 +24,7 @@ import {
   Phone,
   Save,
   Send,
+  ShieldCheck,
   Tag,
   UserSearch,
   Users2,
@@ -42,7 +44,23 @@ import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-ques
 import { firstPhone } from "@/lib/utils";
 import type { ActivityEvent, Lead, LeadContact, Note, SurveyResponse } from "@/lib/types";
 
-export function LeadProfileV2({ lead }: { lead: Lead }) {
+export type MembershipInfo = {
+  id: string;
+  phone: string;
+  referente: string | null;
+  approved_at: string | null;
+  last_login_at: string | null;
+  revoked_at: string | null;
+  notes: string | null;
+};
+
+export function LeadProfileV2({
+  lead,
+  membership,
+}: {
+  lead: Lead;
+  membership?: MembershipInfo | null;
+}) {
   const [email, setEmail] = useState(lead.email ?? "");
   const [phone, setPhone] = useState(lead.telefono ?? "");
   const [whatsapp, setWhatsapp] = useState(lead.whatsapp ?? "");
@@ -183,6 +201,31 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
                 >
                   P.IVA {lead.piva}
                 </span>
+                {membership && !membership.revoked_at && (
+                  <span
+                    className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded inline-flex items-center gap-1.5"
+                    style={{
+                      background: "hsl(var(--v2-accent) / 0.14)",
+                      color: "hsl(var(--v2-accent))",
+                      border: "1px solid hsl(var(--v2-accent) / 0.35)",
+                    }}
+                  >
+                    <ShieldCheck className="w-3 h-3" />
+                    Membro network
+                  </span>
+                )}
+                {membership?.revoked_at && (
+                  <span
+                    className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded inline-flex items-center gap-1.5"
+                    style={{
+                      background: "hsl(var(--v2-danger) / 0.14)",
+                      color: "hsl(var(--v2-danger))",
+                      border: "1px solid hsl(var(--v2-danger) / 0.35)",
+                    }}
+                  >
+                    Revocato
+                  </span>
+                )}
                 <span
                   className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded inline-flex items-center gap-1.5"
                   style={{ background: `${statusCfg.color}18`, color: statusCfg.color, border: `1px solid ${statusCfg.color}44` }}
@@ -248,6 +291,109 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
           <StatusSelect id={lead.id} value={lead.status} />
         </div>
       </header>
+
+      {/* Membership network card — visibile solo se è membro */}
+      {membership && (
+        <section
+          className="v2-card"
+          style={{
+            borderColor: membership.revoked_at
+              ? "hsl(var(--v2-danger) / 0.4)"
+              : "hsl(var(--v2-accent) / 0.4)",
+          }}
+        >
+          <div className="v2-card-head flex items-center gap-2">
+            <ShieldCheck
+              className="w-3.5 h-3.5"
+              style={{
+                color: membership.revoked_at
+                  ? "hsl(var(--v2-danger))"
+                  : "hsl(var(--v2-accent))",
+              }}
+            />
+            <span className="v2-card-title">Membership network</span>
+          </div>
+          <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <MembershipField
+              label="Stato"
+              value={
+                <span
+                  className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded w-fit inline-block"
+                  style={{
+                    background: membership.revoked_at
+                      ? "hsl(var(--v2-danger) / 0.14)"
+                      : "hsl(var(--v2-accent) / 0.14)",
+                    color: membership.revoked_at
+                      ? "hsl(var(--v2-danger))"
+                      : "hsl(var(--v2-accent))",
+                  }}
+                >
+                  {membership.revoked_at ? "Revocato" : "Attivo"}
+                </span>
+              }
+            />
+            <MembershipField
+              label="Ammesso il"
+              value={
+                <span className="v2-mono text-[13px]" style={{ color: "hsl(var(--v2-text))" }}>
+                  {membership.approved_at
+                    ? new Date(membership.approved_at).toLocaleDateString("it-IT", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "—"}
+                </span>
+              }
+            />
+            <MembershipField
+              label="Ultimo accesso"
+              icon={<Clock className="w-3 h-3" />}
+              value={
+                <span className="v2-mono text-[13px]" style={{ color: "hsl(var(--v2-text))" }}>
+                  {membership.last_login_at
+                    ? new Date(membership.last_login_at).toLocaleDateString("it-IT", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "mai"}
+                </span>
+              }
+            />
+            <MembershipField
+              label="Phone membership"
+              icon={<MessageCircle className="w-3 h-3" />}
+              value={
+                <a
+                  href={`https://wa.me/${membership.phone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="v2-mono text-[13px] hover:underline"
+                  style={{ color: "hsl(var(--v2-accent))" }}
+                >
+                  {membership.phone}
+                </a>
+              }
+            />
+          </div>
+          {membership.notes && (
+            <div
+              className="mx-5 mb-5 p-3 rounded-lg text-[12.5px] leading-relaxed"
+              style={{
+                background: "hsl(var(--v2-bg-elev))",
+                border: "1px solid hsl(var(--v2-border))",
+                color: "hsl(var(--v2-text-dim))",
+              }}
+            >
+              <div className="v2-mono text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                Note membership
+              </div>
+              {membership.notes}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Two columns bento */}
       <div className="v2-bento">
@@ -755,6 +901,29 @@ function FieldBlock({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function MembershipField({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: React.ReactNode;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div
+        className="flex items-center gap-1.5 v2-mono text-[9.5px] font-bold uppercase tracking-[0.18em]"
+        style={{ color: "hsl(var(--v2-text-mute))" }}
+      >
+        {icon}
+        {label}
+      </div>
+      <div className="mt-1">{value}</div>
     </div>
   );
 }

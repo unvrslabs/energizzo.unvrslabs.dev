@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Lead } from "@/lib/types";
-import { LeadProfileV2 } from "@/components/admin-v2/lead/profile";
+import { LeadProfileV2, type MembershipInfo } from "@/components/admin-v2/lead/profile";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Profilo lead · Admin v2" };
@@ -22,22 +22,32 @@ export default async function LeadProfilePage({
 
   if (!leadRaw) notFound();
 
-  // Calcola network_status e documents_count per i badge header
   const [memberRes, docsRes] = await Promise.all([
     leadRaw.piva
       ? supabase
           .from("network_members")
-          .select("piva")
+          .select("id, phone, referente, approved_at, last_login_at, revoked_at, notes")
           .eq("piva", leadRaw.piva)
-          .is("revoked_at", null)
           .maybeSingle()
       : Promise.resolve({ data: null }),
     supabase.from("lead_documents").select("id").eq("lead_id", id),
   ]);
 
-  const isMember = !!memberRes.data;
+  const membership: MembershipInfo | null = memberRes.data
+    ? {
+        id: memberRes.data.id,
+        phone: memberRes.data.phone,
+        referente: memberRes.data.referente,
+        approved_at: memberRes.data.approved_at,
+        last_login_at: memberRes.data.last_login_at,
+        revoked_at: memberRes.data.revoked_at,
+        notes: memberRes.data.notes,
+      }
+    : null;
+
+  const isActiveMember = membership && !membership.revoked_at;
   const isInvited = !!leadRaw.survey_sent_at;
-  const networkStatus: "member" | "invited" | null = isMember
+  const networkStatus: "member" | "invited" | null = isActiveMember
     ? "member"
     : isInvited
     ? "invited"
@@ -49,5 +59,5 @@ export default async function LeadProfilePage({
     documents_count: (docsRes.data ?? []).length,
   };
 
-  return <LeadProfileV2 lead={lead} />;
+  return <LeadProfileV2 lead={lead} membership={membership} />;
 }
