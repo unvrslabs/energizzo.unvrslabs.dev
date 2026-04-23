@@ -21,7 +21,7 @@ type LeadMini = Pick<Lead, "id" | "ragione_sociale" | "piva" | "provincia" | "em
 export function GuestsPipelineV2({
   guests,
   leads,
-  leadBasePath = "/dashboard-v2/lead",
+  leadBasePath = "/dashboard/lead",
 }: {
   guests: PodcastGuest[];
   leads: LeadMini[];

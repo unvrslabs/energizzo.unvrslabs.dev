@@ -34,7 +34,7 @@ export function LeadDashboardV2Client({ leads }: { leads: Lead[] }) {
 
   const onSelect = useCallback(
     (id: string) => {
-      router.push(`/dashboard-v2/lead/${id}`);
+      router.push(`/dashboard/lead/${id}`);
     },
     [router],
   );

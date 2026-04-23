@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function NetworkIndexPage() {
+export default function NetworkV2Index() {
   redirect("/dashboard/network/richieste");
 }

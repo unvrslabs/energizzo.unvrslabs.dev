@@ -5,17 +5,12 @@ import { createClient } from "@/lib/supabase/server";
 import { formatMonthLabel } from "@/lib/remo/queries";
 import type { RemoSection } from "@/lib/remo/types";
 import { deleteRemoReport } from "@/actions/remo";
-import { SectionsEditor } from "./sections-editor";
-import { cn } from "@/lib/utils";
+import { SectionsEditor } from "@/components/admin-v2/price-engine/sections-editor";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Editor Price Engine · Admin v2" };
 
-export const metadata = {
-  title: "Editor Price Engine — Dashboard",
-  robots: { index: false, follow: false },
-};
-
-export default async function PriceEngineEditorPage({
+export default async function PriceEngineEditorV2({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -58,9 +53,8 @@ export default async function PriceEngineEditorPage({
   );
 
   const Icon = report.category === "luce" ? Zap : Flame;
-  const color = report.category === "luce" ? "text-amber-300" : "text-sky-300";
-  const label =
-    report.category === "luce" ? "Energia elettrica" : "Gas naturale";
+  const tint = report.category === "luce" ? "hsl(38 92% 62%)" : "hsl(200 70% 62%)";
+  const label = report.category === "luce" ? "Energia elettrica" : "Gas naturale";
 
   async function handleDelete() {
     "use server";
@@ -69,25 +63,25 @@ export default async function PriceEngineEditorPage({
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <Link
-        href="/dashboard/price-engine"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Tutti i report
+    <div className="flex flex-col gap-5">
+      <Link href="/dashboard/price-engine" className="v2-btn v2-btn--ghost w-fit">
+        <ArrowLeft className="w-3.5 h-3.5" /> Tutti i report
       </Link>
 
-      <header className="dispaccio-card rounded-2xl p-5 flex items-center justify-between gap-4 flex-wrap">
+      <header className="v2-card p-5 flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 border border-white/10">
-            <Icon className={cn("h-5 w-5", color)} />
+          <div
+            className="w-12 h-12 rounded-xl grid place-items-center"
+            style={{ background: "hsl(var(--v2-bg-elev))", border: `1px solid ${tint}44` }}
+          >
+            <Icon className="w-5 h-5" style={{ color: tint }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight">{label}</h1>
-            <p className="text-xs text-muted-foreground">
-              {formatMonthLabel(report.month)} ·{" "}
-              {(sections ?? []).length} sezioni
+            <h1 className="text-xl font-semibold tracking-tight" style={{ color: "hsl(var(--v2-text))" }}>
+              {label}
+            </h1>
+            <p className="v2-mono text-[11px] mt-0.5" style={{ color: "hsl(var(--v2-text-mute))" }}>
+              {formatMonthLabel(report.month)} · {(sections ?? []).length} sezioni
             </p>
           </div>
         </div>
@@ -96,15 +90,16 @@ export default async function PriceEngineEditorPage({
           <Link
             href={`https://ildispaccio.energy/network/price-engine?cat=${report.category}&month=${report.month}`}
             target="_blank"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-foreground/85 hover:text-foreground hover:border-primary/30 transition-colors"
+            className="v2-btn"
           >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Anteprima
+            <ExternalLink className="w-3.5 h-3.5" />
+            Anteprima pubblica
           </Link>
           <form action={handleDelete}>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 transition-colors"
+              className="v2-btn"
+              style={{ color: "hsl(var(--v2-danger))", borderColor: "hsl(var(--v2-danger) / 0.3)" }}
             >
               Elimina report
             </button>

@@ -24,7 +24,7 @@ const PRODUCTION_ORDER = ["da_registrare", "registrata", "pubblicata"] as const;
 
 export function EpisodesBoardV2({
   episodes,
-  basePath = "/dashboard-v2/podcast/episodi",
+  basePath = "/dashboard/podcast/episodi",
 }: {
   episodes: EpisodePreview[];
   basePath?: string;

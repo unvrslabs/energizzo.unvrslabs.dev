@@ -64,7 +64,7 @@ export function LeadProfileV2({
   initialContacts = [],
   initialSurvey = null,
   initialPodcastGuest = null,
-  backHref = "/dashboard-v2/lead",
+  backHref = "/dashboard/lead",
   backLabel = "Torna ai lead",
 }: {
   lead: Lead;

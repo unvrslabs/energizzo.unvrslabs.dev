@@ -1,188 +1,144 @@
 import Link from "next/link";
-import {
-  Building2,
-  Send,
-  ExternalLink,
-  CheckCircle2,
-  Clock,
-} from "lucide-react";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { Building2, ExternalLink, MessageCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 import { getSurveyUrl } from "@/lib/public-urls";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Invitati · Admin v2" };
 
-type InvitedLead = {
-  id: string;
-  ragione_sociale: string;
-  piva: string;
-  whatsapp: string | null;
-  telefono: string | null;
-  survey_token: string;
-  survey_status: string | null;
-  survey_sent_at: string | null;
-  survey_last_step_at: string | null;
-  survey_completed_at: string | null;
+const MONTHS_IT = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+
+function fmtDate(iso: string | null) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return `${d.getDate()} ${MONTHS_IT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function onlyDigits(s: string | null): string {
+  return (s ?? "").replace(/\D/g, "");
+}
+
+const STATUS_CONFIG: Record<string, { label: string; bg: string; fg: string }> = {
+  sent: { label: "Invitato", bg: "hsl(var(--v2-info) / 0.14)", fg: "hsl(var(--v2-info))" },
+  partial: { label: "In corso", bg: "hsl(var(--v2-warn) / 0.14)", fg: "hsl(var(--v2-warn))" },
+  completed: { label: "Completato", bg: "hsl(var(--v2-accent) / 0.14)", fg: "hsl(var(--v2-accent))" },
+  not_sent: { label: "Non inviato", bg: "hsl(var(--v2-border))", fg: "hsl(var(--v2-text-mute))" },
 };
 
-function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("it-IT", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function toWhatsappLink(raw: string | null): string | null {
-  if (!raw) return null;
-  const digits = raw.replace(/\D/g, "");
-  return digits ? `https://wa.me/${digits}` : null;
-}
-
-function statusBadge(status: string | null) {
-  if (status === "completed") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-        <CheckCircle2 className="h-3 w-3" />
-        Completato
-      </span>
-    );
-  }
-  if (status === "partial") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-        <Clock className="h-3 w-3" />
-        In corso
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-300 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-      <Send className="h-3 w-3" />
-      Invitato
-    </span>
-  );
-}
-
-export default async function NetworkInvitedPage() {
-  const supabase = createAdminClient();
-  const { data, error } = await supabase
+export default async function InvitatiPage() {
+  const supabase = await createClient();
+  const { data } = await supabase
     .from("leads")
-    .select(
-      "id, ragione_sociale, piva, whatsapp, telefono, survey_token, survey_status, survey_sent_at, survey_last_step_at, survey_completed_at",
-    )
+    .select("id, ragione_sociale, piva, whatsapp, telefono, survey_token, survey_status, survey_sent_at, survey_last_step_at, survey_completed_at")
     .not("survey_sent_at", "is", null)
     .neq("survey_status", "completed")
     .order("survey_sent_at", { ascending: false });
 
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
-        Errore caricamento invitati: {error.message}
-      </div>
-    );
-  }
+  const rows = data ?? [];
 
-  const leads = (data ?? []) as InvitedLead[];
-  if (leads.length === 0) {
-    return <Empty />;
-  }
+  const GRID = "minmax(240px, 1.8fr) 150px 120px 170px 120px 130px 110px";
 
   return (
-    <div className="space-y-3">
-      {leads.map((l) => {
-        const phone = l.whatsapp ?? l.telefono;
-        const waLink = toWhatsappLink(phone);
-        return (
-          <article
-            key={l.id}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-4 md:p-5"
+    <div className="v2-card overflow-hidden">
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: "1200px" }}>
+          <div
+            className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{
+              gridTemplateColumns: GRID,
+              color: "hsl(var(--v2-text-mute))",
+              borderBottom: "1px solid hsl(var(--v2-border))",
+            }}
           >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <Building2 className="h-4 w-4 text-primary shrink-0" />
+            <span>Azienda</span>
+            <span>P.IVA</span>
+            <span>Stato</span>
+            <span>Contatto</span>
+            <span>Invitato</span>
+            <span>Ultima att.</span>
+            <span className="text-right">Link</span>
+          </div>
+
+          <ul>
+            {rows.length === 0 ? (
+              <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                Nessun lead invitato al network.
+              </li>
+            ) : (
+              rows.map((l) => {
+                const st = STATUS_CONFIG[l.survey_status ?? "sent"] ?? STATUS_CONFIG.not_sent;
+                const contact = l.whatsapp ?? l.telefono;
+                return (
+                  <li
+                    key={l.id}
+                    className="grid gap-3 px-4 py-3 items-center"
+                    style={{
+                      gridTemplateColumns: GRID,
+                      borderBottom: "1px solid hsl(var(--v2-border))",
+                    }}
+                  >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
                   <Link
                     href={`/dashboard?lead=${l.id}`}
-                    className="text-base md:text-lg font-bold text-foreground hover:text-primary transition-colors truncate"
+                    className="text-[13px] font-medium truncate hover:underline"
+                    style={{ color: "hsl(var(--v2-text))" }}
                   >
-                    {l.ragione_sociale}
+                    {l.ragione_sociale ?? "—"}
                   </Link>
-                  <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-mono uppercase text-muted-foreground">
-                    {l.piva}
-                  </span>
-                  {statusBadge(l.survey_status)}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  {waLink ? (
-                    <a
-                      href={waLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:text-primary/80 transition-colors"
-                    >
-                      {phone}
-                    </a>
-                  ) : (
-                    <span className="text-muted-foreground/60">
-                      Nessun contatto
-                    </span>
-                  )}
-                  <span>
-                    Invitato {formatDate(l.survey_sent_at)}
-                  </span>
-                  {l.survey_last_step_at &&
-                    l.survey_status !== "completed" && (
-                      <span>
-                        Ultima attività {formatDate(l.survey_last_step_at)}
-                      </span>
-                    )}
-                  {l.survey_completed_at && (
-                    <span className="text-primary">
-                      Completato {formatDate(l.survey_completed_at)}
-                    </span>
-                  )}
+
+                <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                  {l.piva ?? "—"}
+                </span>
+
+                <span
+                  className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded w-fit"
+                  style={{ background: st.bg, color: st.fg }}
+                >
+                  {st.label}
+                </span>
+
+                {contact ? (
+                  <Link
+                    href={`https://wa.me/${onlyDigits(contact)}`}
+                    target="_blank"
+                    className="v2-mono text-[11px] inline-flex items-center gap-1 hover:underline"
+                    style={{ color: "hsl(var(--v2-accent))" }}
+                  >
+                    <MessageCircle className="w-3 h-3" />
+                    {contact}
+                  </Link>
+                ) : (
+                  <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-mute))" }}>—</span>
+                )}
+
+                <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                  {fmtDate(l.survey_sent_at)}
+                </span>
+
+                <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                  {fmtDate(l.survey_last_step_at)}
+                </span>
+
+                <div className="flex justify-end">
+                  <Link
+                    href={getSurveyUrl(l.survey_token)}
+                    target="_blank"
+                    className="v2-btn"
+                    style={{ padding: "4px 10px", fontSize: "11px" }}
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    Invito
+                  </Link>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href={getSurveyUrl(l.survey_token)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] px-3 h-8 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  Link invito
-                </a>
-                <Link
-                  href={`/dashboard?lead=${l.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 border border-primary/30 text-primary hover:bg-primary/25 px-3 h-8 text-xs font-semibold transition-colors"
-                >
-                  Apri lead
-                </Link>
-              </div>
-            </div>
-          </article>
-        );
-      })}
-    </div>
-  );
-}
-
-function Empty() {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-10 text-center">
-      <Send className="h-8 w-8 mx-auto text-muted-foreground/40 mb-3" />
-      <h3 className="text-base font-bold text-foreground mb-1">
-        Nessun lead invitato
-      </h3>
-      <p className="text-sm text-muted-foreground">
-        Apri un lead e clicca <strong>Segna come invitato</strong> per
-        aggiungerlo a questa lista.
-      </p>
+              </li>
+            );
+          })
+        )}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

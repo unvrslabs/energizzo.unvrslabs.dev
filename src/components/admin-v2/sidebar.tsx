@@ -25,27 +25,27 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: "Overview",
     items: [
-      { href: "/dashboard-v2", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     ],
   },
   {
     title: "CRM",
     items: [
-      { href: "/dashboard-v2/lead", label: "Lead", icon: Users, badgeKey: "leads" },
-      { href: "/dashboard-v2/network", label: "Network", icon: NetworkIcon, badgeKey: "networkPending" },
-      { href: "/dashboard-v2/price-engine", label: "Price Engine", icon: Activity },
+      { href: "/dashboard/lead", label: "Lead", icon: Users, badgeKey: "leads" },
+      { href: "/dashboard/network", label: "Network", icon: NetworkIcon, badgeKey: "networkPending" },
+      { href: "/dashboard/price-engine", label: "Price Engine", icon: Activity },
     ],
   },
   {
     title: "Content",
     items: [
-      { href: "/dashboard-v2/podcast", label: "Podcast", icon: Mic, badgeKey: "guestsTarget" },
+      { href: "/dashboard/podcast", label: "Podcast", icon: Mic, badgeKey: "guestsTarget" },
     ],
   },
   {
     title: "Strategy",
     items: [
-      { href: "/dashboard-v2/strategia", label: "Strategia", icon: Target },
+      { href: "/dashboard/strategia", label: "Strategia", icon: Target },
     ],
   },
 ];
@@ -74,7 +74,7 @@ export function AdminV2Sidebar({
 
   return (
     <aside className="v2-sidebar">
-      <Link href="/dashboard-v2" className="v2-brand">
+      <Link href="/dashboard" className="v2-brand">
         <span className="v2-brand-mark">A</span>
         <span className="flex flex-col leading-tight">
           <span className="v2-brand-name">Il Dispaccio</span>
@@ -99,8 +99,8 @@ export function AdminV2Sidebar({
             {section.items.map((item) => {
               const Icon = item.icon;
               const active =
-                item.href === "/dashboard-v2"
-                  ? pathname === "/dashboard-v2"
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
                   : pathname.startsWith(item.href);
               const badge = item.badgeKey ? fmtBadge(counts?.[item.badgeKey]) : undefined;
               return (

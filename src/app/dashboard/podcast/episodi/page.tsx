@@ -4,11 +4,12 @@ import {
   type EpisodePreview,
   type EpisodeProductionStatus,
 } from "@/lib/podcast-content";
-import { EpisodesBoard } from "@/components/podcast/episodes-board";
+import { EpisodesBoardV2 } from "@/components/admin-v2/podcast/episodes-board-v2";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Episodi · Admin v2" };
 
-export default async function EpisodiIndex() {
+export default async function EpisodiV2Index() {
   const episodes = listEpisodes();
   const supabase = await createClient();
 
@@ -44,5 +45,5 @@ export default async function EpisodiIndex() {
     };
   });
 
-  return <EpisodesBoard episodes={enriched} />;
+  return <EpisodesBoardV2 episodes={enriched} basePath="/dashboard/podcast/episodi" />;
 }

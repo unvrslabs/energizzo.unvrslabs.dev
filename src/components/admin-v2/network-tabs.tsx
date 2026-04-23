@@ -13,21 +13,21 @@ export function NetworkV2Tabs({
   const pathname = usePathname() ?? "";
   const tabs = [
     {
-      href: "/dashboard-v2/network/richieste",
+      href: "/dashboard/network/richieste",
       label: "Richieste",
       icon: UserPlus,
       count: counts.richieste,
       tint: "hsl(var(--v2-warn))",
     },
     {
-      href: "/dashboard-v2/network/invitati",
+      href: "/dashboard/network/invitati",
       label: "Invitati",
       icon: CalendarCheck,
       count: counts.invitati,
       tint: "hsl(var(--v2-info))",
     },
     {
-      href: "/dashboard-v2/network/membri",
+      href: "/dashboard/network/membri",
       label: "Membri",
       icon: UserCheck,
       count: counts.membri,

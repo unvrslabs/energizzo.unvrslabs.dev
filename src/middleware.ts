@@ -25,8 +25,6 @@ function isAdminProtectedRoute(pathname: string): boolean {
   return (
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
-    pathname === "/dashboard-v2" ||
-    pathname.startsWith("/dashboard-v2/") ||
     pathname.startsWith("/api/email-preview") ||
     pathname.startsWith("/api/agent-chat") ||
     pathname.startsWith("/api/dashboard/")

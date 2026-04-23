@@ -5,12 +5,13 @@ import { loadEpisode, listEpisodes } from "@/lib/podcast-content";
 import { KnowledgeRenderer } from "@/components/podcast/knowledge-renderer";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Episodio · Admin v2" };
 
 export function generateStaticParams() {
   return listEpisodes().map((ep) => ({ slug: ep.slug }));
 }
 
-export default async function EpisodeDetailPage({
+export default async function EpisodeDetailV2({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -19,14 +20,14 @@ export default async function EpisodeDetailPage({
   const ep = loadEpisode(slug);
   if (!ep) notFound();
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <Link
         href="/dashboard/podcast/episodi"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        className="v2-btn v2-btn--ghost w-fit"
       >
-        <ArrowLeft className="h-4 w-4" /> Episodi
+        <ArrowLeft className="w-3.5 h-3.5" /> Tutti gli episodi
       </Link>
-      <div className="liquid-glass rounded-2xl p-6">
+      <div className="v2-card p-6 md:p-8">
         <KnowledgeRenderer body={ep.body} />
       </div>
     </div>

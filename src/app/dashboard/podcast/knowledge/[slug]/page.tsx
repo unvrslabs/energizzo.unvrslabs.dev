@@ -5,12 +5,13 @@ import { loadDoc, listDocs } from "@/lib/podcast-content";
 import { KnowledgeRenderer } from "@/components/podcast/knowledge-renderer";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Knowledge doc · Admin v2" };
 
 export function generateStaticParams() {
   return listDocs().map((d) => ({ slug: d.slug }));
 }
 
-export default async function KnowledgeDocPage({
+export default async function KnowledgeDocV2({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -19,14 +20,11 @@ export default async function KnowledgeDocPage({
   const doc = loadDoc(slug);
   if (!doc) notFound();
   return (
-    <div className="space-y-4">
-      <Link
-        href="/dashboard/podcast/knowledge"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" /> Knowledge
+    <div className="flex flex-col gap-4">
+      <Link href="/dashboard/podcast/knowledge" className="v2-btn v2-btn--ghost w-fit">
+        <ArrowLeft className="w-3.5 h-3.5" /> Torna a Knowledge
       </Link>
-      <div className="liquid-glass rounded-2xl p-6">
+      <div className="v2-card p-6 md:p-8">
         <KnowledgeRenderer body={doc.body} />
       </div>
     </div>
