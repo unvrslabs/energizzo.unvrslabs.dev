@@ -1223,6 +1223,33 @@
   font-weight: 500;
 }
 
+.invito-sign-sponsor {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed hsl(var(--hairline));
+}
+
+.invito-sponsor-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--ink-mute));
+  font-weight: 500;
+}
+
+.invito-sponsor-name {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  font-weight: 400;
+  color: hsl(var(--accent));
+  letter-spacing: -0.01em;
+}
+
 .invito-stamp {
   display: inline-flex;
   flex-direction: column;

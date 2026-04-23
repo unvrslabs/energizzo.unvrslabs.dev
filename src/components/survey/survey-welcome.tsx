@@ -79,7 +79,7 @@ export function SurveyWelcome({
           <p className="invito-lede">
             Siamo lieti di comunicarvi che la vostra azienda è stata selezionata
             per entrare nella prima ondata del network <em>Il Dispaccio</em> —
-            cento reseller energia italiani riuniti in un circolo chiuso.
+            100 reseller energia italiani riuniti in un circolo chiuso.
           </p>
         </section>
 
@@ -91,7 +91,7 @@ export function SurveyWelcome({
           <p className="invito-body">
             Il Dispaccio non è aperto a tutti. Ogni membro è scelto uno a uno
             per il peso nel mercato reseller italiano. Voi siete{" "}
-            <strong>uno dei cento</strong> professionisti della prima ondata.
+            <strong>uno dei 100</strong> professionisti della prima ondata.
             Questo documento è personale e non trasferibile.
           </p>
         </section>
@@ -110,16 +110,18 @@ export function SurveyWelcome({
           <span className="invito-block-label">III · Cosa riceverete</span>
           <ul className="invito-list">
             <li>
-              <strong>Delibere ARERA decifrate</strong>{" "}
-              <span className="invito-hyphen">—</span> ogni atto letto e
-              restituito in italiano operativo: cosa cambia, per chi, da
-              quando.
+              <strong>Delibere ARERA intelligenti</strong>{" "}
+              <span className="invito-hyphen">—</span> ogni atto sommarizzato
+              dall'AI con bullet operativi, file originali ARERA allegati e
+              chat con agente AI per chiedere qualsiasi cosa: implicazioni,
+              interpretazioni, prima/dopo, scadenze, formulari.
             </li>
             <li>
-              <strong>Oneri, accise, componenti</strong>{" "}
-              <span className="invito-hyphen">—</span> variazioni di TRAS, DIS,
-              MIS, UC, ASOS, ARIM spiegate nel modo più diretto, con il
-              prima/dopo applicato ai vostri contratti tipo.
+              <strong>Tutti i valori del retail market</strong>{" "}
+              <span className="invito-hyphen">—</span> per luce e gas:
+              mercato all'ingrosso, commercializzazione, dispacciamento,
+              oneri di sistema, servizi di rete, accisa. Aggiornamenti
+              continui e prima/dopo applicato ai vostri contratti tipo.
             </li>
             <li>
               <strong>Il Reseller</strong>{" "}
@@ -132,9 +134,10 @@ export function SurveyWelcome({
               incontri con regulator e player di primo piano.
             </li>
             <li>
-              <strong>Report di mercato</strong>{" "}
-              <span className="invito-hyphen">—</span> benchmark mensile
-              indipendente del reseller Italia, aggregato dai membri.
+              <strong>Report annuale di mercato</strong>{" "}
+              <span className="invito-hyphen">—</span> benchmark indipendente
+              del reseller Italia, aggregato dai dati dei membri, pubblicato
+              una volta l'anno.
             </li>
             <li>
               <strong>Community chiusa</strong>{" "}
@@ -185,7 +188,11 @@ export function SurveyWelcome({
           <div className="invito-sign">
             <span className="invito-sign-cursive">Il Dispaccio</span>
             <span className="invito-sign-meta">
-              UNVRS Labs · Network italiano reseller energia
+              Network italiano reseller energia
+            </span>
+            <span className="invito-sign-sponsor">
+              <span className="invito-sponsor-label">Sponsorizzato da</span>
+              <span className="invito-sponsor-name">Energizzo</span>
             </span>
           </div>
           <div className="invito-stamp">
