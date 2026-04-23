@@ -115,7 +115,7 @@ export function FooterV2() {
                 Contatti
               </span>
               <a
-                href="mailto:emanuele@unvrslabs.dev"
+                href="mailto:membri@ildispaccio.energy"
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: "hsl(var(--lv2-text-dim))" }}
               >
@@ -176,7 +176,7 @@ export function FooterV2() {
               color: "hsl(var(--lv2-text-mute))",
             }}
           >
-            © {new Date().getFullYear()} Il Dispaccio · UNVRS Labs · P.IVA IT00000000000 · Tutti i diritti riservati
+            © {new Date().getFullYear()} Il Dispaccio · UNVRS Labs · Tutti i diritti riservati
           </p>
         </div>
       </div>

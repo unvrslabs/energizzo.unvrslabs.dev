@@ -50,7 +50,7 @@ export function StructuredData() {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer support",
-      email: "emanuele@unvrslabs.dev",
+      email: "membri@ildispaccio.energy",
       availableLanguage: ["Italian"],
     },
     publisher: {

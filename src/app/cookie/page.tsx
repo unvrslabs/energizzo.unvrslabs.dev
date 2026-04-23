@@ -88,8 +88,8 @@ export default function CookiePage() {
           Il consenso viene memorizzato localmente nel browser per 12 mesi, salvo
           modifiche. È possibile modificare o revocare il consenso in qualsiasi
           momento cancellando i dati di navigazione del browser, oppure contattando{" "}
-          <a href="mailto:privacy@ildispaccio.energy">
-            privacy@ildispaccio.energy
+          <a href="mailto:membri@ildispaccio.energy">
+            membri@ildispaccio.energy
           </a>
           .
         </p>
@@ -203,8 +203,8 @@ export default function CookiePage() {
         <h2>6. Contatti</h2>
         <p>
           Per qualsiasi domanda sull&apos;uso dei cookie:{" "}
-          <a href="mailto:privacy@ildispaccio.energy">
-            privacy@ildispaccio.energy
+          <a href="mailto:membri@ildispaccio.energy">
+            membri@ildispaccio.energy
           </a>
           .
         </p>

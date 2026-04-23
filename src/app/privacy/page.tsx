@@ -17,9 +17,9 @@ export default function PrivacyPage() {
         <p>
           Il titolare del trattamento dei dati personali raccolti tramite il sito
           <strong> ildispaccio.energy</strong> e il sottodominio{" "}
-          <strong>dash.ildispaccio.energy</strong> è <strong>UNVRS Labs</strong>,
-          con sede operativa in Italia. Contatto privacy:{" "}
-          <a href="mailto:privacy@ildispaccio.energy">privacy@ildispaccio.energy</a>.
+          <strong>dash.ildispaccio.energy</strong> è <strong>UNVRS Labs</strong>.
+          Contatto per l&apos;esercizio dei diritti privacy:{" "}
+          <a href="mailto:membri@ildispaccio.energy">membri@ildispaccio.energy</a>.
         </p>
       </section>
 
@@ -147,7 +147,7 @@ export default function PrivacyPage() {
         </ul>
         <p>
           Le richieste vanno inoltrate a{" "}
-          <a href="mailto:privacy@ildispaccio.energy">privacy@ildispaccio.energy</a>.
+          <a href="mailto:membri@ildispaccio.energy">membri@ildispaccio.energy</a>.
           La risposta avviene entro 30 giorni dalla ricezione.
         </p>
       </section>
