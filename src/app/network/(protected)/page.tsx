@@ -14,7 +14,7 @@ import {
   SAVED_DELIBERE_MOCK,
 } from "@/lib/delibere/mock";
 import { listDelibere } from "@/lib/delibere/db";
-import { mapSettoreToSector } from "@/lib/delibere/api";
+import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { V2TickerRow } from "@/components/network-v2/ticker-row";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { getNetworkMember } from "@/lib/network/session";
@@ -55,20 +55,20 @@ export default async function V2HomePage() {
   ]);
   const firstName = (member?.referente ?? "").split(" ")[0] || "operatore";
 
-  const latest = allDelibere.slice(0, 4).map((d) => ({
-    code: d.numero,
-    title: d.titolo,
-    date:
-      d.scraped_data_pubblicazione ??
-      d.data_pubblicazione ??
-      d.data_delibera ??
-      d.api_created_at ??
-      d.created_at,
-    sectors:
-      Array.isArray(d.ai_sectors) && d.ai_sectors.length > 0
-        ? d.ai_sectors
-        : mapSettoreToSector(d.settore),
-  }));
+  const latest = allDelibere
+    .filter((d) => deriveSectorsFromNumero(d.numero).length > 0)
+    .slice(0, 4)
+    .map((d) => ({
+      code: d.numero,
+      title: d.titolo,
+      date:
+        d.scraped_data_pubblicazione ??
+        d.data_pubblicazione ??
+        d.data_delibera ??
+        d.api_created_at ??
+        d.created_at,
+      sectors: deriveSectorsFromNumero(d.numero),
+    }));
 
   const upcoming = DELIBERE_DEADLINES.slice()
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -80,10 +80,7 @@ export default async function V2HomePage() {
       ? {
           code: d.numero,
           title: d.titolo,
-          sectors:
-            Array.isArray(d.ai_sectors) && d.ai_sectors.length > 0
-              ? d.ai_sectors
-              : mapSettoreToSector(d.settore),
+          sectors: deriveSectorsFromNumero(d.numero),
           savedAt: s.savedAt,
         }
       : null;

@@ -22,9 +22,12 @@ export default async function NetworkProtectedLayout({
   }
 
   const supabase = await createClient();
+  // Conta solo delibere pertinenti per reseller energia (suffisso eel/gas/com).
+  // numero_suffix è una generated column = 4° segmento del numero ARERA.
   const { count: delibereCount } = await supabase
     .from("delibere_cache")
-    .select("*", { count: "exact", head: true });
+    .select("*", { count: "exact", head: true })
+    .in("numero_suffix", ["eel", "gas", "com"]);
 
   const now = Date.now();
   const scadenzeCount = DELIBERE_DEADLINES.filter(

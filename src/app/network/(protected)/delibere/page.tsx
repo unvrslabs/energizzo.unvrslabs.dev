@@ -1,6 +1,6 @@
 import { DelibereV2Client, type DeliberaView, type UiAttachment, type UiSector } from "@/components/network-v2/delibere-v2-client";
 import { listDelibere, type DbDelibera } from "@/lib/delibere/db";
-import { mapSettoreToSector } from "@/lib/delibere/api";
+import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,7 +16,11 @@ export default async function DelibereV2Page({
 }) {
   const sp = await searchParams;
   const raw = await listDelibere();
-  const delibere = raw.map(dbToView);
+  // Solo delibere pertinenti per reseller energia (suffisso eel/gas/com nel numero).
+  // Escluse: /efr (efficienza), /rif (rifiuti), numeri senza suffisso.
+  const delibere = raw
+    .map(dbToView)
+    .filter((d) => d.sectors.length > 0);
   const withSummary = delibere.filter((d) => d.hasSummary).length;
 
   return (
@@ -46,10 +50,15 @@ export default async function DelibereV2Page({
 }
 
 function dbToView(d: DbDelibera): DeliberaView {
+  // Priorità: suffisso del numero delibera (fonte di verità ARERA).
+  // ai_sectors da Claude usato solo come integrazione se il numero non ha suffisso valido.
+  const fromNumero = deriveSectorsFromNumero(d.numero);
   const sectors: UiSector[] =
-    Array.isArray(d.ai_sectors) && d.ai_sectors.length > 0
-      ? d.ai_sectors
-      : mapSettoreToSector(d.settore);
+    fromNumero.length > 0
+      ? fromNumero
+      : Array.isArray(d.ai_sectors)
+      ? (d.ai_sectors as UiSector[])
+      : [];
 
   const attachments: UiAttachment[] = (d.documenti_urls ?? []).map((url, i) => ({
     label: `Documento ${i + 1}`,

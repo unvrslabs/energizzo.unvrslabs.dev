@@ -82,6 +82,11 @@ export async function fetchAllDelibere(
  */
 export type UiSector = "eel" | "gas";
 
+/**
+ * Legacy mapper da campo `settore` API (Luce/Gas/null).
+ * Mantenuto per retrocompatibilità, ma il source of truth è ora
+ * il suffisso nel codice delibera ARERA (es. 100/2026/E/com).
+ */
 export function mapSettoreToSector(
   settore: string | null | undefined,
 ): UiSector[] {
@@ -95,4 +100,21 @@ export function mapSettoreToSector(
     result.push("gas");
   }
   return result;
+}
+
+/**
+ * Deriva i settori dal codice delibera ARERA: NNN/YYYY/T/S.
+ * - S = "eel" → elettrico
+ * - S = "gas" → gas
+ * - S = "com" → trasversale (impatta entrambi i vettori)
+ * - altro (efr/rif/vuoto) → [] → delibera non pertinente per reseller energia
+ */
+export function deriveSectorsFromNumero(numero: string): UiSector[] {
+  const parts = numero.split("/");
+  if (parts.length < 4) return [];
+  const s = parts[3].toLowerCase().trim();
+  if (s === "eel") return ["eel"];
+  if (s === "gas") return ["gas"];
+  if (s === "com") return ["eel", "gas"];
+  return [];
 }

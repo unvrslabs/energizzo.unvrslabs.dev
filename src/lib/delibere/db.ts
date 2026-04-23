@@ -43,6 +43,8 @@ export async function listDelibere(opts?: { limit?: number }): Promise<DbDeliber
   let query = supabase
     .from("delibere_cache")
     .select("*")
+    // Solo delibere pertinenti per reseller energia (suffisso eel/gas/com).
+    .in("numero_suffix", ["eel", "gas", "com"])
     .order("scraped_data_pubblicazione", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false });
   if (opts?.limit) query = query.limit(opts.limit);

@@ -134,9 +134,11 @@ export function DelibereV2Client({
     );
   }
 
-  // Lista compatta: toolbar ~84px + 6 righe fisse × 96px = 660px esatti
-  // (row height fissa in .v2-delibera-row per evitare clip della 7a riga)
-  const listMaxHeight = "calc(84px + 6 * 96px)";
+  // Altezza card allineata al bordo inferiore della sidebar.
+  // Sidebar: bottom 16px. Content: padding-top 28px + header ~80px + margin ~16px = ~124px.
+  // maxHeight = 100vh - (offset top ~144px) - (spazio fino a bottom sidebar 16px) ≈ 100vh - 160px.
+  // Row height fissa 96px → niente tagli parziali, scroll interno se contenuto supera l'altezza.
+  const listMaxHeight = "calc(100vh - 160px)";
 
   return (
     <div
