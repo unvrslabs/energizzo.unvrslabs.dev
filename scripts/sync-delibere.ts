@@ -51,14 +51,23 @@ Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
     "Bullet 3 operativo",
     "Bullet 4 operativo"
   ],
-  "sectors": ["eel" | "gas"]
+  "sectors": ["eel" | "gas"],
+  "scadenze": [
+    { "date": "YYYY-MM-DD", "label": "Breve ≤ 90 char", "tipo": "entrata_vigore" }
+  ]
 }
 
-Regole:
+Regole summary/bullets:
 - 4 bullet esatti, ciascuno ≤ 140 caratteri.
 - Ogni bullet deve contenere UN dato concreto (numero, data, %, soglia) se presente nel testo.
-- Niente fluff ("si fa presente che", "è importante"). Prima parola → azione o dato.
-- "sectors": uno o più tra "eel" (energia elettrica), "gas". Se impatta entrambi, includi entrambi. Se non impatta né energia né gas, ritorna [].
+- Prima parola → azione o dato. Niente fluff.
+- "sectors": eel/gas/entrambi. Vuoto [] se non pertinente a reseller energia.
+
+Regole scadenze:
+- Estrai TUTTE le date future rilevanti menzionate nel testo (dal 2026-04-01 in avanti).
+- Tipi: "entrata_vigore", "adempimento", "consultazione", "asta", "scadenza", "reporting".
+- SOLO date presenti nel testo, formato YYYY-MM-DD. Max 6 scadenze.
+- Label ≤ 90 char, concreta. Vuoto [] se non ci sono scadenze future.
 - Se la delibera cita STG, TRAS, DIS, MIS, PUN, asta, tariffa, oneri, switching, recupero crediti → PRIORITIZZA quella info nei bullet.
 - Se il PDF è lungo o complesso, concentrati sul dispositivo (la parte decisionale, non le premesse).`;
 
@@ -199,13 +208,14 @@ async function generateAiBatch(supabase: any, n: number) {
           ai_summary: result.summary,
           ai_bullets: result.bullets,
           ai_sectors: result.sectors,
+          ai_scadenze: result.scadenze,
           ai_generated_at: new Date().toISOString(),
           ai_model: MODEL,
           ai_source: result.source,
           ai_error: null,
         })
         .eq("id", row.id);
-      console.log(`ok (${result.source})`);
+      console.log(`ok (${result.source}, ${result.scadenze.length} scad.)`);
       ok++;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -306,9 +316,27 @@ async function summarizeOne(
     : [];
   if (sectors.length === 0) sectors = mapSettoreToSector(row.settore);
 
+  const validTipi = new Set(["entrata_vigore","adempimento","consultazione","asta","scadenza","reporting"]);
+  const scadenze = Array.isArray(parsed.scadenze)
+    ? parsed.scadenze
+        .map((s: unknown) => {
+          if (!s || typeof s !== "object") return null;
+          const o = s as Record<string, unknown>;
+          const date = String(o.date ?? "").trim();
+          const label = String(o.label ?? "").trim();
+          const tipo = String(o.tipo ?? "").toLowerCase().trim();
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+          if (!label) return null;
+          if (!validTipi.has(tipo)) return null;
+          return { date, label: label.slice(0, 120), tipo };
+        })
+        .filter((x: unknown): x is { date: string; label: string; tipo: string } => x !== null)
+        .slice(0, 6)
+    : [];
+
   if (!summary || bullets.length === 0) throw new Error("empty summary or bullets");
 
-  return { summary, bullets, sectors, source };
+  return { summary, bullets, sectors, scadenze, source };
 }
 
 async function resolvePdfUrl(row: {

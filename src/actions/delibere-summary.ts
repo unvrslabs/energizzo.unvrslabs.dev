@@ -24,21 +24,40 @@ Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
     "Bullet 3 operativo",
     "Bullet 4 operativo"
   ],
-  "sectors": ["eel" | "gas"]
+  "sectors": ["eel" | "gas"],
+  "scadenze": [
+    { "date": "YYYY-MM-DD", "label": "Breve descrizione ≤ 90 char", "tipo": "entrata_vigore" }
+  ]
 }
 
-Regole:
+Regole summary/bullets:
 - 4 bullet esatti, ciascuno ≤ 140 caratteri.
 - Ogni bullet deve contenere UN dato concreto (numero, data, %, soglia) se presente nel testo.
 - Niente fluff ("si fa presente che", "è importante"). Prima parola → azione o dato.
-- "sectors": uno o più tra "eel" (energia elettrica), "gas". Se la delibera impatta entrambi i vettori, includi entrambi. Se non impatta né energia né gas (es. delibera organizzativa interna ARERA), ritorna array vuoto [].
+- "sectors": uno o più tra "eel" (energia elettrica), "gas". Entrambi se la delibera è trasversale. Array vuoto se non pertinente.
 - Se la delibera cita STG, TRAS, DIS, MIS, PUN, asta, tariffa, oneri, switching, recupero crediti → PRIORITIZZA quella info nei bullet.
-- Se il PDF è lungo o complesso, concentrati sul dispositivo (la parte decisionale, non le premesse).`;
+- Concentrati sul dispositivo (la parte decisionale, non le premesse).
+
+Regole scadenze:
+- Estrai TUTTE le date future rilevanti per un reseller menzionate nel testo.
+- Tipi ammessi: "entrata_vigore" (decorrenza disposizioni), "adempimento" (obbligo operatore entro X), "consultazione" (fine commenti), "asta" (data asta), "scadenza" (termine generico), "reporting" (invio dati ARERA).
+- SOLO date presenti nel testo (non inventate). Formato YYYY-MM-DD.
+- SOLO date dal 2026-04-01 in avanti (passate non interessano).
+- Label ≤ 90 char, concreta (es. "Decorrenza nuove tariffe TRAS 2026", "Avvio obblighi comunicativi CDISP").
+- Se non ci sono scadenze future nel testo, ritorna array vuoto [].
+- Massimo 6 scadenze (prendi le più importanti se ce ne sono più).`;
+
+export type Scadenza = {
+  date: string;
+  label: string;
+  tipo: "entrata_vigore" | "adempimento" | "consultazione" | "asta" | "scadenza" | "reporting";
+};
 
 export type SummaryResult = {
   summary: string;
   bullets: string[];
   sectors: UiSector[];
+  scadenze: Scadenza[];
   source: "pdf" | "url";
 };
 
@@ -73,6 +92,9 @@ export async function generateDeliberaSummary(
       sectors: Array.isArray(row.ai_sectors)
         ? (row.ai_sectors as UiSector[])
         : mapSettoreToSector(row.settore),
+      scadenze: Array.isArray((row as Record<string, unknown>).ai_scadenze)
+        ? ((row as Record<string, unknown>).ai_scadenze as Scadenza[])
+        : [],
       source: row.ai_source === "pdf" ? "pdf" : "url",
       cached: true,
     };
@@ -142,6 +164,7 @@ export async function generateDeliberaSummary(
       ? parsed.bullets.slice(0, 5).map((b: unknown) => String(b).trim()).filter(Boolean)
       : [],
     sectors: normalizeSectors(parsed.sectors, row.settore),
+    scadenze: normalizeScadenze(parsed.scadenze),
     source,
   };
 
@@ -155,6 +178,7 @@ export async function generateDeliberaSummary(
       ai_summary: result.summary,
       ai_bullets: result.bullets,
       ai_sectors: result.sectors,
+      ai_scadenze: result.scadenze,
       ai_generated_at: new Date().toISOString(),
       ai_model: MODEL,
       ai_source: result.source,
@@ -221,4 +245,30 @@ function normalizeSectors(raw: unknown, apiSettore: string | null): UiSector[] {
     return ok;
   }
   return mapSettoreToSector(apiSettore);
+}
+
+const VALID_SCADENZA_TIPI = new Set([
+  "entrata_vigore",
+  "adempimento",
+  "consultazione",
+  "asta",
+  "scadenza",
+  "reporting",
+]);
+
+function normalizeScadenze(raw: unknown): Scadenza[] {
+  if (!Array.isArray(raw)) return [];
+  const result: Scadenza[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const obj = item as Record<string, unknown>;
+    const date = String(obj.date ?? "").trim();
+    const label = String(obj.label ?? "").trim();
+    const tipo = String(obj.tipo ?? "").toLowerCase().trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+    if (!label) continue;
+    if (!VALID_SCADENZA_TIPI.has(tipo)) continue;
+    result.push({ date, label: label.slice(0, 120), tipo: tipo as Scadenza["tipo"] });
+  }
+  return result.slice(0, 6);
 }

@@ -15,7 +15,6 @@ import {
 } from "@/lib/delibere/mock";
 import { listDelibere } from "@/lib/delibere/db";
 import { deriveSectorsFromNumero } from "@/lib/delibere/api";
-import { V2TickerRow } from "@/components/network-v2/ticker-row";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { getNetworkMember } from "@/lib/network/session";
 
@@ -98,7 +97,7 @@ export default async function V2HomePage() {
             {greeting()}, {firstName}.
           </h1>
           <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            {allDelibere.length} delibere indicizzate · {upcoming.length} scadenze in arrivo · PUN in salita del 25%
+            {allDelibere.length} delibere indicizzate · {upcoming.length} scadenze in arrivo
           </p>
         </div>
         <Link href="/network/delibere" className="v2-btn v2-btn--primary">
@@ -106,12 +105,6 @@ export default async function V2HomePage() {
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </header>
-
-      {/* Market snapshot */}
-      <section>
-        <SectionLabel icon={<TrendingUp />} label="Mercato · snapshot spot" />
-        <V2TickerRow />
-      </section>
 
       {/* Bento */}
       <section className="v2-bento">
@@ -291,17 +284,6 @@ export default async function V2HomePage() {
           </div>
         </div>
       </section>
-    </div>
-  );
-}
-
-function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-2.5 pl-1">
-      <span style={{ color: "hsl(var(--v2-text-mute))" }}>{icon}</span>
-      <span className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-        {label}
-      </span>
     </div>
   );
 }
