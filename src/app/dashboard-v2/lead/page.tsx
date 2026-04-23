@@ -29,16 +29,6 @@ export default async function LeadV2Page({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
-  return <LeadV2Content sp={sp} initialLeadId={null} />;
-}
-
-export async function LeadV2Content({
-  sp,
-  initialLeadId,
-}: {
-  sp: SearchParams;
-  initialLeadId: string | null;
-}) {
   const supabase = await createClient();
 
   let query = supabase
@@ -178,7 +168,7 @@ export async function LeadV2Content({
 
       <FilterBarV2 provinces={provinces} />
 
-      <LeadDashboardV2Client leads={filteredLeads} initialLeadId={initialLeadId} />
+      <LeadDashboardV2Client leads={filteredLeads} />
     </div>
   );
 }
