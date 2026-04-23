@@ -2612,6 +2612,9 @@
   border-bottom: 1px solid hsl(var(--v2-border));
   cursor: pointer;
   transition: background 120ms ease;
+  height: 96px;
+  flex: 0 0 96px;
+  overflow: hidden;
 }
 .v2-delibera-row:hover {
   background: hsl(var(--v2-card-hover));

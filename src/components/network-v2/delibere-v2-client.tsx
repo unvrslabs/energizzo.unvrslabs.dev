@@ -134,8 +134,9 @@ export function DelibereV2Client({
     );
   }
 
-  // Lista compatta: toolbar ~84px + 6 righe visibili × ~115px = ~774px
-  const listMaxHeight = "calc(84px + 6 * 115px)";
+  // Lista compatta: toolbar ~84px + 6 righe fisse × 96px = 660px esatti
+  // (row height fissa in .v2-delibera-row per evitare clip della 7a riga)
+  const listMaxHeight = "calc(84px + 6 * 96px)";
 
   return (
     <div
