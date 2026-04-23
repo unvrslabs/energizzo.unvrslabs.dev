@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, ExternalLink, FileText, Flame, Zap } from "lucide-react";
+import { ExternalLink, FileText, Flame, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatMonthLabel } from "@/lib/remo/queries";
 
@@ -55,22 +55,16 @@ export default async function PriceEngineV2Page() {
 
   return (
     <div className="flex flex-col gap-5">
-      <header className="flex items-end justify-between gap-4 flex-wrap">
-        <div>
-          <p className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            Admin · Price Engine (RE.M.O.)
-          </p>
-          <h1 className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1" style={{ color: "hsl(var(--v2-text))" }}>
-            Report mensili operatori
-          </h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            {reports.length} report · {luce.length} luce · {gas.length} gas
-          </p>
-        </div>
-        <Link href="/dashboard/price-engine" className="v2-btn v2-btn--primary">
-          Crea nuovo report
-          <ArrowUpRight className="w-3.5 h-3.5" />
-        </Link>
+      <header>
+        <p className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+          Admin · Price Engine
+        </p>
+        <h1 className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1" style={{ color: "hsl(var(--v2-text))" }}>
+          Report mensili operatori
+        </h1>
+        <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
+          {reports.length} report · {luce.length} luce · {gas.length} gas
+        </p>
       </header>
 
       <div className="v2-ticker-row">
