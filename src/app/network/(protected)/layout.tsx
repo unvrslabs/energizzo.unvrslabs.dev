@@ -29,8 +29,7 @@ export default async function NetworkProtectedLayout({
       .in("numero_suffix", ["eel", "gas", "com"]),
     supabase
       .from("testi_integrati_cache")
-      .select("*", { count: "exact", head: true })
-      .in("codice_suffix", ["eel", "gas", "com"]),
+      .select("*", { count: "exact", head: true }),
   ]);
 
   const now = Date.now();

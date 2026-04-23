@@ -28,10 +28,11 @@ export type DbTestoIntegrato = {
 
 export async function listTestiIntegrati(opts?: { limit?: number }): Promise<DbTestoIntegrato[]> {
   const supabase = await createClient();
+  // I codici dei TI sono acronimi (TIT, TIV, TIS, ecc.), non formato NNN/YYYY/T/S.
+  // Il settore si determina dal campo `settore` API ("elettrico" / "gas"), mai dual.
   let query = supabase
     .from("testi_integrati_cache")
     .select("*")
-    .in("codice_suffix", ["eel", "gas", "com"])
     .order("data_entrata_vigore", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false });
   if (opts?.limit) query = query.limit(opts.limit);
@@ -40,6 +41,10 @@ export async function listTestiIntegrati(opts?: { limit?: number }): Promise<DbT
   return (data ?? []) as DbTestoIntegrato[];
 }
 
+/**
+ * I testi integrati sono SEMPRE mono-settore (elettrico o gas, mai entrambi).
+ * Usiamo il campo settore API; fallback al suffisso del codice se presente.
+ */
 export function deriveSectorsFromTiSettore(
   settore: string | null,
   codice: string,
@@ -47,13 +52,11 @@ export function deriveSectorsFromTiSettore(
   const s = (settore ?? "").toLowerCase();
   if (s.includes("elett") || s === "eel" || s === "luce") return ["eel"];
   if (s.includes("gas")) return ["gas"];
-  // fallback dal suffisso codice
   const parts = codice.split("/");
   if (parts.length >= 4) {
     const suf = parts[3].toLowerCase();
     if (suf === "eel") return ["eel"];
     if (suf === "gas") return ["gas"];
-    if (suf === "com") return ["eel", "gas"];
   }
   return [];
 }

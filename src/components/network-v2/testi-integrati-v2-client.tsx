@@ -36,16 +36,11 @@ export type TestoIntegratoView = {
   attachments: TiAttachment[];
 };
 
-type SectorFilter = "all" | "eel" | "gas" | "dual";
+type SectorFilter = "all" | "eel" | "gas";
 
 function matchesSectorFilter(sectors: UiSector[], f: SectorFilter): boolean {
   if (f === "all") return true;
-  const hasEel = sectors.includes("eel");
-  const hasGas = sectors.includes("gas");
-  if (f === "dual") return hasEel && hasGas;
-  if (f === "eel") return hasEel && !hasGas;
-  if (f === "gas") return hasGas && !hasEel;
-  return false;
+  return sectors.includes(f);
 }
 
 const MONTHS_IT = [
@@ -158,16 +153,9 @@ export function TestiIntegratiV2Client({
             )}
           </div>
           <div className="flex items-center gap-1 flex-wrap">
-            {(["all", "dual", "eel", "gas"] as const).map((s) => {
+            {(["all", "eel", "gas"] as const).map((s) => {
               const active = sector === s;
-              const label =
-                s === "all"
-                  ? "Tutti"
-                  : s === "dual"
-                  ? "Energia + Gas"
-                  : s === "eel"
-                  ? "Energia"
-                  : "Gas";
+              const label = s === "all" ? "Tutti" : s === "eel" ? "Energia" : "Gas";
               const count =
                 s === "all"
                   ? testi.length
