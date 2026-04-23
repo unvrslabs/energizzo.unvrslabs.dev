@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mic,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ function buildSections(counts: { delibere: number; testiIntegrati: number; scade
     {
       title: "Mercato",
       items: [
+        { href: "/network/mercato", label: "Dati mercato", icon: TrendingUp },
         { href: "/network/price-engine", label: "Price Engine", icon: Activity },
       ],
     },
