@@ -10,6 +10,8 @@ import {
   ArrowLeft,
   Building2,
   Check,
+  ChevronDown,
+  ChevronRight,
   ClipboardList,
   Clock,
   Copy,
@@ -79,6 +81,7 @@ export function LeadProfileV2({
   const activity = initialActivity;
   const survey = initialSurvey;
   const [copied, setCopied] = useState(false);
+  const [surveyOpen, setSurveyOpen] = useState(false);
   const [savingEmail, startEmailTransition] = useTransition();
   const [savingContacts, startContactsTransition] = useTransition();
   const [savingNote, startNoteTransition] = useTransition();
@@ -673,40 +676,76 @@ export function LeadProfileV2({
                 />
               </div>
 
-              {survey && Object.keys(survey.answers).length > 0 && (
-                <div className="flex flex-col gap-2 mt-2">
-                  <div className="v2-mono text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                    Risposte questionario
-                  </div>
-                  {SURVEY_QUESTION_ORDER.map((qid) => {
-                    const v = survey.answers[qid];
-                    if (v === undefined || v === null || v === "") return null;
-                    const label = SURVEY_QUESTION_LABELS[qid] ?? qid;
-                    return (
-                      <div
-                        key={qid}
-                        className="p-3 rounded-md"
-                        style={{ background: "hsl(var(--v2-bg-elev))", border: "1px solid hsl(var(--v2-border))" }}
+              {survey && Object.keys(survey.answers).length > 0 && (() => {
+                const filled = SURVEY_QUESTION_ORDER.filter((qid) => {
+                  const v = survey.answers[qid];
+                  return v !== undefined && v !== null && v !== "";
+                });
+                if (filled.length === 0) return null;
+                return (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setSurveyOpen((o) => !o)}
+                      className="flex items-center justify-between gap-2 w-full px-3 py-2 rounded-md transition-colors"
+                      style={{
+                        background: "hsl(var(--v2-bg-elev))",
+                        border: "1px solid hsl(var(--v2-border))",
+                        color: "hsl(var(--v2-text))",
+                      }}
+                    >
+                      <span className="flex items-center gap-2 v2-mono text-[10.5px] font-bold uppercase tracking-[0.14em]">
+                        {surveyOpen ? (
+                          <ChevronDown className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
+                        ) : (
+                          <ChevronRight className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
+                        )}
+                        Risposte questionario
+                      </span>
+                      <span
+                        className="v2-mono text-[10px] font-bold px-1.5 py-0.5 rounded"
+                        style={{
+                          background: "hsl(var(--v2-accent) / 0.14)",
+                          color: "hsl(var(--v2-accent))",
+                        }}
                       >
-                        <p className="v2-mono text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                          <span style={{ color: "hsl(var(--v2-accent))" }}>{qid}</span> · {label}
-                        </p>
-                        <div className="mt-1.5 text-[13px]" style={{ color: "hsl(var(--v2-text))" }}>
-                          {Array.isArray(v) ? (
-                            <ul className="list-disc list-inside space-y-0.5">
-                              {v.map((item, i) => (
-                                <li key={i}>{item}</li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="whitespace-pre-wrap break-words">{v}</p>
-                          )}
-                        </div>
+                        {filled.length} / {SURVEY_QUESTION_ORDER.length}
+                      </span>
+                    </button>
+
+                    {surveyOpen && (
+                      <div className="flex flex-col gap-2">
+                        {filled.map((qid) => {
+                          const v = survey.answers[qid];
+                          const label = SURVEY_QUESTION_LABELS[qid] ?? qid;
+                          return (
+                            <div
+                              key={qid}
+                              className="p-3 rounded-md"
+                              style={{ background: "hsl(var(--v2-bg-elev))", border: "1px solid hsl(var(--v2-border))" }}
+                            >
+                              <p className="v2-mono text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                                <span style={{ color: "hsl(var(--v2-accent))" }}>{qid}</span> · {label}
+                              </p>
+                              <div className="mt-1.5 text-[13px]" style={{ color: "hsl(var(--v2-text))" }}>
+                                {Array.isArray(v) ? (
+                                  <ul className="list-disc list-inside space-y-0.5">
+                                    {v.map((item, i) => (
+                                      <li key={i}>{item}</li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="whitespace-pre-wrap break-words">{v}</p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </section>
 
