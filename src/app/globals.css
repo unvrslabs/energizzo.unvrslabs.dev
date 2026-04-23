@@ -2184,25 +2184,25 @@
    Pensata per uso prolungato: contrasto alto sul testo, border hairline,
    niente ombre colorate. */
 html[data-theme="light"] .v2 {
-  --v2-bg: 210 25% 97%;
+  --v2-bg: 210 22% 95%;
   --v2-bg-elev: 0 0% 100%;
   --v2-card: 0 0% 100%;
-  --v2-card-hover: 210 25% 96%;
-  --v2-border: 215 16% 88%;
-  --v2-border-strong: 215 16% 76%;
-  --v2-text: 215 28% 16%;
-  --v2-text-dim: 215 14% 38%;
-  --v2-text-mute: 215 10% 54%;
-  --v2-accent: 158 65% 36%;
-  --v2-accent-dim: 158 40% 88%;
-  --v2-warn: 32 85% 42%;
-  --v2-danger: 358 68% 50%;
-  --v2-info: 205 70% 42%;
-  --v2-shadow: 0 1px 2px hsl(215 28% 16% / 0.04), 0 4px 12px hsl(215 28% 16% / 0.03);
-  --v2-grid-line: 215 25% 20% / 0.025;
-  --v2-mesh: 158 60% 45% / 0.04;
-  --v2-sidebar-shadow: 0 1px 2px hsl(215 28% 16% / 0.04), 0 8px 24px hsl(215 28% 16% / 0.06);
-  --v2-brand-mark-shadow: 0 1px 3px hsl(158 60% 30% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.3);
+  --v2-card-hover: 210 22% 93%;
+  --v2-border: 215 18% 82%;
+  --v2-border-strong: 215 18% 68%;
+  --v2-text: 215 30% 12%;
+  --v2-text-dim: 215 16% 30%;
+  --v2-text-mute: 215 12% 44%;
+  --v2-accent: 158 70% 30%;
+  --v2-accent-dim: 158 40% 85%;
+  --v2-warn: 32 90% 38%;
+  --v2-danger: 358 70% 46%;
+  --v2-info: 205 75% 38%;
+  --v2-shadow: 0 1px 2px hsl(215 28% 16% / 0.05), 0 4px 12px hsl(215 28% 16% / 0.04);
+  --v2-grid-line: 215 25% 20% / 0.035;
+  --v2-mesh: 158 60% 45% / 0.05;
+  --v2-sidebar-shadow: 0 1px 2px hsl(215 28% 16% / 0.05), 0 8px 24px hsl(215 28% 16% / 0.08);
+  --v2-brand-mark-shadow: 0 1px 3px hsl(158 60% 30% / 0.25), inset 0 1px 0 hsl(0 0% 100% / 0.3);
 
   color-scheme: light;
 }
@@ -2259,11 +2259,12 @@ html[data-theme="light"] .v2 {
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+  margin-bottom: 14px;
 }
 .v2-sidebar-top .v2-brand {
   flex: 1;
   min-width: 0;
-  padding: 6px 10px 0;
+  padding: 6px 10px 0 10px;
 }
 .v2-theme-toggle {
   display: inline-flex;
@@ -2463,7 +2464,8 @@ html[data-theme="light"] .ild-toaster [data-sonner-toast] {
   background: hsl(var(--v2-card));
   border: 1px solid hsl(var(--v2-border));
   border-radius: 12px;
-  transition: border-color 160ms ease, background 160ms ease;
+  box-shadow: var(--v2-shadow);
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 .v2-card--interactive {
   cursor: pointer;
