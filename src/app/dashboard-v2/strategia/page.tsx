@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { TACTICS, type TacticStatus } from "@/lib/strategy";
-import { TacticCard } from "@/components/tactic-card";
+import { TacticCardV2 as TacticCard } from "@/components/admin-v2/tactic-card";
 import { CheckCircle2, CircleDot, Flag, Target } from "lucide-react";
 
 export const dynamic = "force-dynamic";
