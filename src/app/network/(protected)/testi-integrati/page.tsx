@@ -2,8 +2,15 @@ import {
   TestiIntegratiV2Client,
   type TestoIntegratoView,
   type TiAttachment,
+  type DeliberaRefView,
 } from "@/components/network-v2/testi-integrati-v2-client";
-import { listTestiIntegrati, type DbTestoIntegrato, deriveSectorsFromTiSettore } from "@/lib/testi-integrati/db";
+import {
+  listTestiIntegrati,
+  resolveDelibereRefs,
+  buildAreraDetailUrl,
+  deriveSectorsFromTiSettore,
+  type DbTestoIntegrato,
+} from "@/lib/testi-integrati/db";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -19,7 +26,14 @@ export default async function TestiIntegratiPage({
 }) {
   const sp = await searchParams;
   const raw = await listTestiIntegrati();
-  const testi = raw.map(dbToView);
+
+  // Prefetch delibere di riferimento in un'unica query.
+  const refsCodici = raw
+    .map((d) => d.delibera_riferimento)
+    .filter((c): c is string => !!c);
+  const refsMap = await resolveDelibereRefs(refsCodici);
+
+  const testi = raw.map((d) => dbToView(d, refsMap));
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,19 +61,47 @@ export default async function TestiIntegratiPage({
   );
 }
 
-function dbToView(d: DbTestoIntegrato): TestoIntegratoView {
+function dbToView(
+  d: DbTestoIntegrato,
+  refsMap: Map<string, { numero: string; titolo: string; settore: string | null; data_pubblicazione: string | null; in_cache: boolean }>,
+): TestoIntegratoView {
   const sectors = deriveSectorsFromTiSettore(d.settore, d.codice);
   const attachments: TiAttachment[] = (d.documenti_urls ?? []).map((url, i) => ({
     label: `Documento ${i + 1}`,
     url,
     kind: kindFromUrl(url),
   }));
+
+  let deliberaRef: DeliberaRefView | null = null;
+  if (d.delibera_riferimento) {
+    const cached = refsMap.get(d.delibera_riferimento);
+    if (cached) {
+      deliberaRef = {
+        codice: cached.numero,
+        titolo: cached.titolo,
+        settore: cached.settore,
+        dataPubblicazione: cached.data_pubblicazione,
+        internalHref: `/network/delibere?open=${encodeURIComponent(cached.numero)}`,
+        areraHref: null,
+      };
+    } else {
+      deliberaRef = {
+        codice: d.delibera_riferimento,
+        titolo: null,
+        settore: null,
+        dataPubblicazione: null,
+        internalHref: null,
+        areraHref: buildAreraDetailUrl(d.delibera_riferimento),
+      };
+    }
+  }
+
   return {
     id: d.id,
     codice: d.codice,
     titolo: d.titolo,
     descrizione: d.descrizione,
-    delibera_riferimento: d.delibera_riferimento,
+    deliberaRef,
     dataVigore: d.data_entrata_vigore ?? d.api_created_at ?? d.created_at,
     sectors,
     stato: d.stato,

@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowRight,
   ArrowUpRight,
   Bookmark,
   Download,
@@ -23,12 +25,23 @@ export type TiAttachment = {
   kind: "pdf" | "xlsx" | "docx" | "zip" | "other";
 };
 
+export type DeliberaRefView = {
+  codice: string;
+  titolo: string | null;
+  settore: string | null;
+  dataPubblicazione: string | null;
+  /** Se presente: link interno al cockpit delibere. Preferito. */
+  internalHref: string | null;
+  /** Fallback alla pagina ARERA se la delibera non è nella cache. */
+  areraHref: string | null;
+};
+
 export type TestoIntegratoView = {
   id: number;
   codice: string;
   titolo: string;
   descrizione: string | null;
-  delibera_riferimento: string | null;
+  deliberaRef: DeliberaRefView | null;
   dataVigore: string | null;
   sectors: UiSector[];
   stato: string | null;
@@ -273,22 +286,7 @@ function DetailPanel({ t }: { t: TestoIntegratoView }) {
         </p>
       )}
 
-      {t.delibera_riferimento && (
-        <div className="v2-card p-4">
-          <div
-            className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.18em] mb-2"
-            style={{ color: "hsl(var(--v2-accent))" }}
-          >
-            Delibera di riferimento
-          </div>
-          <p
-            className="v2-mono text-[13px] font-semibold"
-            style={{ color: "hsl(var(--v2-text))" }}
-          >
-            {t.delibera_riferimento}
-          </p>
-        </div>
-      )}
+      {t.deliberaRef && <DeliberaRefCard dref={t.deliberaRef} />}
 
       {t.attachments.length > 0 && (
         <div className="flex flex-col gap-2">
@@ -344,4 +342,152 @@ function DetailPanel({ t }: { t: TestoIntegratoView }) {
       </div>
     </article>
   );
+}
+
+function DeliberaRefCard({ dref }: { dref: DeliberaRefView }) {
+  const settoreLabel = labelSettore(dref.settore);
+
+  const Inner = (
+    <div className="relative group">
+      <div
+        className="v2-card v2-card--interactive p-4 flex items-center gap-3"
+        style={{ transition: "border-color 160ms ease, background 160ms ease" }}
+      >
+        <div className="flex-1 min-w-0">
+          <div
+            className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.18em] mb-1.5"
+            style={{ color: "hsl(var(--v2-accent))" }}
+          >
+            Delibera di riferimento
+          </div>
+          <div
+            className="v2-mono text-[13.5px] font-semibold flex items-center gap-2 flex-wrap"
+            style={{ color: "hsl(var(--v2-text))" }}
+          >
+            {dref.codice}
+            {!dref.internalHref && (
+              <span
+                className="v2-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+                style={{
+                  color: "hsl(var(--v2-warn))",
+                  background: "hsl(var(--v2-warn) / 0.08)",
+                  border: "1px solid hsl(var(--v2-warn) / 0.22)",
+                }}
+                title="Delibera non presente nell'archivio interno"
+              >
+                ext
+              </span>
+            )}
+          </div>
+          {dref.titolo && (
+            <p
+              className="text-[12.5px] mt-1.5 line-clamp-2"
+              style={{ color: "hsl(var(--v2-text-dim))", lineHeight: 1.45 }}
+            >
+              {dref.titolo}
+            </p>
+          )}
+        </div>
+        <div
+          className="flex items-center gap-1 shrink-0 self-start pt-0.5"
+          style={{ color: "hsl(var(--v2-accent))" }}
+        >
+          {dref.internalHref ? (
+            <>
+              <span
+                className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em] hidden sm:inline"
+                style={{ color: "hsl(var(--v2-accent))" }}
+              >
+                Apri
+              </span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </>
+          ) : dref.areraHref ? (
+            <>
+              <span
+                className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em] hidden sm:inline"
+                style={{ color: "hsl(var(--v2-text-mute))" }}
+              >
+                ARERA
+              </span>
+              <ExternalLink className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Hover preview popover (desktop only) */}
+      <div
+        className="hidden md:block absolute z-20 top-full left-0 right-0 mt-2 p-3 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+        style={{
+          background: "hsl(var(--v2-bg-elev))",
+          border: "1px solid hsl(var(--v2-border-strong))",
+          boxShadow: "0 12px 32px hsl(0 0% 0% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.04)",
+        }}
+        aria-hidden
+      >
+        <div className="flex items-center gap-2 flex-wrap mb-1.5">
+          {settoreLabel && (
+            <span
+              className="v2-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+              style={{
+                color: "hsl(var(--v2-accent))",
+                background: "hsl(var(--v2-accent) / 0.1)",
+                border: "1px solid hsl(var(--v2-accent) / 0.28)",
+              }}
+            >
+              {settoreLabel}
+            </span>
+          )}
+          {dref.dataPubblicazione && (
+            <span
+              className="v2-mono text-[10px]"
+              style={{ color: "hsl(var(--v2-text-mute))" }}
+            >
+              Pubblicata {fmtFull(dref.dataPubblicazione)}
+            </span>
+          )}
+          {!dref.internalHref && (
+            <span
+              className="v2-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+              style={{
+                color: "hsl(var(--v2-warn))",
+                background: "hsl(var(--v2-warn) / 0.08)",
+                border: "1px solid hsl(var(--v2-warn) / 0.22)",
+              }}
+            >
+              Non indicizzata
+            </span>
+          )}
+        </div>
+        <p className="text-[12.5px] leading-relaxed" style={{ color: "hsl(var(--v2-text))" }}>
+          {dref.titolo ?? "Delibera non presente nell'archivio — apribile su ARERA."}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (dref.internalHref) {
+    return (
+      <Link href={dref.internalHref} className="block">
+        {Inner}
+      </Link>
+    );
+  }
+  if (dref.areraHref) {
+    return (
+      <a href={dref.areraHref} target="_blank" rel="noopener noreferrer" className="block">
+        {Inner}
+      </a>
+    );
+  }
+  return <div className="block">{Inner}</div>;
+}
+
+function labelSettore(s: string | null): string | null {
+  if (!s) return null;
+  const l = s.toLowerCase();
+  if (l.includes("luce") || l.includes("elett")) return "Energia";
+  if (l.includes("gas")) return "Gas";
+  return s;
 }
