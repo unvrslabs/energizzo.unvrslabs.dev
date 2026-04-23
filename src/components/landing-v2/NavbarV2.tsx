@@ -35,16 +35,6 @@ export function NavbarV2() {
           Accedi
         </Link>
       </nav>
-
-      {/* CTA separato sulla destra (solo desktop) */}
-      <a href="#richiedi" className="lv2-nav-cta-detached hidden lg:inline-flex">
-        Richiedi invito
-      </a>
-
-      {/* CTA mobile dentro al pill */}
-      <a href="#richiedi" className="lv2-nav-cta-mobile lg:hidden">
-        Richiedi invito
-      </a>
     </div>
   );
 }
