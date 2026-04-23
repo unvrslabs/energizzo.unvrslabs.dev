@@ -6,6 +6,7 @@ import {
   Activity,
   LayoutDashboard,
   LogOut,
+  Megaphone,
   Mic,
   Network as NetworkIcon,
   Search,
@@ -41,6 +42,7 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
     title: "Content",
     items: [
       { href: "/dashboard/podcast", label: "Podcast", icon: Mic, badgeKey: "guestsTarget" },
+      { href: "/dashboard/social", label: "Social", icon: Megaphone },
     ],
   },
   {
