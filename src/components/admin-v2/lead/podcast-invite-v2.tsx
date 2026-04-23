@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, Copy, Loader2, MessageCircle, Radio, Send, User } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { createGuestFromLead, updateGuest } from "@/actions/podcast-guest";
 import { getPodcastInviteUrl } from "@/lib/public-urls";
 import type { PodcastGuest } from "@/lib/types";
@@ -21,27 +21,22 @@ const EPISODES: { slug: string; label: string }[] = [
   { slug: "10-smart-meter-gas", label: "10 · Smart meter gas" },
 ];
 
-export function LeadPodcastInviteV2({ leadId }: { leadId: string }) {
-  const [guest, setGuest] = useState<PodcastGuest | null>(null);
-  const [loading, setLoading] = useState(true);
+export function LeadPodcastInviteV2({
+  leadId,
+  initialGuest = null,
+}: {
+  leadId: string;
+  initialGuest?: PodcastGuest | null;
+}) {
+  const router = useRouter();
+  const [guest, setGuest] = useState<PodcastGuest | null>(initialGuest);
   const [copied, setCopied] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  async function load() {
-    setLoading(true);
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("podcast_guests")
-      .select("*")
-      .eq("lead_id", leadId)
-      .maybeSingle();
-    setGuest((data as PodcastGuest | null) ?? null);
-    setLoading(false);
-  }
-
+  // Sync con props quando il server revalida
   useEffect(() => {
-    void load();
-  }, [leadId]);
+    setGuest(initialGuest);
+  }, [initialGuest]);
 
   async function addGuest() {
     setCreating(true);
@@ -49,7 +44,7 @@ export function LeadPodcastInviteV2({ leadId }: { leadId: string }) {
     if (!res.ok) toast.error(res.error ?? "Errore");
     else {
       toast.success("Aggiunto agli ospiti podcast");
-      await load();
+      router.refresh();
     }
     setCreating(false);
   }
@@ -60,7 +55,7 @@ export function LeadPodcastInviteV2({ leadId }: { leadId: string }) {
     if (!res.ok) toast.error(res.error ?? "Errore");
     else {
       toast.success("Episodio aggiornato");
-      await load();
+      router.refresh();
     }
   }
 
@@ -74,20 +69,12 @@ export function LeadPodcastInviteV2({ leadId }: { leadId: string }) {
     setTimeout(() => setCopied(false), 2000);
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-[12.5px]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        Carico…
-      </div>
-    );
-  }
-
   if (!guest) {
     return (
       <div className="flex flex-col gap-3">
         <p className="text-[12.5px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
           Questo lead non è ancora nella pipeline podcast.
+          Aggiungilo per generare un link di invito nominale.
         </p>
         <button
           type="button"
@@ -129,9 +116,12 @@ export function LeadPodcastInviteV2({ leadId }: { leadId: string }) {
 
       {inviteUrl && (
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2">
+          <span className="v2-mono text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+            Link invito (pubblico)
+          </span>
+          <div className="flex items-center gap-2 flex-wrap">
             <code
-              className="flex-1 min-w-0 truncate rounded px-2 py-1.5 v2-mono text-[11px]"
+              className="flex-1 min-w-[200px] truncate rounded px-2 py-1.5 v2-mono text-[11px]"
               style={{ background: "hsl(var(--v2-bg-elev))", border: "1px solid hsl(var(--v2-border))", color: "hsl(var(--v2-text-dim))" }}
             >
               {inviteUrl}
@@ -189,7 +179,7 @@ export function LeadPodcastInviteV2({ leadId }: { leadId: string }) {
         </div>
       ) : (
         <p className="text-[11px] italic" style={{ color: "hsl(var(--v2-text-mute))" }}>
-          In attesa di conferma. Lo stato passerà a &quot;Confermato&quot; al submit del form.
+          In attesa di conferma. Lo stato passerà a &quot;Confermato&quot; al submit del form pubblico.
         </p>
       )}
     </div>

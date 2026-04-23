@@ -5,6 +5,7 @@ import type {
   Lead,
   LeadContact,
   Note,
+  PodcastGuest,
   SurveyResponse,
 } from "@/lib/types";
 import { LeadProfileV2, type MembershipInfo } from "@/components/admin-v2/lead/profile";
@@ -28,7 +29,7 @@ export default async function LeadProfilePage({
 
   if (!leadRaw) notFound();
 
-  const [memberRes, docsRes, notesRes, activityRes, contactsRes, surveyRes] =
+  const [memberRes, docsRes, notesRes, activityRes, contactsRes, surveyRes, podcastGuestRes] =
     await Promise.all([
       leadRaw.piva
         ? supabase
@@ -55,6 +56,7 @@ export default async function LeadProfilePage({
         .eq("lead_id", id)
         .order("created_at", { ascending: true }),
       supabase.from("survey_responses").select("*").eq("lead_id", id).maybeSingle(),
+      supabase.from("podcast_guests").select("*").eq("lead_id", id).maybeSingle(),
     ]);
 
   const membership: MembershipInfo | null = memberRes.data
@@ -91,6 +93,7 @@ export default async function LeadProfilePage({
       initialActivity={(activityRes.data as ActivityEvent[]) ?? []}
       initialContacts={(contactsRes.data as LeadContact[]) ?? []}
       initialSurvey={(surveyRes.data as SurveyResponse | null) ?? null}
+      initialPodcastGuest={(podcastGuestRes.data as PodcastGuest | null) ?? null}
     />
   );
 }

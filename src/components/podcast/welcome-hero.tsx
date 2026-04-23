@@ -1,64 +1,70 @@
 "use client";
 
-import { useMemo } from "react";
+import { Headphones, Mic, Radio } from "lucide-react";
 
-const EMOJI = ["🎉", "🎊", "🏆", "✨", "🎙️", "⭐", "🎈", "🥳"];
-
-export function WelcomeHero() {
-  // Deterministic positions so we don't get hydration mismatches.
-  const confetti = useMemo(
-    () =>
-      Array.from({ length: 14 }).map((_, i) => {
-        const seed = (i * 2654435761) % 1000 / 1000;
-        const seed2 = (i * 1597 + 31) % 1000 / 1000;
-        const seed3 = (i * 7919 + 13) % 1000 / 1000;
-        return {
-          emoji: EMOJI[i % EMOJI.length],
-          left: `${5 + seed * 90}%`,
-          top: `${5 + seed2 * 80}%`,
-          delay: `${-(seed3 * 2).toFixed(2)}s`,
-          rotate: `${(seed3 - 0.5) * 60}deg`,
-          size: 0.8 + seed * 0.6,
-        };
-      }),
-    [],
-  );
-
+/**
+ * Hero moderno per invito podcast — premium podcast network look.
+ * Nessuna emoji/confetti: gradient sweep, monogram, typography bold.
+ */
+export function WelcomeHero({ guestName }: { guestName?: string | null }) {
   return (
-    <header className="relative liquid-glass rounded-[1.5rem] p-10 text-center space-y-4 overflow-hidden bg-gradient-to-br from-emerald-500/10 via-amber-400/10 to-emerald-500/10">
-      {/* background confetti layer */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none">
-        {confetti.map((c, i) => (
-          <span
-            key={i}
-            className="absolute animate-bounce opacity-50"
-            style={{
-              left: c.left,
-              top: c.top,
-              animationDelay: c.delay,
-              animationDuration: "2.4s",
-              transform: `rotate(${c.rotate}) scale(${c.size})`,
-              fontSize: "1.25rem",
-            }}
-          >
-            {c.emoji}
-          </span>
-        ))}
-      </div>
+    <header className="invpod-hero">
+      <div className="invpod-hero-glow" aria-hidden />
+      <div className="invpod-hero-grid" aria-hidden />
 
-      {/* content */}
-      <div className="relative z-10 space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 text-primary px-3 py-1 text-[10px] uppercase tracking-[0.25em] font-bold">
-          🏆 Ospite selezionato
+      <div className="invpod-hero-inner">
+        <div className="invpod-hero-kicker">
+          <span className="invpod-hero-dot" />
+          <span>Ospite selezionato · Podcast privato</span>
         </div>
-        <h1 className="font-display text-3xl md:text-5xl tracking-tight">
-          Complimenti! 🎉
+
+        <div className="invpod-hero-logo-row">
+          <div className="invpod-hero-logo" aria-hidden>
+            <Mic className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="invpod-hero-show">Il Reseller</div>
+            <div className="invpod-hero-show-meta">Podcast · Il Dispaccio</div>
+          </div>
+        </div>
+
+        <h1 className="invpod-hero-title">
+          {guestName ? (
+            <>
+              <span className="invpod-hero-title-dim">Complimenti,</span>
+              <br />
+              {guestName}.
+            </>
+          ) : (
+            <>
+              <span className="invpod-hero-title-dim">Complimenti.</span>
+              <br />
+              Sei stato selezionato.
+            </>
+          )}
         </h1>
-        <p className="text-base md:text-lg font-semibold">
-          Sei stato selezionato per partecipare al podcast{" "}
-          <span className="text-primary">&quot;Il Reseller&quot;</span>.
+
+        <p className="invpod-hero-lead">
+          Sei tra i pochi professionisti invitati a registrare una puntata di{" "}
+          <strong>Il Reseller</strong> — il podcast dedicato agli operatori del
+          mercato energia retail italiano.
         </p>
+
+        <div className="invpod-hero-ticker">
+          <TickerItem icon={<Mic className="w-3.5 h-3.5" />} label="Audio + video" />
+          <TickerItem icon={<Radio className="w-3.5 h-3.5" />} label="~20 min" />
+          <TickerItem icon={<Headphones className="w-3.5 h-3.5" />} label="Spotify · Apple · YouTube" />
+        </div>
       </div>
     </header>
+  );
+}
+
+function TickerItem({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <span className="invpod-ticker-item">
+      {icon}
+      {label}
+    </span>
   );
 }

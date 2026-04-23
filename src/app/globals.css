@@ -1293,6 +1293,557 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════
+   INVITO PODCAST · Modern premium podcast brand look
+   Dark con gradient sweep viola→emerald, tipografia bold, design digital-native
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.invpod-page {
+  --bg: #0a0a0f;
+  --bg-raised: #131319;
+  --bg-card: #17171f;
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --ink: #f4f4f8;
+  --ink-dim: #b8b8c4;
+  --ink-mute: #7a7a86;
+  --accent: #22c55e;
+  --accent-2: #a855f7;
+  --accent-3: #f97316;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "cv11" 1;
+  letter-spacing: -0.005em;
+  padding: 24px 20px 64px;
+}
+
+.invpod-container {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Hero */
+.invpod-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: clamp(28px, 6vw, 56px);
+  background:
+    linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
+    linear-gradient(135deg, #141420 0%, #18181f 100%);
+  border: 1px solid var(--hairline);
+  isolation: isolate;
+}
+
+.invpod-hero-glow {
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(
+    circle at center,
+    rgba(34, 197, 94, 0.25) 0%,
+    rgba(168, 85, 247, 0.18) 30%,
+    transparent 70%
+  );
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.invpod-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at top right, black 20%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at top right, black 20%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.invpod-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.invpod-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.invpod-hero-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+  animation: invpod-pulse 2s ease-in-out infinite;
+}
+
+@keyframes invpod-pulse {
+  50% { opacity: 0.5; }
+}
+
+.invpod-hero-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.invpod-hero-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #0a0a0f;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.invpod-hero-show {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.invpod-hero-show-meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 2px;
+}
+
+.invpod-hero-title {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(36px, 6vw, 52px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-top: 8px;
+}
+
+.invpod-hero-title-dim {
+  color: var(--ink-dim);
+  font-weight: 500;
+}
+
+.invpod-hero-lead {
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 560px;
+  font-weight: 400;
+}
+
+.invpod-hero-lead strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.invpod-hero-ticker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.invpod-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+/* Card generica */
+.invpod-card {
+  background: var(--bg-card);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  padding: clamp(22px, 4vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.invpod-card-center {
+  text-align: center;
+  padding: 36px;
+}
+
+.invpod-card-kicker {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.invpod-prose {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+
+.invpod-prose strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.invpod-prose-dim {
+  color: var(--ink-mute);
+  font-size: 13.5px;
+}
+
+/* Episode hero card */
+.invpod-episode {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: clamp(28px, 5vw, 44px);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.invpod-episode::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 10% 50%, rgba(34, 197, 94, 0.2), transparent 70%);
+  pointer-events: none;
+}
+
+.invpod-episode > * {
+  position: relative;
+  z-index: 1;
+}
+
+.invpod-episode-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.invpod-episode-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+  animation: invpod-pulse 2s ease-in-out infinite;
+}
+
+.invpod-episode-title {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  max-width: 640px;
+}
+
+/* Prep list */
+.invpod-prep {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.invpod-prep li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.invpod-prep-check {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.invpod-prep-body {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+
+.invpod-prep-body strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* Briefing */
+.invpod-briefing {
+  color: var(--ink-dim);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.invpod-briefing h1,
+.invpod-briefing h2,
+.invpod-briefing h3 {
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.invpod-briefing h2 {
+  font-size: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
+}
+
+.invpod-briefing h3 {
+  font-size: 16px;
+  color: var(--accent);
+}
+
+.invpod-briefing strong { color: var(--ink); font-weight: 600; }
+.invpod-briefing p { margin: 0 0 12px; }
+
+.invpod-briefing ul,
+.invpod-briefing ol {
+  padding-left: 20px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invpod-briefing a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.invpod-briefing blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 14px;
+  margin: 16px 0;
+  color: var(--ink-mute);
+  font-style: italic;
+}
+
+.invpod-briefing code {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.9em;
+}
+
+/* Form conferma */
+.invpod-confirm {
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.06) 0%, rgba(34, 197, 94, 0.02) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 20px;
+  padding: clamp(24px, 4vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.invpod-confirm-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invpod-confirm-title {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.invpod-confirm-sub {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+
+.invpod-confirm form input,
+.invpod-confirm form textarea {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 10px !important;
+  padding: 12px 14px !important;
+  color: var(--ink) !important;
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-size: 14.5px !important;
+  width: 100%;
+  outline: none !important;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.invpod-confirm form input:focus,
+.invpod-confirm form textarea:focus {
+  border-color: rgba(34, 197, 94, 0.5) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+.invpod-confirm form button[type="submit"] {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+  color: #0a0a0f !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.invpod-confirm form button[type="submit"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(34, 197, 94, 0.5);
+}
+
+.invpod-confirmed {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.invpod-confirmed-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #4ade80;
+  margin-bottom: 4px;
+}
+
+.invpod-confirmed-body {
+  font-size: 13.5px;
+  color: rgba(134, 239, 172, 0.85);
+  line-height: 1.5;
+}
+
+/* Footer */
+.invpod-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 8px;
+  margin-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.invpod-footer-brand {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.invpod-footer-meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 2px;
+}
+
+.invpod-footer-sponsor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--hairline);
+}
+
+.invpod-footer-sponsor-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.invpod-footer-sponsor-name {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .invpod-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .invpod-hero-title { font-size: 32px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
    NETWORK · Cockpit reseller energia (area riservata /network/*)
    Classi .v2-* ereditate dalla preview, nome conservato per semplicità
    ═══════════════════════════════════════════════════════════════════════ */

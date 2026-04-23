@@ -44,7 +44,7 @@ import { getSurveyUrl } from "@/lib/public-urls";
 import { CATEGORIA_CONFIG, STATUS_CONFIG, type Categoria } from "@/lib/status-config";
 import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-questions";
 import { firstPhone } from "@/lib/utils";
-import type { ActivityEvent, Lead, LeadContact, Note, SurveyResponse } from "@/lib/types";
+import type { ActivityEvent, Lead, LeadContact, Note, PodcastGuest, SurveyResponse } from "@/lib/types";
 
 export type MembershipInfo = {
   id: string;
@@ -63,6 +63,7 @@ export function LeadProfileV2({
   initialActivity = [],
   initialContacts = [],
   initialSurvey = null,
+  initialPodcastGuest = null,
   backHref = "/dashboard-v2/lead",
   backLabel = "Torna ai lead",
 }: {
@@ -72,6 +73,7 @@ export function LeadProfileV2({
   initialActivity?: ActivityEvent[];
   initialContacts?: LeadContact[];
   initialSurvey?: SurveyResponse | null;
+  initialPodcastGuest?: PodcastGuest | null;
   backHref?: string;
   backLabel?: string;
 }) {
@@ -773,7 +775,7 @@ export function LeadProfileV2({
               <span className="v2-card-title">Invito podcast</span>
             </div>
             <div className="p-5">
-              <LeadPodcastInviteV2 leadId={lead.id} />
+              <LeadPodcastInviteV2 leadId={lead.id} initialGuest={initialPodcastGuest} />
             </div>
           </section>
 
