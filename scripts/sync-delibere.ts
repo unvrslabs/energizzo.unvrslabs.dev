@@ -33,6 +33,7 @@ if (!SUPABASE_URL || !SERVICE_ROLE) {
 
 const API_BASE = "https://api8055.energizzo.it/api/public/delibere";
 const MODEL = "claude-sonnet-4-5-20250929";
+const UA = "Mozilla/5.0 (compatible; IlDispaccioBot/1.0; +https://ildispaccio.energy)";
 
 const SYSTEM_PROMPT = `Sei un analista regolatorio esperto del mercato energia italiano.
 Lavori per Il Dispaccio, il network dei reseller energia italiani.
@@ -242,9 +243,10 @@ async function summarizeOne(
   let source: "pdf" | "url" = "url";
   const content: any[] = [];
 
-  if (row.documento_url) {
+  const pdfUrl = await resolvePdfUrl(row);
+  if (pdfUrl) {
     try {
-      const res = await fetch(row.documento_url);
+      const res = await fetch(pdfUrl, { headers: { "User-Agent": UA } });
       if (!res.ok) throw new Error(`PDF ${res.status}`);
       const buf = await res.arrayBuffer();
       if (buf.byteLength > 30 * 1024 * 1024) {
@@ -260,7 +262,6 @@ async function summarizeOne(
       });
       source = "pdf";
     } catch (err) {
-      // fall back to URL
       console.log(`\n     (pdf fetch failed: ${err instanceof Error ? err.message : err})`);
     }
   }
@@ -309,6 +310,57 @@ async function summarizeOne(
   if (!summary || bullets.length === 0) throw new Error("empty summary or bullets");
 
   return { summary, bullets, sectors, source };
+}
+
+async function resolvePdfUrl(row: {
+  numero: string;
+  url_riferimento: string | null;
+  documento_url: string | null;
+}): Promise<string | null> {
+  const { numero, url_riferimento, documento_url } = row;
+
+  if (url_riferimento && /arera\.it/i.test(url_riferimento)) {
+    const parts = numero.split("/");
+    if (parts.length >= 4) {
+      const [n, yyyy, t, s] = parts;
+      const yy = yyyy.slice(2);
+      const guess = `https://www.arera.it/fileadmin/allegati/docs/${yy}/${n}-${yyyy}-${t}-${s}.pdf`;
+      if (await headOk(guess)) return guess;
+    }
+    const scraped = await scrapeFirstPdf(url_riferimento);
+    if (scraped && (await headOk(scraped))) return scraped;
+  }
+
+  if (documento_url && (await headOk(documento_url))) return documento_url;
+  return null;
+}
+
+async function headOk(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, { method: "HEAD", headers: { "User-Agent": UA } });
+    if (!res.ok) return false;
+    const ct = res.headers.get("content-type") ?? "";
+    return ct.includes("pdf");
+  } catch {
+    return false;
+  }
+}
+
+async function scrapeFirstPdf(pageUrl: string): Promise<string | null> {
+  try {
+    const res = await fetch(pageUrl, { headers: { "User-Agent": UA } });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const m = html.match(/href="([^"]+\.pdf)"/i);
+    if (!m) return null;
+    const href = m[1];
+    if (href.startsWith("http")) return href;
+    if (href.startsWith("//")) return `https:${href}`;
+    const base = new URL(pageUrl);
+    return new URL(href, `${base.protocol}//${base.host}`).toString();
+  } catch {
+    return null;
+  }
 }
 
 main().catch((err) => {

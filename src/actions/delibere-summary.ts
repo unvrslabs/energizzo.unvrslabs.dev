@@ -3,6 +3,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { mapSettoreToSector, type UiSector } from "@/lib/delibere/api";
+import { resolveDeliberaPdfUrl, PDF_FETCH_UA } from "@/lib/delibere/resolve-pdf";
 
 const MODEL = "claude-sonnet-4-5-20250929";
 
@@ -72,9 +73,14 @@ export async function generateDeliberaSummary(
   let source: "pdf" | "url" = "url";
   const content: Anthropic.Messages.ContentBlockParam[] = [];
 
-  if (row.documento_url) {
+  const pdfUrl = await resolveDeliberaPdfUrl({
+    numero: row.numero,
+    url_riferimento: row.url_riferimento,
+    documento_url: row.documento_url,
+  });
+  if (pdfUrl) {
     try {
-      const pdfBase64 = await fetchPdfAsBase64(row.documento_url);
+      const pdfBase64 = await fetchPdfAsBase64(pdfUrl);
       content.push({
         type: "document",
         source: { type: "base64", media_type: "application/pdf", data: pdfBase64 },
@@ -155,7 +161,10 @@ export async function recordSummaryError(
 }
 
 async function fetchPdfAsBase64(url: string): Promise<string> {
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: { "User-Agent": PDF_FETCH_UA },
+  });
   if (!res.ok) throw new Error(`PDF fetch ${res.status}`);
   const buf = await res.arrayBuffer();
   const maxBytes = 30 * 1024 * 1024;
