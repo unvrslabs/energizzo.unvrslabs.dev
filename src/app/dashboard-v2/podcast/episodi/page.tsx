@@ -4,7 +4,7 @@ import {
   type EpisodePreview,
   type EpisodeProductionStatus,
 } from "@/lib/podcast-content";
-import { EpisodesBoard } from "@/components/podcast/episodes-board";
+import { EpisodesBoardV2 } from "@/components/admin-v2/podcast/episodes-board-v2";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Episodi · Admin v2" };
@@ -45,5 +45,5 @@ export default async function EpisodiV2Index() {
     };
   });
 
-  return <EpisodesBoard episodes={enriched} basePath="/dashboard-v2/podcast/episodi" />;
+  return <EpisodesBoardV2 episodes={enriched} basePath="/dashboard-v2/podcast/episodi" />;
 }

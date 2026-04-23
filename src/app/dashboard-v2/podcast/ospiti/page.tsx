@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { GuestsPipeline } from "@/components/podcast/guests-pipeline";
+import { GuestsPipelineV2 } from "@/components/admin-v2/podcast/guests-pipeline-v2";
 import type { PodcastGuest, Lead } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export default async function OspitiV2Page() {
     .order("ragione_sociale");
 
   return (
-    <GuestsPipeline
+    <GuestsPipelineV2
       guests={(guests ?? []) as PodcastGuest[]}
       leads={
         (leads ?? []) as Pick<

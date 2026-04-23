@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { HotTopicsBoard } from "@/components/podcast/hot-topics-board";
+import { HotTopicsBoardV2 } from "@/components/admin-v2/podcast/hot-topics-board-v2";
 import type { PodcastHotTopic } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -12,5 +12,5 @@ export default async function TemiCaldiV2Page() {
     .select("*")
     .eq("active", true)
     .order("created_at", { ascending: false });
-  return <HotTopicsBoard topics={(data ?? []) as PodcastHotTopic[]} />;
+  return <HotTopicsBoardV2 topics={(data ?? []) as PodcastHotTopic[]} />;
 }
