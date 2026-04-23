@@ -1,6 +1,7 @@
-import { DelibereV2Client, type DeliberaView, type UiAttachment, type UiSector } from "@/components/network-v2/delibere-v2-client";
+import { DelibereV2Client, type DeliberaView, type UiAttachment, type UiSector, type Importanza } from "@/components/network-v2/delibere-v2-client";
 import { listDelibere, type DbDelibera } from "@/lib/delibere/db";
 import { deriveSectorsFromNumero } from "@/lib/delibere/api";
+import { heuristicTagFromTitle } from "@/lib/delibere/heuristics";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -74,6 +75,7 @@ function dbToView(d: DbDelibera): DeliberaView {
     d.api_created_at ??
     d.created_at;
 
+  const hasSummary = !!d.ai_generated_at && !!d.ai_summary;
   return {
     id: d.id,
     code: d.numero,
@@ -86,10 +88,14 @@ function dbToView(d: DbDelibera): DeliberaView {
     bullets: d.ai_bullets,
     attachments,
     url: d.url_riferimento,
-    hasSummary: !!d.ai_generated_at && !!d.ai_summary,
+    hasSummary,
     aiError: d.ai_error,
     aiSource: d.ai_source === "pdf" || d.ai_source === "url" ? d.ai_source : null,
     aiGeneratedAt: d.ai_generated_at,
+    importanza: (d.ai_importanza ?? null) as Importanza | null,
+    categoriaImpatto: d.ai_categoria_impatto,
+    // Heuristic: mostra tag solo per delibere senza analisi AI
+    heuristicTag: hasSummary ? null : heuristicTagFromTitle(d.titolo),
   };
 }
 

@@ -27,7 +27,9 @@ Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
   "sectors": ["eel" | "gas"],
   "scadenze": [
     { "date": "YYYY-MM-DD", "label": "Breve descrizione ≤ 90 char", "tipo": "entrata_vigore" }
-  ]
+  ],
+  "importanza": "critica" | "alta" | "normale" | "bassa",
+  "categoria_impatto": "Breve label ≤ 40 char che descrive il tipo di impatto"
 }
 
 Regole summary/bullets:
@@ -45,7 +47,25 @@ Regole scadenze:
 - SOLO date dal 2026-04-01 in avanti (passate non interessano).
 - Label ≤ 90 char, concreta (es. "Decorrenza nuove tariffe TRAS 2026", "Avvio obblighi comunicativi CDISP").
 - Se non ci sono scadenze future nel testo, ritorna array vuoto [].
-- Massimo 6 scadenze (prendi le più importanti se ce ne sono più).`;
+- Massimo 6 scadenze (prendi le più importanti se ce ne sono più).
+
+Regole importanza (classificazione business impact per reseller):
+- "critica" = aggiornamento tariffario diretto che cambia il prezzo finale cliente:
+  * Componente QVD (vendita gas), CMEM, CCR, QE (Quadro Energia)
+  * Aggiornamento TRAS/DIS/MIS distribuzione elettrica o gas
+  * Aggiornamento oneri generali di sistema (ASOS, ARIM, UC)
+  * Nuove fasce tariffarie o scaglioni
+  * Aggiornamenti trimestrali/annuali delle tariffe regolate
+- "alta" = cambio operativo forte con impatto su processi reseller:
+  * Nuove regole STG, aste gas, mercato della capacità
+  * Switching, SII, recupero crediti, morosità
+  * Obblighi comunicativi nuovi verso ARERA/CSEA/Acquirente Unico
+  * Bonus sociale, disciplina clienti vulnerabili
+  * CDISP, market coupling, meccanismo reintegrazione costi
+- "normale" = atti su singoli operatori, sanzioni individuali, integrazioni anni passati, approvazioni proposte
+- "bassa" = modifiche amministrative, aggiornamenti registri, proroghe tecniche, atti procedurali
+
+"categoria_impatto": label breve tipo "Componente QVD gas", "Tariffe distribuzione", "Asta STG", "Obblighi SII", "Sanzione operatore", "Bonus sociale", ecc.`;
 
 export type Scadenza = {
   date: string;
@@ -53,11 +73,15 @@ export type Scadenza = {
   tipo: "entrata_vigore" | "adempimento" | "consultazione" | "asta" | "scadenza" | "reporting";
 };
 
+export type Importanza = "critica" | "alta" | "normale" | "bassa";
+
 export type SummaryResult = {
   summary: string;
   bullets: string[];
   sectors: UiSector[];
   scadenze: Scadenza[];
+  importanza: Importanza;
+  categoria_impatto: string | null;
   source: "pdf" | "url";
 };
 
@@ -86,15 +110,16 @@ export async function generateDeliberaSummary(
 
   // Summary già presente: ritorna cached, non rigenerare (evita costi duplicati).
   if (row.ai_generated_at && row.ai_summary && Array.isArray(row.ai_bullets)) {
+    const raw = row as Record<string, unknown>;
     return {
       summary: row.ai_summary,
       bullets: row.ai_bullets as string[],
       sectors: Array.isArray(row.ai_sectors)
         ? (row.ai_sectors as UiSector[])
         : mapSettoreToSector(row.settore),
-      scadenze: Array.isArray((row as Record<string, unknown>).ai_scadenze)
-        ? ((row as Record<string, unknown>).ai_scadenze as Scadenza[])
-        : [],
+      scadenze: Array.isArray(raw.ai_scadenze) ? (raw.ai_scadenze as Scadenza[]) : [],
+      importanza: isImportanza(raw.ai_importanza) ? (raw.ai_importanza as Importanza) : "normale",
+      categoria_impatto: typeof raw.ai_categoria_impatto === "string" ? (raw.ai_categoria_impatto as string) : null,
       source: row.ai_source === "pdf" ? "pdf" : "url",
       cached: true,
     };
@@ -165,6 +190,10 @@ export async function generateDeliberaSummary(
       : [],
     sectors: normalizeSectors(parsed.sectors, row.settore),
     scadenze: normalizeScadenze(parsed.scadenze),
+    importanza: isImportanza(parsed.importanza) ? (parsed.importanza as Importanza) : "normale",
+    categoria_impatto: typeof parsed.categoria_impatto === "string" && parsed.categoria_impatto.trim()
+      ? String(parsed.categoria_impatto).trim().slice(0, 60)
+      : null,
     source,
   };
 
@@ -179,6 +208,8 @@ export async function generateDeliberaSummary(
       ai_bullets: result.bullets,
       ai_sectors: result.sectors,
       ai_scadenze: result.scadenze,
+      ai_importanza: result.importanza,
+      ai_categoria_impatto: result.categoria_impatto,
       ai_generated_at: new Date().toISOString(),
       ai_model: MODEL,
       ai_source: result.source,
@@ -255,6 +286,10 @@ const VALID_SCADENZA_TIPI = new Set([
   "scadenza",
   "reporting",
 ]);
+
+function isImportanza(v: unknown): boolean {
+  return v === "critica" || v === "alta" || v === "normale" || v === "bassa";
+}
 
 function normalizeScadenze(raw: unknown): Scadenza[] {
   if (!Array.isArray(raw)) return [];

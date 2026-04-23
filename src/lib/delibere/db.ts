@@ -27,6 +27,8 @@ export type DbDelibera = {
   ai_model: string | null;
   ai_source: string | null;
   ai_error: string | null;
+  ai_importanza: "critica" | "alta" | "normale" | "bassa" | null;
+  ai_categoria_impatto: string | null;
   scraped_data_pubblicazione: string | null;
   scraped_at: string | null;
   synced_at: string;

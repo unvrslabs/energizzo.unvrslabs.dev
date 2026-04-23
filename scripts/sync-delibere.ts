@@ -54,7 +54,9 @@ Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
   "sectors": ["eel" | "gas"],
   "scadenze": [
     { "date": "YYYY-MM-DD", "label": "Breve ≤ 90 char", "tipo": "entrata_vigore" }
-  ]
+  ],
+  "importanza": "critica" | "alta" | "normale" | "bassa",
+  "categoria_impatto": "Breve label ≤ 40 char"
 }
 
 Regole summary/bullets:
@@ -68,6 +70,13 @@ Regole scadenze:
 - Tipi: "entrata_vigore", "adempimento", "consultazione", "asta", "scadenza", "reporting".
 - SOLO date presenti nel testo, formato YYYY-MM-DD. Max 6 scadenze.
 - Label ≤ 90 char, concreta. Vuoto [] se non ci sono scadenze future.
+
+Regole importanza:
+- "critica" = aggiornamento tariffario diretto (QVD, CMEM, CCR, QE, TRAS/DIS/MIS, ASOS/ARIM/UC, fasce/scaglioni, aggiornamenti trimestrali/annuali tariffe regolate).
+- "alta" = cambio operativo forte (STG/aste, SII, switching, recupero crediti, obblighi ARERA/CSEA/AU, bonus sociale/vulnerabili, CDISP, market coupling).
+- "normale" = singoli operatori, sanzioni individuali, integrazioni anni passati, approvazioni.
+- "bassa" = modifiche amministrative, registri, proroghe tecniche, atti procedurali.
+"categoria_impatto" = label breve tipo "Componente QVD gas", "Tariffe distribuzione", "Asta STG", "Bonus sociale".
 - Se la delibera cita STG, TRAS, DIS, MIS, PUN, asta, tariffa, oneri, switching, recupero crediti → PRIORITIZZA quella info nei bullet.
 - Se il PDF è lungo o complesso, concentrati sul dispositivo (la parte decisionale, non le premesse).`;
 
@@ -209,13 +218,15 @@ async function generateAiBatch(supabase: any, n: number) {
           ai_bullets: result.bullets,
           ai_sectors: result.sectors,
           ai_scadenze: result.scadenze,
+          ai_importanza: result.importanza,
+          ai_categoria_impatto: result.categoria_impatto,
           ai_generated_at: new Date().toISOString(),
           ai_model: MODEL,
           ai_source: result.source,
           ai_error: null,
         })
         .eq("id", row.id);
-      console.log(`ok (${result.source}, ${result.scadenze.length} scad.)`);
+      console.log(`ok (${result.source}, ${result.importanza}, ${result.scadenze.length} scad.)`);
       ok++;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -334,9 +345,17 @@ async function summarizeOne(
         .slice(0, 6)
     : [];
 
+  const validImp = new Set(["critica","alta","normale","bassa"]);
+  const importanza = validImp.has(String(parsed.importanza ?? "").toLowerCase())
+    ? String(parsed.importanza).toLowerCase()
+    : "normale";
+  const categoria_impatto = typeof parsed.categoria_impatto === "string" && parsed.categoria_impatto.trim()
+    ? String(parsed.categoria_impatto).trim().slice(0, 60)
+    : null;
+
   if (!summary || bullets.length === 0) throw new Error("empty summary or bullets");
 
-  return { summary, bullets, sectors, scadenze, source };
+  return { summary, bullets, sectors, scadenze, importanza, categoria_impatto, source };
 }
 
 async function resolvePdfUrl(row: {

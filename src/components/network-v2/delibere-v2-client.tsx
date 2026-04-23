@@ -18,6 +18,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
+import { ImportanceBadge } from "@/components/network-v2/importance-badge";
 import { cn } from "@/lib/utils";
 
 export type UiSector = "eel" | "gas";
@@ -27,6 +28,9 @@ export type UiAttachment = {
   url: string;
   kind: "pdf" | "xlsx" | "docx" | "zip" | "other";
 };
+
+export type Importanza = "critica" | "alta" | "normale" | "bassa";
+export type HeuristicTag = "possibile_tariffario" | "possibile_operativo" | null;
 
 export type DeliberaView = {
   id: number;
@@ -44,6 +48,9 @@ export type DeliberaView = {
   aiError: string | null;
   aiSource: "pdf" | "url" | null;
   aiGeneratedAt: string | null;
+  importanza: Importanza | null;
+  categoriaImpatto: string | null;
+  heuristicTag: HeuristicTag;
 };
 
 const MONTHS_IT = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
@@ -257,7 +264,12 @@ export function DelibereV2Client({
                       {d.sectors.map((s) => (
                         <V2SectorChip key={s} sector={s} />
                       ))}
-                      {d.hasSummary && (
+                      <ImportanceBadge
+                        importanza={d.importanza}
+                        categoriaImpatto={d.categoriaImpatto}
+                        heuristicTag={d.heuristicTag}
+                      />
+                      {d.hasSummary && !d.importanza && (
                         <span
                           className="v2-mono inline-flex items-center gap-1 text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
                           style={{
@@ -335,6 +347,12 @@ function DetailPanel({
           {d.sectors.map((s) => (
             <V2SectorChip key={s} sector={s} />
           ))}
+          <ImportanceBadge
+            importanza={d.importanza}
+            categoriaImpatto={d.categoriaImpatto}
+            heuristicTag={d.heuristicTag}
+            size="md"
+          />
           <span className="v2-mono text-[11px] ml-1" style={{ color: "hsl(var(--v2-text-mute))" }}>
             {d.tipo ? `${d.tipo} · ` : ""}Pubblicata {fmtFull(d.date)}
           </span>
