@@ -1,11 +1,16 @@
 import { redirect } from "next/navigation";
 import { getNetworkMember } from "@/lib/network/session";
-import { maskPhone } from "@/lib/network/phone";
-import { NetworkNavbar } from "@/components/network/navbar";
+import { V2Sidebar } from "@/components/network-v2/sidebar";
+import { V2Topbar } from "@/components/network-v2/topbar";
 
 export const dynamic = "force-dynamic";
 
-export default async function NetworkProtectedLayout({
+export const metadata = {
+  title: "Terminal · Il Dispaccio",
+  robots: { index: false, follow: false },
+};
+
+export default async function NetworkV2Layout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,18 +21,17 @@ export default async function NetworkProtectedLayout({
   }
 
   return (
-    <div className="mesh-gradient relative min-h-screen">
-      <NetworkNavbar
+    <div className="v2">
+      <V2Sidebar
         member={{
           referente: member.referente,
           ragione_sociale: member.ragione_sociale,
-          piva: member.piva,
-          phone_masked: maskPhone(member.phone),
         }}
       />
-      <main className="mx-auto max-w-6xl px-4 md:px-6 pt-28 md:pt-24 pb-10 sm:pb-12">
-        {children}
-      </main>
+      <div className="v2-main">
+        <V2Topbar />
+        <div className="v2-content">{children}</div>
+      </div>
     </div>
   );
 }

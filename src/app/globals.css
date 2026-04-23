@@ -888,8 +888,8 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════
-   NETWORK V2 · Cockpit / Operatore di mercato
-   Preview scope: solo /network/v2/*  — zero impatto sul resto del sito
+   NETWORK · Cockpit reseller energia (area riservata /network/*)
+   Classi .v2-* ereditate dalla preview, nome conservato per semplicità
    ═══════════════════════════════════════════════════════════════════════ */
 
 .v2 {

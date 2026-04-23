@@ -1,223 +1,129 @@
-import Link from "next/link";
-import { Download, FileText } from "lucide-react";
-import {
-  formatCategoryLabel,
-  formatMonthLabel,
-  getReport,
-  listReportsMeta,
-} from "@/lib/remo/queries";
-import type { RemoCategory } from "@/lib/remo/types";
-import { RemoSelector } from "@/components/network-remo/remo-selector";
-import {
-  RemoSectionNav,
-  type RemoNavItem,
-} from "@/components/network-remo/remo-section-nav";
-import { RemoIntroCard } from "@/components/network-remo/remo-intro-card";
-import { RemoTableCard } from "@/components/network-remo/remo-table-card";
+import { Activity, Calculator, Gauge, Layers, Sparkles } from "lucide-react";
+import { V2TickerRow } from "@/components/network-v2/ticker-row";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Price Engine — Il Dispaccio",
-  robots: { index: false, follow: false },
+  title: "Price Engine · Terminal",
 };
 
-function resolveCategory(raw: string | undefined): RemoCategory {
-  return raw === "gas" ? "gas" : "luce";
-}
-
-export default async function PriceEnginePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ cat?: string; month?: string }>;
-}) {
-  const params = await searchParams;
-  const allReports = await listReportsMeta();
-
-  const category = resolveCategory(params.cat);
-  const monthsForCategory = allReports
-    .filter((r) => r.category === category)
-    .map((r) => r.month)
-    .sort((a, b) => b.localeCompare(a));
-
-  const month =
-    params.month && monthsForCategory.includes(params.month)
-      ? params.month
-      : monthsForCategory[0];
-
-  if (!month) {
-    return (
-      <EmptyState
-        title="Report non ancora disponibili"
-        body="I numeri RE.M.O. compariranno qui non appena verranno pubblicati."
-        selector={
-          <RemoSelector category={category} month="" reports={allReports} />
-        }
-      />
-    );
-  }
-
-  const report = await getReport(month, category);
-
-  if (!report) {
-    return (
-      <EmptyState
-        title="Report non trovato"
-        body="Non esiste un report per questa combinazione di categoria e mese."
-        selector={
-          <RemoSelector category={category} month={month} reports={allReports} />
-        }
-      />
-    );
-  }
-
-  const navItems: RemoNavItem[] = dedupeByGroup(
-    report.sections.map((s) => ({ slug: s.group_slug, label: s.group_label })),
-  );
-
-  const sectionsByGroup = groupSections(report.sections);
-
+export default function PriceEngineV2Page() {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <header className="space-y-3">
-        <div className="flex items-start md:items-end justify-between gap-3 flex-wrap">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 mb-1">
-              RE.M.O. · Retail Energy Market Outlook
-            </p>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              {formatCategoryLabel(category)}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {formatMonthLabel(month)}
-            </p>
-          </div>
-          {report.pdf_url && (
-            <a
-              href={report.pdf_url}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-semibold text-foreground/85 hover:text-foreground hover:border-primary/30 transition-colors"
-            >
-              <Download className="h-3.5 w-3.5" />
-              PDF originale
-            </a>
-          )}
+    <div className="flex flex-col gap-5">
+      <header className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+            Mercato · Price Engine
+          </p>
+          <h1 className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1" style={{ color: "hsl(var(--v2-text))" }}>
+            Motore di pricing cliente finale
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
+            Calcolo trasparente da spot a bolletta · confronto scenari · impatto delibere in tempo reale
+          </p>
         </div>
-
-        <RemoSelector
-          category={category}
-          month={month}
-          reports={allReports}
-        />
-
-        <RemoSectionNav items={navItems} />
+        <span
+          className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.16em] px-3 py-1.5 rounded"
+          style={{
+            color: "hsl(var(--v2-warn))",
+            background: "hsl(var(--v2-warn) / 0.1)",
+            border: "1px solid hsl(var(--v2-warn) / 0.25)",
+          }}
+        >
+          Beta · disponibile Q2 2026
+        </span>
       </header>
 
-      <div className="space-y-10">
-        {navItems.map((group) => {
-          const sections = sectionsByGroup[group.slug] ?? [];
-          return (
-            <section
-              key={group.slug}
-              id={group.slug}
-              className="scroll-mt-24 space-y-4"
-            >
-              {sections.map((s) =>
-                s.type === "intro" ? (
-                  <RemoIntroCard
-                    key={s.id}
-                    section={s}
-                    category={category}
-                  />
-                ) : s.type === "table" ? (
-                  <RemoTableCard key={s.id} section={s} />
-                ) : (
-                  <div
-                    key={s.id}
-                    className="dispaccio-card rounded-[1.75rem] p-6"
-                  >
-                    <h3 className="text-lg font-bold mb-2">{s.title}</h3>
-                    {s.description && (
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {s.description}
-                      </p>
-                    )}
-                  </div>
-                ),
-              )}
-            </section>
-          );
-        })}
-      </div>
+      <section>
+        <V2TickerRow />
+      </section>
 
-      <footer className="pt-4 pb-10 text-center">
-        <p className="text-[11px] text-muted-foreground/60">
-          Dati elaborati su fonte ARERA, GME, Terna. Valori indicativi, non
-          ufficiali.
-        </p>
-      </footer>
+      <section className="v2-bento">
+        <StepCard
+          colSpan={4}
+          index="01"
+          title="Spot inputs"
+          icon={<Activity />}
+          body="Pull automatico da GME (PUN Index, MGP), PSV, TTF. Cache 5 min, storico 180 giorni."
+        />
+        <StepCard
+          colSpan={4}
+          index="02"
+          title="Oneri & accise"
+          icon={<Layers />}
+          body="Componenti TRAS, DIS, MIS aggiornate con ogni delibera. Rivalutazione automatica quando pubblichiamo l'atto."
+        />
+        <StepCard
+          colSpan={4}
+          index="03"
+          title="Spread commerciale"
+          icon={<Gauge />}
+          body="Imposti tu il margine per cluster cliente (domestico, BT altri usi, MT). Output €/kWh finale."
+        />
+      </section>
+
+      <section className="v2-card p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center">
+        <div
+          className="shrink-0 w-24 h-24 rounded-xl grid place-items-center"
+          style={{
+            background: "linear-gradient(135deg, hsl(var(--v2-accent) / 0.2), hsl(var(--v2-accent) / 0.05))",
+            border: "1px solid hsl(var(--v2-accent) / 0.3)",
+          }}
+        >
+          <Calculator className="w-10 h-10" style={{ color: "hsl(var(--v2-accent))" }} />
+        </div>
+        <div className="flex-1">
+          <div className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.18em] mb-2" style={{ color: "hsl(var(--v2-accent))" }}>
+            <Sparkles className="inline w-3.5 h-3.5 mr-1" />
+            In costruzione
+          </div>
+          <h3 className="text-xl font-semibold tracking-tight" style={{ color: "hsl(var(--v2-text))" }}>
+            Stiamo cablando il motore sui dati GME in produzione
+          </h3>
+          <p className="text-[14px] leading-relaxed mt-2" style={{ color: "hsl(var(--v2-text-dim))" }}>
+            Il Price Engine è un modulo in lavorazione — il primo che darà prezzo finale cliente senza fogli Excel e senza sbagliare componenti ARERA. La beta chiusa parte con i 10 reseller più attivi del network ad aprile 2026. Se vuoi essere nel primo gruppo, scrivi a <strong style={{ color: "hsl(var(--v2-text))" }}>network@ildispaccio.energy</strong>.
+          </p>
+          <div className="flex items-center gap-2 mt-4 flex-wrap">
+            <button type="button" className="v2-btn v2-btn--primary">
+              Richiedi accesso beta
+            </button>
+            <button type="button" className="v2-btn">
+              Vedi demo video (2 min)
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
 
-function dedupeByGroup(items: RemoNavItem[]): RemoNavItem[] {
-  const seen = new Set<string>();
-  const out: RemoNavItem[] = [];
-  for (const it of items) {
-    if (seen.has(it.slug)) continue;
-    seen.add(it.slug);
-    out.push(it);
-  }
-  return out;
-}
-
-function groupSections<T extends { group_slug: string }>(sections: T[]) {
-  const map: Record<string, T[]> = {};
-  for (const s of sections) {
-    map[s.group_slug] = map[s.group_slug] ?? [];
-    map[s.group_slug].push(s);
-  }
-  return map;
-}
-
-function EmptyState({
+function StepCard({
+  colSpan,
+  index,
   title,
+  icon,
   body,
-  selector,
 }: {
+  colSpan: number;
+  index: string;
   title: string;
+  icon: React.ReactNode;
   body: string;
-  selector: React.ReactNode;
 }) {
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <header className="space-y-3">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 mb-1">
-            RE.M.O. · Retail Energy Market Outlook
-          </p>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Price Engine
-          </h1>
-        </div>
-        {selector}
-      </header>
-      <div className="dispaccio-card rounded-[1.75rem] p-10 text-center">
-        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mb-4">
-          <FileText className="h-6 w-6" />
-        </div>
-        <h2 className="text-lg font-bold mb-1">{title}</h2>
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">{body}</p>
-        <div className="mt-5">
-          <Link
-            href="/network/delibere"
-            className="text-xs font-semibold text-primary hover:text-primary/80"
-          >
-            → Vai alle Delibere
-          </Link>
-        </div>
+    <div className={`v2-card p-5 v2-col-${colSpan} flex flex-col gap-3`}>
+      <div className="flex items-center justify-between">
+        <span className="v2-mono text-[11px] font-bold" style={{ color: "hsl(var(--v2-accent))" }}>
+          {index}
+        </span>
+        <span style={{ color: "hsl(var(--v2-text-dim))" }}>{icon}</span>
       </div>
+      <h3 className="text-[15px] font-semibold" style={{ color: "hsl(var(--v2-text))" }}>
+        {title}
+      </h3>
+      <p className="text-[12.5px] leading-relaxed" style={{ color: "hsl(var(--v2-text-dim))" }}>
+        {body}
+      </p>
     </div>
   );
 }

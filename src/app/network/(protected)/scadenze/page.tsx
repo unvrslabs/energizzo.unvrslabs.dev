@@ -102,7 +102,7 @@ export default function ScadenzeV2Page() {
         </ul>
       </div>
 
-      <Link href="/network/v2" className="v2-btn v2-btn--ghost self-start">
+      <Link href="/network" className="v2-btn v2-btn--ghost self-start">
         <ArrowLeft className="w-3.5 h-3.5" />
         Torna alla dashboard
       </Link>

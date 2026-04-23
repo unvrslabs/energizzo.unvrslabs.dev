@@ -24,32 +24,32 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: "Overview",
     items: [
-      { href: "/network/v2", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/network", label: "Dashboard", icon: LayoutDashboard },
     ],
   },
   {
     title: "Compliance",
     items: [
-      { href: "/network/v2/delibere", label: "Delibere ARERA", icon: FileText, badge: "8" },
-      { href: "/network/v2/scadenze", label: "Scadenze", icon: CalendarClock, badge: "5" },
+      { href: "/network/delibere", label: "Delibere ARERA", icon: FileText, badge: "8" },
+      { href: "/network/scadenze", label: "Scadenze", icon: CalendarClock, badge: "5" },
     ],
   },
   {
     title: "Mercato",
     items: [
-      { href: "/network/v2/price-engine", label: "Price Engine", icon: Activity },
+      { href: "/network/price-engine", label: "Price Engine", icon: Activity },
     ],
   },
   {
     title: "Media",
     items: [
-      { href: "/network/v2/podcast", label: "Podcast", icon: Mic },
+      { href: "/network/podcast", label: "Podcast", icon: Mic },
     ],
   },
   {
     title: "Network",
     items: [
-      { href: "/network/v2/membri", label: "Membri", icon: Users },
+      { href: "/network/membri", label: "Membri", icon: Users },
     ],
   },
 ];
@@ -64,7 +64,7 @@ export function V2Sidebar({
 
   return (
     <aside className="v2-sidebar">
-      <Link href="/network/v2" className="v2-brand">
+      <Link href="/network" className="v2-brand">
         <span className="v2-brand-mark">D</span>
         <span>
           <span className="block v2-brand-name">Il Dispaccio</span>
@@ -79,8 +79,8 @@ export function V2Sidebar({
             {section.items.map((item) => {
               const Icon = item.icon;
               const active =
-                item.href === "/network/v2"
-                  ? pathname === "/network/v2"
+                item.href === "/network"
+                  ? pathname === "/network"
                   : pathname.startsWith(item.href);
               return (
                 <Link
