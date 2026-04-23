@@ -2774,17 +2774,29 @@
   padding-right: 24px;
 }
 
-/* ── Navbar v2 ── */
-.lv2-nav {
+/* ── Navbar v2: wrapper fixed full-width ── */
+.lv2-nav-wrap {
   position: fixed;
   top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   z-index: 50;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none; /* lascia passare click nei gap */
+}
+.lv2-nav-wrap > * {
+  pointer-events: auto;
+}
+
+/* Pill centrale */
+.lv2-nav {
+  display: flex;
+  align-items: center;
   gap: 4px;
-  padding: 6px 6px 6px 18px;
+  padding: 6px 18px 6px 18px;
   background: hsl(var(--lv2-bg-elev) / 0.78);
   border: 1px solid hsl(var(--lv2-border));
   border-radius: 999px;
@@ -2794,6 +2806,41 @@
     0 12px 40px hsl(0 0% 0% / 0.4),
     inset 0 1px 0 hsl(0 0% 100% / 0.04);
   white-space: nowrap;
+}
+
+/* CTA detached a destra (desktop) */
+.lv2-nav-cta-detached {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: hsl(215 30% 10%);
+  background: hsl(var(--lv2-accent));
+  box-shadow:
+    0 12px 32px hsl(var(--lv2-accent) / 0.28),
+    inset 0 1px 0 hsl(0 0% 100% / 0.25);
+  transition: background 160ms ease, transform 160ms ease;
+}
+.lv2-nav-cta-detached:hover {
+  background: hsl(158 76% 54%);
+  transform: translateY(-1px);
+}
+
+/* CTA mobile: dentro a pill, stessa stile di lv2-nav-cta */
+.lv2-nav-cta-mobile {
+  margin-left: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(215 30% 10%);
+  background: hsl(var(--lv2-accent));
 }
 .lv2-nav-brand {
   font-weight: 700;

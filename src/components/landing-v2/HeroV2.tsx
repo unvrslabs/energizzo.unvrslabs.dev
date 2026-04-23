@@ -110,7 +110,8 @@ export function HeroV2() {
               indipendente annuale e cockpit riservato.
             </p>
             <p className="lv2-lede mb-9">
-              Accesso gratuito su invito. 100 posti per l&apos;Anno I.
+              Accesso gratuito su invito. 100 posti disponibili per il primo
+              giro di selezioni.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">

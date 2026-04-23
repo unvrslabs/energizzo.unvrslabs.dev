@@ -106,7 +106,7 @@ function ReportMini() {
             color: "hsl(var(--lv2-text-mute))",
           }}
         >
-          Anno I — Autunno 2026
+          Prima edizione — Autunno 2026
         </span>
         <span
           className="lv2-mono"
@@ -136,8 +136,8 @@ const PILLARS = [
   {
     Icon: Radar,
     label: "I.",
-    title: "Cockpit regolatorio",
-    desc: "Delibere ARERA, circolari GME, decreti MASE. Ogni atto riassunto in bullet operativi da un agente AI: cosa cambia, chi è impattato, entro quando.",
+    title: "Cockpit regolatorio AI",
+    desc: "433 delibere ARERA + 61 Testi Integrati indicizzati. Un agente AI analizza il PDF e produce summary in 4 bullet operativi con scadenze estratte e badge automatico sui cambi tariffari.",
     mini: <DelibereMini />,
   },
   {

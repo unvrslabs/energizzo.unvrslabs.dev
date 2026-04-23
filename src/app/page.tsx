@@ -4,6 +4,7 @@ import { NavbarV2 } from "@/components/landing-v2/NavbarV2";
 import { HeroV2 } from "@/components/landing-v2/HeroV2";
 import { TickerBarV2 } from "@/components/landing-v2/TickerBarV2";
 import { PillarsV2 } from "@/components/landing-v2/PillarsV2";
+import { ModuliCockpitV2 } from "@/components/landing-v2/ModuliCockpitV2";
 import { StatsV2 } from "@/components/landing-v2/StatsV2";
 import { HowItWorksV2 } from "@/components/landing-v2/HowItWorksV2";
 import { SponsorV2 } from "@/components/landing-v2/SponsorV2";
@@ -27,6 +28,7 @@ export default function HomePage() {
         <HeroV2 />
         <TickerBarV2 />
         <PillarsV2 />
+        <ModuliCockpitV2 />
         <StatsV2 />
         <HowItWorksV2 />
         <SponsorV2 />

@@ -2,8 +2,8 @@ const STATS = [
   {
     value: "100",
     suffix: "/100",
-    label: "posti Anno I",
-    hint: "Ogni membro riceve un numero editoriale dedicato",
+    label: "posti · primo giro",
+    hint: "Selezione iniziale · in futuro aumenteremo",
   },
   {
     value: "23",

@@ -112,7 +112,7 @@ export function JoinFormV2() {
                     color: "hsl(var(--lv2-accent))",
                   }}
                 >
-                  Candidatura — Anno I
+                  Candidatura — primo giro
                 </div>
                 <h3
                   className="font-bold"
