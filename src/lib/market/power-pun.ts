@@ -35,28 +35,58 @@ export type PunResult = {
   source: "energy-charts.info";
 };
 
-async function fetchZoneDay(bzn: string, dayIso: string): Promise<number | null> {
+async function fetchZoneDayOnce(
+  bzn: string,
+  dayIso: string,
+): Promise<number | null> {
   const start = `${dayIso}T00:00+01:00`;
   const end = `${dayIso}T23:59+01:00`;
   const url = `https://api.energy-charts.info/price?bzn=${encodeURIComponent(
     bzn,
   )}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) return null;
-  const data = (await res.json()) as EnergyChartsResponse;
-  const prices = data.price ?? [];
-  if (!prices.length) return null;
-  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-  return avg;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+      signal: controller.signal,
+      headers: { accept: "application/json", "user-agent": "ildispaccio/1.0" },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as EnergyChartsResponse;
+    const prices = data.price ?? [];
+    if (!prices.length) return null;
+    return prices.reduce((a, b) => a + b, 0) / prices.length;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
+async function fetchZoneDay(
+  bzn: string,
+  dayIso: string,
+): Promise<number | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const val = await fetchZoneDayOnce(bzn, dayIso);
+      if (val != null) return val;
+    } catch {
+      /* retry */
+    }
+    if (attempt === 0) await new Promise((r) => setTimeout(r, 600));
+  }
+  return null;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export async function fetchPunForDay(dayIso: string): Promise<PunResult | null> {
-  const results = await Promise.all(
-    ZONES.map(async (z) => [z, await fetchZoneDay(z, dayIso)] as const),
-  );
+  // Sequenziale con piccolo delay per non triggerare rate limit energy-charts.info
   const zones: Record<string, number> = {};
-  for (const [z, v] of results) {
+  for (const z of ZONES) {
+    const v = await fetchZoneDay(z, dayIso);
     if (v != null) zones[z] = Number(v.toFixed(3));
+    await sleep(120);
   }
   if (Object.keys(zones).length === 0) return null;
 
