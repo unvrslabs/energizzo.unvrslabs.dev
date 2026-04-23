@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
@@ -37,7 +38,6 @@ import { enrichContacts } from "@/actions/enrich-contacts";
 import { markSurveySent } from "@/actions/survey";
 import { updateLeadEmail, updateLeadContacts } from "@/actions/update-lead";
 import { addNote } from "@/actions/add-note";
-import { createClient } from "@/lib/supabase/client";
 import { getSurveyUrl } from "@/lib/public-urls";
 import { CATEGORIA_CONFIG, STATUS_CONFIG, type Categoria } from "@/lib/status-config";
 import { SURVEY_QUESTION_LABELS, SURVEY_QUESTION_ORDER } from "@/lib/survey-questions";
@@ -57,18 +57,27 @@ export type MembershipInfo = {
 export function LeadProfileV2({
   lead,
   membership,
+  initialNotes = [],
+  initialActivity = [],
+  initialContacts = [],
+  initialSurvey = null,
 }: {
   lead: Lead;
   membership?: MembershipInfo | null;
+  initialNotes?: Note[];
+  initialActivity?: ActivityEvent[];
+  initialContacts?: LeadContact[];
+  initialSurvey?: SurveyResponse | null;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState(lead.email ?? "");
   const [phone, setPhone] = useState(lead.telefono ?? "");
   const [whatsapp, setWhatsapp] = useState(lead.whatsapp ?? "");
   const [noteBody, setNoteBody] = useState("");
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [activity, setActivity] = useState<ActivityEvent[]>([]);
-  const [contacts, setContacts] = useState<LeadContact[]>([]);
-  const [survey, setSurvey] = useState<SurveyResponse | null>(null);
+  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const [contacts, setContacts] = useState<LeadContact[]>(initialContacts);
+  const activity = initialActivity;
+  const survey = initialSurvey;
   const [copied, setCopied] = useState(false);
   const [savingEmail, startEmailTransition] = useTransition();
   const [savingContacts, startContactsTransition] = useTransition();
@@ -77,20 +86,12 @@ export function LeadProfileV2({
   const [markingSent, startMarkSentTransition] = useTransition();
 
   useEffect(() => {
-    const supabase = createClient();
-    void (async () => {
-      const [n, a, c, s] = await Promise.all([
-        supabase.from("notes").select("*").eq("lead_id", lead.id).order("created_at", { ascending: false }),
-        supabase.from("activity_log").select("*").eq("lead_id", lead.id).order("created_at", { ascending: false }).limit(50),
-        supabase.from("lead_contacts").select("*").eq("lead_id", lead.id).order("created_at", { ascending: true }),
-        supabase.from("survey_responses").select("*").eq("lead_id", lead.id).maybeSingle(),
-      ]);
-      setNotes((n.data as Note[]) ?? []);
-      setActivity((a.data as ActivityEvent[]) ?? []);
-      setContacts((c.data as LeadContact[]) ?? []);
-      setSurvey((s.data as SurveyResponse | null) ?? null);
-    })();
-  }, [lead.id]);
+    setNotes(initialNotes);
+  }, [initialNotes]);
+
+  useEffect(() => {
+    setContacts(initialContacts);
+  }, [initialContacts]);
 
   const tel = lead.telefono ?? firstPhone(lead.telefoni);
   const emailToUse = lead.email || lead.email_info;
@@ -123,13 +124,7 @@ export function LeadProfileV2({
       }
       if (res.count === 0) toast.info("Nessun titolare trovato");
       else toast.success(`${res.count} titolari trovati`);
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("lead_contacts")
-        .select("*")
-        .eq("lead_id", lead.id)
-        .order("created_at", { ascending: true });
-      setContacts((data as LeadContact[]) ?? []);
+      router.refresh();
     });
   }
 
@@ -163,13 +158,17 @@ export function LeadProfileV2({
       }
       toast.success("Nota aggiunta");
       setNoteBody("");
-      const supabase = createClient();
-      const { data } = await supabase
-        .from("notes")
-        .select("*")
-        .eq("lead_id", lead.id)
-        .order("created_at", { ascending: false });
-      setNotes((data as Note[]) ?? []);
+      // ottimistic: aggiungi subito in cima con id temporaneo
+      const optimistic: Note = {
+        id: `tmp-${Date.now()}`,
+        lead_id: lead.id,
+        body,
+        author_id: null,
+        created_at: new Date().toISOString(),
+      } as Note;
+      setNotes((prev) => [optimistic, ...prev]);
+      // e refresh server per avere id vero
+      router.refresh();
     });
   }
 
