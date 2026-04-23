@@ -22,12 +22,16 @@ export default async function NetworkProtectedLayout({
   }
 
   const supabase = await createClient();
-  // Conta solo delibere pertinenti per reseller energia (suffisso eel/gas/com).
-  // numero_suffix è una generated column = 4° segmento del numero ARERA.
-  const { count: delibereCount } = await supabase
-    .from("delibere_cache")
-    .select("*", { count: "exact", head: true })
-    .in("numero_suffix", ["eel", "gas", "com"]);
+  const [delibereRes, testiRes] = await Promise.all([
+    supabase
+      .from("delibere_cache")
+      .select("*", { count: "exact", head: true })
+      .in("numero_suffix", ["eel", "gas", "com"]),
+    supabase
+      .from("testi_integrati_cache")
+      .select("*", { count: "exact", head: true })
+      .in("codice_suffix", ["eel", "gas", "com"]),
+  ]);
 
   const now = Date.now();
   const scadenzeCount = DELIBERE_DEADLINES.filter(
@@ -42,7 +46,8 @@ export default async function NetworkProtectedLayout({
           ragione_sociale: member.ragione_sociale,
         }}
         counts={{
-          delibere: delibereCount ?? 0,
+          delibere: delibereRes.count ?? 0,
+          testiIntegrati: testiRes.count ?? 0,
           scadenze: scadenzeCount,
         }}
       />

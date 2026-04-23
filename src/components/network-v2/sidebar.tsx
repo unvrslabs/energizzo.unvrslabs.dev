@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   Bell,
+  BookOpen,
   CalendarClock,
   FileText,
   LayoutDashboard,
@@ -22,7 +23,7 @@ type NavItem = {
   badge?: string;
 };
 
-function buildSections(counts: { delibere: number; scadenze: number }) {
+function buildSections(counts: { delibere: number; testiIntegrati: number; scadenze: number }) {
   const sections: { title: string; items: NavItem[] }[] = [
     {
       title: "Overview",
@@ -38,6 +39,12 @@ function buildSections(counts: { delibere: number; scadenze: number }) {
           label: "Delibere ARERA",
           icon: FileText,
           badge: counts.delibere > 0 ? String(counts.delibere) : undefined,
+        },
+        {
+          href: "/network/testi-integrati",
+          label: "Testi Integrati",
+          icon: BookOpen,
+          badge: counts.testiIntegrati > 0 ? String(counts.testiIntegrati) : undefined,
         },
         {
           href: "/network/scadenze",
@@ -81,7 +88,7 @@ export function V2Sidebar({
   counts,
 }: {
   member: { referente: string; ragione_sociale: string };
-  counts: { delibere: number; scadenze: number };
+  counts: { delibere: number; testiIntegrati: number; scadenze: number };
 }) {
   const pathname = usePathname() ?? "";
   const [now, setNow] = useState<string>(() => formatClock(new Date()));
