@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { Flame, Zap } from "lucide-react";
 
 const TABS = [
-  { href: "/network/mercato/elettrico", label: "Elettrico", Icon: Zap, status: "live" as const },
-  { href: "/network/mercato/gas", label: "Gas", Icon: Flame, status: "live" as const },
+  { href: "/network/mercato/elettrico", label: "Elettrico", Icon: Zap },
+  { href: "/network/mercato/gas", label: "Gas", Icon: Flame },
 ];
 
 export function MercatoTabs() {
@@ -31,18 +31,6 @@ export function MercatoTabs() {
           >
             <t.Icon className="w-3.5 h-3.5" />
             {t.label}
-            {t.status === "coming" && (
-              <span
-                className="v2-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-                style={{
-                  color: "hsl(var(--v2-warn))",
-                  background: "hsl(var(--v2-warn) / 0.1)",
-                  border: "1px solid hsl(var(--v2-warn) / 0.28)",
-                }}
-              >
-                in arrivo
-              </span>
-            )}
           </Link>
         );
       })}
