@@ -66,10 +66,7 @@ export function V2Sidebar({
     <aside className="v2-sidebar">
       <Link href="/network" className="v2-brand">
         <span className="v2-brand-mark">D</span>
-        <span>
-          <span className="block v2-brand-name">Il Dispaccio</span>
-          <span className="v2-brand-tag">Terminal · v2</span>
-        </span>
+        <span className="v2-brand-name">Il Dispaccio</span>
       </Link>
 
       <nav className="flex flex-col gap-0.5">

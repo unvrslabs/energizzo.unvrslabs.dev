@@ -13,8 +13,6 @@ export function V2Topbar() {
 
   return (
     <div className="v2-topbar">
-      <MarketStatus />
-
       <div className="relative ml-auto w-full max-w-sm hidden md:block">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
         <input
@@ -51,17 +49,6 @@ export function V2Topbar() {
       >
         <Bell className="w-4 h-4" />
       </button>
-    </div>
-  );
-}
-
-function MarketStatus() {
-  return (
-    <div className="hidden md:flex items-center gap-2">
-      <span className="v2-status-dot" />
-      <span className="text-[11.5px] font-medium" style={{ color: "hsl(var(--v2-text-dim))" }}>
-        Sessione operativa
-      </span>
     </div>
   );
 }

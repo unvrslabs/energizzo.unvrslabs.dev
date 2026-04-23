@@ -274,7 +274,6 @@ function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string })
       <span className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
         {label}
       </span>
-      <span className="flex-1 h-px" style={{ background: "hsl(var(--v2-border))" }} />
     </div>
   );
 }
