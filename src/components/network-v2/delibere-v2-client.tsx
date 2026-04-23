@@ -134,8 +134,9 @@ export function DelibereV2Client({
     );
   }
 
-  // Lista compatta: toolbar ~82px + 10 righe × ~56px = ~642px
-  const listMaxHeight = "calc(82px + 10 * 56px)";
+  // Lista compatta: toolbar ~84px + 7 righe visibili × ~115px = ~890px
+  // (ogni row ha code/data + 2 linee titolo + chip settore/AI = ~115px)
+  const listMaxHeight = "calc(84px + 7 * 115px)";
 
   return (
     <div
