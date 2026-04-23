@@ -487,6 +487,24 @@ function PostRow({
           {meta.emoji} {meta.label}
         </span>
         <span style={statusChipStyle(post.status)}>{post.status}</span>
+        {post.generated_by === "auto" && (
+          <span
+            title="Generato automaticamente dal cron mattutino"
+            style={{
+              fontSize: 10,
+              padding: "2px 7px",
+              borderRadius: 5,
+              background: "hsl(var(--v2-accent) / 0.12)",
+              color: "hsl(var(--v2-accent))",
+              border: "1px solid hsl(var(--v2-accent) / 0.3)",
+              fontWeight: 700,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
+            🤖 auto
+          </span>
+        )}
         <span
           className="v2-mono"
           style={{

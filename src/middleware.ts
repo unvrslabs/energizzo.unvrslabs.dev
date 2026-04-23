@@ -21,7 +21,8 @@ function isPublicRoute(pathname: string): boolean {
     pathname.startsWith("/api/podcast-invite") ||
     pathname.startsWith("/api/network-join") ||
     pathname === "/network/login" ||
-    pathname.startsWith("/api/network/")
+    pathname.startsWith("/api/network/") ||
+    pathname.startsWith("/api/cron/")
   );
 }
 

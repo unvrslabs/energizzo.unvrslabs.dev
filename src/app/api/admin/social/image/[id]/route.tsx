@@ -12,314 +12,506 @@ const DIMENSIONS: Record<Format, { width: number; height: number }> = {
   landscape: { width: 1600, height: 900 },
 };
 
-const BG_GRADIENT =
-  "radial-gradient(ellipse at 20% 20%, #0e3d2d 0%, #061a17 55%, #020a0a 100%)";
+// ─── PALETTE + ELEMENTI COMUNI ──────────────────────────────
+const BG_BASE = "#061a17";
+const BG_GRADIENT = `
+  radial-gradient(ellipse 80% 60% at 25% 20%, #0e4a35 0%, #061a17 55%, #020a0a 100%),
+  linear-gradient(180deg, #061a17 0%, #020a08 100%)
+`;
 const ACCENT = "#4fd1a1";
+const ACCENT_DIM = "#2a8567";
 const TEXT = "#f4fcf8";
-const MUTE = "#6b9b8a";
-const DIM = "#9fc4b5";
+const MUTE = "#7fa898";
+const DIM = "#b6dacc";
+const WARN = "#ff9f5a";
+const DANGER = "#ff6b6b";
 
-function siteKicker(width: number) {
+// ─── HELPERS UI ──────────────────────────────────────────────
+
+function cornerBadge(label: string, kind: "info" | "warn" | "danger" = "info") {
+  const color = kind === "warn" ? WARN : kind === "danger" ? DANGER : ACCENT;
   return (
     <div
       style={{
-        display: "flex",
+        display: "inline-flex",
         alignItems: "center",
-        gap: width > 1100 ? "14px" : "10px",
-        fontSize: width > 1100 ? "18px" : "14px",
-        letterSpacing: "0.22em",
+        gap: 10,
+        padding: "8px 16px",
+        borderRadius: 999,
+        background: `${color}22`,
+        border: `1px solid ${color}55`,
+        fontSize: 22,
+        letterSpacing: "0.18em",
         textTransform: "uppercase",
-        color: ACCENT,
-        fontWeight: 700,
+        color,
+        fontWeight: 800,
       }}
     >
       <div
         style={{
-          width: "10px",
-          height: "10px",
+          width: 10,
+          height: 10,
           borderRadius: "50%",
-          background: ACCENT,
-          boxShadow: `0 0 16px ${ACCENT}`,
+          background: color,
+          boxShadow: `0 0 12px ${color}`,
         }}
       />
-      IL DISPACCIO
+      {label}
     </div>
   );
 }
 
-function footerMeta(text: string, width: number) {
+function brandFooter(extra?: string) {
   return (
     <div
       style={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        fontSize: width > 1100 ? "15px" : "12px",
+        fontSize: 20,
         letterSpacing: "0.18em",
         textTransform: "uppercase",
         color: MUTE,
-        fontWeight: 600,
+        fontWeight: 700,
       }}
     >
-      <span>{text}</span>
-      <span>ildispaccio.energy</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: ACCENT,
+            boxShadow: `0 0 8px ${ACCENT}`,
+          }}
+        />
+        IL DISPACCIO
+      </div>
+      {extra ? <span>{extra}</span> : null}
     </div>
   );
 }
+
+function gridPattern() {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        backgroundImage: `
+          linear-gradient(${ACCENT}08 1px, transparent 1px),
+          linear-gradient(90deg, ${ACCENT}08 1px, transparent 1px)
+        `,
+        backgroundSize: "80px 80px",
+        opacity: 0.6,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+function frameShell(children: React.ReactNode) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: 64,
+        background: BG_GRADIENT,
+        backgroundColor: BG_BASE,
+        fontFamily: "system-ui",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {gridPattern()}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, ${ACCENT} 0%, transparent 60%)`,
+        }}
+      />
+      {children}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// QUOTE CARD (delibere / educational / libero)
+// ═══════════════════════════════════════════════════════════════════
 
 function QuoteCard({
   data,
   width,
-  height,
 }: {
   data: Record<string, unknown>;
   width: number;
-  height: number;
 }) {
-  const titolo = String(data.titolo ?? "");
+  const kicker = String(data.kicker ?? data.footer ?? "DELIBERA · ANALISI");
+  const numero = String(data.numero ?? "");
+  const titolo = String(data.titolo ?? "Il settore che cambia.");
   const sottotitolo = String(data.sottotitolo ?? "");
-  const numero = String(data.numero ?? data.numero_delibera ?? "");
-  const footer = String(data.footer ?? numero ?? "Delibera · analisi AI");
-  const bigFont = width > 1100 ? 56 : 36;
+  const scale = width > 1100 ? 1 : 0.7;
 
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: width > 1100 ? "72px" : "48px",
-        background: BG_GRADIENT,
-        fontFamily: "system-ui",
-      }}
-    >
-      {siteKicker(width)}
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {numero ? (
+  return frameShell(
+    <>
+      {/* TOP: badge + numero grande */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+        {cornerBadge(kicker)}
+
+        {numero && (
           <div
             style={{
-              fontSize: width > 1100 ? "20px" : "14px",
-              letterSpacing: "0.22em",
-              textTransform: "uppercase",
+              display: "flex",
+              fontSize: 96 * scale,
+              fontWeight: 900,
+              letterSpacing: "-0.04em",
               color: ACCENT,
-              fontWeight: 600,
+              lineHeight: 1,
+              fontFamily: "system-ui",
             }}
           >
             {numero}
           </div>
-        ) : null}
+        )}
+      </div>
+
+      {/* MIDDLE: titolo HUGE */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+        }}
+      >
         <div
           style={{
-            fontSize: `${bigFont}px`,
-            fontWeight: 800,
-            letterSpacing: "-0.02em",
-            lineHeight: 1.12,
+            width: 64,
+            height: 4,
+            background: ACCENT,
+            borderRadius: 2,
+          }}
+        />
+        <div
+          style={{
+            fontSize: 92 * scale,
+            fontWeight: 900,
+            letterSpacing: "-0.035em",
+            lineHeight: 1.02,
             color: TEXT,
             display: "flex",
+            maxWidth: "92%",
           }}
         >
-          {titolo || "Analisi regolatoria"}
+          {titolo}
         </div>
-        {sottotitolo ? (
+        {sottotitolo && (
           <div
             style={{
-              fontSize: width > 1100 ? "26px" : "18px",
+              fontSize: 28 * scale,
               color: DIM,
-              lineHeight: 1.4,
+              lineHeight: 1.35,
               display: "flex",
-              maxWidth: "90%",
+              maxWidth: "88%",
+              marginTop: 4,
             }}
           >
             {sottotitolo}
           </div>
-        ) : null}
+        )}
       </div>
-      {footerMeta(footer, width)}
-    </div>
+
+      {/* FOOTER */}
+      {brandFooter("NETWORK RESELLER ENERGIA")}
+    </>,
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// DATA CARD (market / PUN / PSV / TTF)
+// ═══════════════════════════════════════════════════════════════════
 
 function DataCard({
   data,
   width,
-  height,
 }: {
   data: Record<string, unknown>;
   width: number;
-  height: number;
 }) {
-  const label = String(data.label ?? data.titolo ?? "PUN");
+  const kicker = String(data.kicker ?? data.label ?? "MERCATO · PUN");
+  const label = String(data.label ?? "PUN");
   const valore = String(data.valore_grande ?? data.valore ?? "—");
+  const unita = String(data.unita ?? "€/MWh");
   const variazione = String(data.variazione ?? "");
   const sottotitolo = String(data.sottotitolo ?? data.periodo ?? "");
-  const footer = String(data.footer ?? "Mercato energia · settimana");
-  const deltaPositive = variazione.trim().startsWith("+");
-  const deltaColor = variazione
-    ? deltaPositive
-      ? "#ff7a7a"
-      : "#4fd1a1"
-    : MUTE;
+  const isPositive = variazione.trim().startsWith("+");
+  const isNegative = variazione.trim().startsWith("-");
+  const deltaColor = isPositive
+    ? DANGER // prezzo sale → rosso per reseller
+    : isNegative
+      ? ACCENT
+      : MUTE;
+  const arrow = isPositive ? "▲" : isNegative ? "▼" : "—";
+  const scale = width > 1100 ? 1 : 0.7;
 
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: width > 1100 ? "72px" : "48px",
-        background: BG_GRADIENT,
-        fontFamily: "system-ui",
-      }}
-    >
-      {siteKicker(width)}
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+  return frameShell(
+    <>
+      {/* TOP */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {cornerBadge(kicker)}
+      </div>
+
+      {/* CENTER: valore HUGE + variazione */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: 16,
+        }}
+      >
         <div
           style={{
-            fontSize: width > 1100 ? "28px" : "20px",
+            fontSize: 36 * scale,
             color: MUTE,
-            letterSpacing: "0.12em",
+            fontFamily: "system-ui",
+            fontWeight: 700,
+            letterSpacing: "0.1em",
             textTransform: "uppercase",
-            fontWeight: 600,
           }}
         >
           {label}
         </div>
+
         <div
           style={{
             display: "flex",
-            alignItems: "flex-end",
-            gap: "32px",
+            alignItems: "baseline",
+            gap: 24,
             flexWrap: "wrap",
           }}
         >
           <div
             style={{
-              fontSize: width > 1100 ? "160px" : "110px",
+              fontSize: 200 * scale,
               fontWeight: 900,
-              letterSpacing: "-0.04em",
-              lineHeight: 1,
+              letterSpacing: "-0.045em",
+              lineHeight: 0.9,
               color: TEXT,
+              display: "flex",
             }}
           >
             {valore}
           </div>
-          {variazione ? (
+          <div
+            style={{
+              fontSize: 48 * scale,
+              color: DIM,
+              fontWeight: 600,
+              display: "flex",
+            }}
+          >
+            {unita}
+          </div>
+        </div>
+
+        {variazione && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              padding: "10px 22px",
+              borderRadius: 999,
+              background: `${deltaColor}18`,
+              border: `1px solid ${deltaColor}66`,
+              marginTop: 8,
+            }}
+          >
+            <div style={{ fontSize: 32 * scale, color: deltaColor }}>{arrow}</div>
             <div
               style={{
-                fontSize: width > 1100 ? "52px" : "36px",
-                fontWeight: 700,
+                fontSize: 42 * scale,
+                fontWeight: 800,
                 color: deltaColor,
-                marginBottom: width > 1100 ? "16px" : "10px",
+                letterSpacing: "-0.01em",
               }}
             >
               {variazione}
             </div>
-          ) : null}
-        </div>
-        {sottotitolo ? (
+          </div>
+        )}
+
+        {sottotitolo && (
           <div
             style={{
-              fontSize: width > 1100 ? "24px" : "18px",
+              fontSize: 26 * scale,
               color: DIM,
               lineHeight: 1.4,
+              display: "flex",
+              maxWidth: "88%",
+              marginTop: 8,
             }}
           >
             {sottotitolo}
           </div>
-        ) : null}
+        )}
       </div>
-      {footerMeta(footer, width)}
-    </div>
+
+      {brandFooter("MERCATO ENERGIA · LIVE")}
+    </>,
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// SCADENZA CARD
+// ═══════════════════════════════════════════════════════════════════
 
 function ScadenzaCard({
   data,
   width,
-  height,
 }: {
   data: Record<string, unknown>;
   width: number;
-  height: number;
 }) {
+  const kicker = String(data.kicker ?? "SCADENZA · ARERA");
   const data_label = String(data.data ?? data.data_scadenza ?? "—");
+  const dataParts = data_label.split(/[\s\/\-]/).filter(Boolean);
+  const mainDate = dataParts[0] ?? data_label;
+  const restDate = dataParts.slice(1).join(" ");
   const titolo = String(data.titolo ?? data.label ?? "Scadenza regolatoria");
   const sottotitolo = String(data.sottotitolo ?? "");
   const daysLeft = String(data.giorni_mancanti ?? "");
-  const footer = String(data.footer ?? "Scadenza ARERA");
+  const scale = width > 1100 ? 1 : 0.7;
 
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: width > 1100 ? "72px" : "48px",
-        background: BG_GRADIENT,
-        fontFamily: "system-ui",
-      }}
-    >
-      {siteKicker(width)}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+  return frameShell(
+    <>
+      {/* TOP */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        {cornerBadge(kicker, "warn")}
+      </div>
+
+      {/* CENTER: data HUGE + countdown + titolo */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 20,
+        }}
+      >
         <div
           style={{
             display: "flex",
-            gap: "18px",
-            alignItems: "center",
-            fontSize: width > 1100 ? "24px" : "18px",
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            color: "#ff9f5a",
-            fontWeight: 700,
+            alignItems: "baseline",
+            gap: 22,
+            flexWrap: "wrap",
           }}
         >
           <div
             style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              background: "#ff9f5a",
-              boxShadow: "0 0 12px #ff9f5a",
+              fontSize: 220 * scale,
+              fontWeight: 900,
+              letterSpacing: "-0.06em",
+              lineHeight: 0.85,
+              color: WARN,
+              display: "flex",
             }}
-          />
-          SCADENZA · {data_label}
-          {daysLeft ? <span style={{ color: DIM }}>· {daysLeft} giorni</span> : null}
+          >
+            {mainDate}
+          </div>
+          {restDate && (
+            <div
+              style={{
+                fontSize: 56 * scale,
+                fontWeight: 700,
+                color: TEXT,
+                letterSpacing: "-0.02em",
+                textTransform: "uppercase",
+                display: "flex",
+              }}
+            >
+              {restDate}
+            </div>
+          )}
         </div>
+
+        {daysLeft && (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 12,
+              padding: "12px 22px",
+              borderRadius: 999,
+              background: `${WARN}18`,
+              border: `1px solid ${WARN}66`,
+              fontSize: 28 * scale,
+              fontWeight: 800,
+              color: WARN,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              alignSelf: "flex-start",
+            }}
+          >
+            ⏳ Mancano {daysLeft} giorni
+          </div>
+        )}
+
         <div
           style={{
-            fontSize: width > 1100 ? "64px" : "42px",
+            width: 64,
+            height: 4,
+            background: WARN,
+            borderRadius: 2,
+            marginTop: 8,
+          }}
+        />
+
+        <div
+          style={{
+            fontSize: 62 * scale,
             fontWeight: 800,
-            letterSpacing: "-0.02em",
-            lineHeight: 1.1,
+            lineHeight: 1.05,
             color: TEXT,
+            letterSpacing: "-0.02em",
             display: "flex",
+            maxWidth: "92%",
           }}
         >
           {titolo}
         </div>
-        {sottotitolo ? (
+
+        {sottotitolo && (
           <div
             style={{
-              fontSize: width > 1100 ? "24px" : "18px",
+              fontSize: 26 * scale,
               color: DIM,
               lineHeight: 1.4,
               display: "flex",
+              maxWidth: "88%",
             }}
           >
             {sottotitolo}
           </div>
-        ) : null}
+        )}
       </div>
-      {footerMeta(footer, width)}
-    </div>
+
+      {brandFooter("REGOLAZIONE ARERA")}
+    </>,
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// ROUTE HANDLER
+// ═══════════════════════════════════════════════════════════════════
 
 export async function GET(
   req: Request,
@@ -346,17 +538,17 @@ export async function GET(
   const template = (post.image_template as string | null) ?? "quote_card";
   const data = (post.image_data as Record<string, unknown>) ?? {};
 
-  let element: JSX.Element;
+  let element: React.ReactElement;
   switch (template) {
     case "data_card":
-      element = <DataCard data={data} width={dims.width} height={dims.height} />;
+      element = <DataCard data={data} width={dims.width} />;
       break;
     case "scadenza_card":
-      element = <ScadenzaCard data={data} width={dims.width} height={dims.height} />;
+      element = <ScadenzaCard data={data} width={dims.width} />;
       break;
     case "quote_card":
     default:
-      element = <QuoteCard data={data} width={dims.width} height={dims.height} />;
+      element = <QuoteCard data={data} width={dims.width} />;
   }
 
   return new ImageResponse(element, {

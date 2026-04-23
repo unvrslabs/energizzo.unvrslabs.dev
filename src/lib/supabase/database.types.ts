@@ -1251,6 +1251,7 @@ export type Database = {
           fonte_id: string | null
           fonte_kind: string | null
           fonte_meta: Json
+          generated_by: string
           hashtags: string[]
           hook: string | null
           id: string
@@ -1277,6 +1278,7 @@ export type Database = {
           fonte_id?: string | null
           fonte_kind?: string | null
           fonte_meta?: Json
+          generated_by?: string
           hashtags?: string[]
           hook?: string | null
           id?: string
@@ -1303,6 +1305,7 @@ export type Database = {
           fonte_id?: string | null
           fonte_kind?: string | null
           fonte_meta?: Json
+          generated_by?: string
           hashtags?: string[]
           hook?: string | null
           id?: string
