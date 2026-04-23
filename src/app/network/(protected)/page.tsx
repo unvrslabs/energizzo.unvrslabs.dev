@@ -13,7 +13,9 @@ import { SAVED_DELIBERE_MOCK } from "@/lib/delibere/mock";
 import { listDelibere } from "@/lib/delibere/db";
 import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { listScadenzeFuture } from "@/lib/delibere/scadenze";
+import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
+import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { getNetworkMember } from "@/lib/network/session";
 
 export const dynamic = "force-dynamic";
@@ -46,10 +48,12 @@ function greeting(): string {
 }
 
 export default async function V2HomePage() {
-  const [member, allDelibere, allScadenze] = await Promise.all([
+  const [member, allDelibere, allScadenze, gasLatest, gasHistory] = await Promise.all([
     getNetworkMember(),
     listDelibere({ limit: 200 }),
     listScadenzeFuture(),
+    getLatestGasStorage(),
+    listGasStorageHistory(60),
   ]);
   const firstName = (member?.referente ?? "").split(" ")[0] || "operatore";
 
@@ -202,35 +206,8 @@ export default async function V2HomePage() {
           </ul>
         </div>
 
-        {/* Price Engine preview — 6 */}
-        <div className="v2-card v2-col-6">
-          <div className="v2-card-head flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-info))" }} />
-              <span className="v2-card-title">Price Engine · preview</span>
-            </div>
-            <span className="v2-card-kicker">beta</span>
-          </div>
-          <div className="p-4">
-            <div className="flex items-baseline gap-3 mb-3">
-              <span className="v2-mono text-[36px] font-bold leading-none" style={{ color: "hsl(var(--v2-text))" }}>
-                0,1124
-              </span>
-              <span className="text-xs" style={{ color: "hsl(var(--v2-text-mute))" }}>€/kWh · indicativo cliente BT domestico</span>
-            </div>
-            <MiniSpark />
-            <p className="text-[12.5px] leading-relaxed mt-3" style={{ color: "hsl(var(--v2-text-dim))" }}>
-              Il motore calcola prezzo finale cliente includendo spot + oneri + accise + spread commerciale. Configura scenari cliente per confronto pre/post delibera.
-            </p>
-            <div className="flex items-center gap-2 mt-4">
-              <Link href="/network/price-engine" className="v2-btn v2-btn--primary">
-                Apri motore
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-              <button type="button" className="v2-btn">Scarica template</button>
-            </div>
-          </div>
-        </div>
+        {/* Gas storage AGSI — 6 */}
+        <GasStorageCard latest={gasLatest} history={gasHistory} />
 
         {/* Latest podcast — 6 */}
         <div className="v2-card v2-col-6">
