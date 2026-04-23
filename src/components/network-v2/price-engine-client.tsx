@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AlertTriangle, Zap, Flame, Info } from "lucide-react";
+import { AlertTriangle, Zap, Flame } from "lucide-react";
 import {
   LUCE_TIPOLOGIE,
   LUCE_GROUPS_ORDER,
   LUCE_COMPONENTI_GROUPS,
+  formatCompetenzaFatturazione,
   formatPeriodoKey,
+  fatturazioneForCompetenza,
   formatOnere,
   type Commodity,
 } from "@/lib/oneri/meta";
@@ -24,13 +26,11 @@ export function PriceEngineClient({
   periods,
   selectedPeriodKey,
   data,
-  isFallback,
 }: {
   commodity: Commodity;
   periods: PeriodOption[];
   selectedPeriodKey: string | null;
   data: Record<string, Record<string, unknown>> | null;
-  isFallback: boolean;
 }) {
   const router = useRouter();
   const sp = useSearchParams();
@@ -106,39 +106,23 @@ export function PriceEngineClient({
             className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]"
             style={{ color: "hsl(var(--v2-text-mute))" }}
           >
-            Mese
+            Competenza
           </span>
           <select
             value={selectedPeriodKey ?? ""}
             onChange={(e) => setPeriodo(e.target.value)}
             disabled={periods.length === 0}
             className="v2-input"
-            style={{ minWidth: 180, padding: "7px 10px", fontSize: 13 }}
+            style={{ minWidth: 280, padding: "7px 10px", fontSize: 13 }}
           >
             {periods.length === 0 && <option value="">Nessun periodo disponibile</option>}
             {periods.map((p) => (
               <option key={p.key} value={p.key}>
-                {formatPeriodoKey(p.key)}
-                {p.fallback ? " (ultimo disp.)" : ""}
+                {formatCompetenzaFatturazione(p.key)}
               </option>
             ))}
           </select>
         </div>
-
-        {/* Fallback badge */}
-        {isFallback && (
-          <span
-            className="v2-mono inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] px-2 py-1 rounded ml-auto"
-            style={{
-              color: "hsl(var(--v2-warn))",
-              background: "hsl(var(--v2-warn) / 0.08)",
-              border: "1px solid hsl(var(--v2-warn) / 0.22)",
-            }}
-          >
-            <Info className="w-3 h-3" />
-            Dati non ancora aggiornati per questo mese — mostrati i più recenti
-          </span>
-        )}
       </div>
 
       {/* Body */}
@@ -147,25 +131,38 @@ export function PriceEngineClient({
       ) : (
         <div className="flex flex-col gap-5">
           {/* Period label + info */}
-          {selectedPeriod && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span
-                className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]"
-                style={{ color: "hsl(var(--v2-text-mute))" }}
-              >
-                Periodo
-              </span>
-              <span
-                className="text-[14px] font-semibold"
-                style={{ color: "hsl(var(--v2-text))" }}
-              >
-                {formatRange(selectedPeriod.da, selectedPeriod.a)}
-              </span>
+          {selectedPeriod && selectedPeriodKey && (
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span
+                  className="v2-mono text-[10px] font-semibold uppercase tracking-[0.18em] px-2 py-1 rounded"
+                  style={{
+                    color: "hsl(var(--v2-accent))",
+                    background: "hsl(var(--v2-accent) / 0.1)",
+                    border: "1px solid hsl(var(--v2-accent) / 0.28)",
+                  }}
+                >
+                  Competenza {formatPeriodoKey(selectedPeriodKey)}
+                </span>
+                <span className="v2-mono text-[10px]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                  →
+                </span>
+                <span
+                  className="v2-mono text-[10px] font-semibold uppercase tracking-[0.18em] px-2 py-1 rounded"
+                  style={{
+                    color: "hsl(var(--v2-text))",
+                    background: "hsl(var(--v2-bg-elev))",
+                    border: "1px solid hsl(var(--v2-border))",
+                  }}
+                >
+                  Fatturazione {formatPeriodoKey(fatturazioneForCompetenza(selectedPeriodKey))}
+                </span>
+              </div>
               <span
                 className="v2-mono text-[10.5px]"
                 style={{ color: "hsl(var(--v2-text-mute))" }}
               >
-                · {Object.keys(data).length} tipologie · fonte ARERA
+                Periodo {formatRange(selectedPeriod.da, selectedPeriod.a)} · {Object.keys(data).length} tipologie · fonte ARERA
               </span>
             </div>
           )}

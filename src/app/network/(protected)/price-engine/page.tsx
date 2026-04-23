@@ -4,7 +4,7 @@ import {
   getOneriByPeriod,
   getLatestOneri,
 } from "@/lib/oneri/db";
-import { currentMonthKey, type Commodity } from "@/lib/oneri/meta";
+import type { Commodity } from "@/lib/oneri/meta";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -22,10 +22,12 @@ export default async function PriceEnginePage({
   const commodity: Commodity = sp.commodity === "gas" ? "gas" : "luce";
   const periods: PeriodOption[] = await listAvailablePeriods(commodity);
 
-  const requested = sp.mese ?? currentMonthKey();
+  // Default: il periodo più recente disponibile. Nel dominio ARERA il "mese
+  // corrente" è ambiguo: ad aprile si fattura competenza marzo, quindi il
+  // dato marzo è quello operativo. Lasciamo all'utente la scelta esplicita.
+  const requested = sp.mese;
   const hasRequested = periods.find((p) => p.key === requested);
-  const selectedKey =
-    hasRequested?.key ?? periods[0]?.key ?? null;
+  const selectedKey = hasRequested?.key ?? periods[0]?.key ?? null;
 
   let row = null;
   if (selectedKey) {
@@ -34,11 +36,6 @@ export default async function PriceEnginePage({
   if (!row) {
     row = await getLatestOneri(commodity);
   }
-
-  const isFallback =
-    !!row &&
-    (row.fallback_period ||
-      (sp.mese ? sp.mese !== row.periodo_key : row.periodo_key !== currentMonthKey()));
 
   return (
     <div className="flex flex-col gap-4">
@@ -57,7 +54,7 @@ export default async function PriceEnginePage({
             Price Engine · oneri ARERA vigenti
           </h1>
           <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            Componenti tariffarie ufficiali per tipologia cliente · aggiornamento mensile da ARERA
+            Componenti tariffarie ufficiali per tipologia cliente · il mese di competenza è quello che si usa nelle fatture del mese successivo
           </p>
         </div>
       </header>
@@ -66,7 +63,6 @@ export default async function PriceEnginePage({
         periods={periods}
         selectedPeriodKey={row?.periodo_key ?? null}
         data={(row?.data as Record<string, Record<string, unknown>>) ?? null}
-        isFallback={isFallback}
       />
     </div>
   );

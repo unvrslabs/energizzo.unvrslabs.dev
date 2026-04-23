@@ -108,6 +108,27 @@ export function currentMonthKey(): string {
 }
 
 /**
+ * Dato un mese di competenza "YYYY-MM", ritorna il mese di fatturazione
+ * (competenza+1) nello stesso formato.
+ * Es.: "2026-03" (competenza marzo) → "2026-04" (fattura aprile)
+ */
+export function fatturazioneForCompetenza(key: string): string {
+  const [y, m] = key.split("-").map(Number);
+  if (!y || !m) return key;
+  const d = new Date(Date.UTC(y, m, 1)); // m è già m+1 perché Date usa 0-based
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+/**
+ * Label esplicita: "Competenza marzo 2026 · fattura aprile 2026"
+ */
+export function formatCompetenzaFatturazione(key: string): string {
+  const comp = formatPeriodoKey(key);
+  const fatt = formatPeriodoKey(fatturazioneForCompetenza(key));
+  return `Competenza ${comp} · fattura ${fatt}`;
+}
+
+/**
  * Formatta un valore stringa (es "0.028657") in una cifra leggibile.
  * Gli oneri hanno 6 decimali, mostriamo 4-6 in base alla magnitudo.
  */
