@@ -107,6 +107,11 @@ function dbToView(
     stato: d.stato,
     url: d.url_riferimento,
     attachments,
+    summary: d.ai_summary,
+    bullets: d.ai_bullets,
+    hasSummary: !!d.ai_generated_at && !!d.ai_summary,
+    aiSource: d.ai_source === "pdf" || d.ai_source === "metadata" ? d.ai_source : null,
+    aiError: d.ai_error,
   };
 }
 

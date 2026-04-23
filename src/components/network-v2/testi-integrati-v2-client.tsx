@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowRight,
   ArrowUpRight,
   Bookmark,
@@ -12,7 +13,9 @@ import {
   FileCode,
   FileSpreadsheet,
   FileText,
+  Loader2,
   Search,
+  Sparkles,
   X,
 } from "lucide-react";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
@@ -47,6 +50,11 @@ export type TestoIntegratoView = {
   stato: string | null;
   url: string | null;
   attachments: TiAttachment[];
+  summary: string | null;
+  bullets: string[] | null;
+  hasSummary: boolean;
+  aiSource: "pdf" | "metadata" | null;
+  aiError: string | null;
 };
 
 type SectorFilter = "all" | "eel" | "gas";
@@ -94,19 +102,24 @@ export function TestiIntegratiV2Client({
   testi: TestoIntegratoView[];
   initialCode?: string;
 }) {
+  const [items, setItems] = useState<TestoIntegratoView[]>(testi);
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState<SectorFilter>("all");
   const [selectedCode, setSelectedCode] = useState<string>(
-    testi.length > 0
-      ? initialCode && testi.find((t) => t.codice === initialCode)
+    items.length > 0
+      ? initialCode && items.find((t) => t.codice === initialCode)
         ? initialCode
-        : testi[0].codice
+        : items[0].codice
       : "",
   );
 
+  function handleSummaryUpdated(updated: TestoIntegratoView) {
+    setItems((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+  }
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return testi.filter((t) => {
+    return items.filter((t) => {
       if (!matchesSectorFilter(t.sectors, sector)) return false;
       if (q) {
         const hay = [t.titolo, t.codice, t.descrizione ?? ""].join(" ").toLowerCase();
@@ -114,13 +127,13 @@ export function TestiIntegratiV2Client({
       }
       return true;
     });
-  }, [testi, query, sector]);
+  }, [items, query, sector]);
 
-  const selected = filtered.find((t) => t.codice === selectedCode) ?? filtered[0] ?? testi[0];
+  const selected = filtered.find((t) => t.codice === selectedCode) ?? filtered[0] ?? items[0];
 
   const listMaxHeight = "calc(100vh - 160px)";
 
-  if (testi.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="v2-card p-10 text-center">
         <p className="text-sm" style={{ color: "hsl(var(--v2-text-dim))" }}>
@@ -171,8 +184,8 @@ export function TestiIntegratiV2Client({
               const label = s === "all" ? "Tutti" : s === "eel" ? "Energia" : "Gas";
               const count =
                 s === "all"
-                  ? testi.length
-                  : testi.filter((t) => matchesSectorFilter(t.sectors, s)).length;
+                  ? items.length
+                  : items.filter((t) => matchesSectorFilter(t.sectors, s)).length;
               return (
                 <button
                   key={s}
@@ -243,13 +256,47 @@ export function TestiIntegratiV2Client({
 
       {/* DETAIL */}
       <div className="overflow-y-auto min-h-0" style={{ maxHeight: listMaxHeight }}>
-        {selected && <DetailPanel t={selected} />}
+        {selected && (
+          <DetailPanel t={selected} onSummaryUpdated={handleSummaryUpdated} />
+        )}
       </div>
     </div>
   );
 }
 
-function DetailPanel({ t }: { t: TestoIntegratoView }) {
+function DetailPanel({
+  t,
+  onSummaryUpdated,
+}: {
+  t: TestoIntegratoView;
+  onSummaryUpdated: (updated: TestoIntegratoView) => void;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  function requestSummary() {
+    setErrMsg(null);
+    startTransition(async () => {
+      try {
+        const res = await fetch(`/api/testi-integrati/${t.id}/summarize`, {
+          method: "POST",
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error ?? "errore");
+        onSummaryUpdated({
+          ...t,
+          summary: data.result.summary,
+          bullets: data.result.bullets,
+          hasSummary: true,
+          aiSource: data.result.source,
+          aiError: null,
+        });
+      } catch (err) {
+        setErrMsg(err instanceof Error ? err.message : "errore imprevisto");
+      }
+    });
+  }
+
   return (
     <article className="p-6 md:p-8 flex flex-col gap-5">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -280,11 +327,102 @@ function DetailPanel({ t }: { t: TestoIntegratoView }) {
         {t.titolo}
       </h2>
 
-      {t.descrizione && (
+      {t.descrizione && t.descrizione !== t.titolo && (
         <p className="text-[14px] leading-relaxed" style={{ color: "hsl(var(--v2-text-dim))" }}>
           {t.descrizione}
         </p>
       )}
+
+      {t.hasSummary && t.summary && (
+        <p className="text-[14px] leading-relaxed" style={{ color: "hsl(var(--v2-text-dim))" }}>
+          {t.summary}
+        </p>
+      )}
+
+      <div className="v2-card p-4">
+        {t.hasSummary && t.bullets && t.bullets.length > 0 ? (
+          <>
+            <div
+              className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.18em] mb-3 flex items-center gap-2"
+              style={{ color: "hsl(var(--v2-accent))" }}
+            >
+              <Sparkles className="w-3 h-3" />
+              Key take · {t.bullets.length} punti
+              {t.aiSource === "pdf" && (
+                <span className="ml-auto text-[9.5px] opacity-70">da PDF</span>
+              )}
+              {t.aiSource === "metadata" && (
+                <span className="ml-auto text-[9.5px] opacity-70">da metadati</span>
+              )}
+            </div>
+            <ul className="space-y-2.5">
+              {t.bullets.map((b, i) => (
+                <li
+                  key={i}
+                  className="flex gap-3 text-[13.5px] leading-relaxed"
+                  style={{ color: "hsl(var(--v2-text))" }}
+                >
+                  <span
+                    className="v2-mono text-[11px] font-bold shrink-0 w-5"
+                    style={{ color: "hsl(var(--v2-accent))" }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <div className="flex flex-col items-center text-center gap-3 py-4">
+            <div
+              className="inline-flex items-center justify-center w-11 h-11 rounded-xl"
+              style={{
+                background: "hsl(var(--v2-accent) / 0.12)",
+                border: "1px solid hsl(var(--v2-accent) / 0.28)",
+                color: "hsl(var(--v2-accent))",
+              }}
+            >
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold" style={{ color: "hsl(var(--v2-text))" }}>
+                Analisi AI non ancora generata
+              </p>
+              <p className="text-[12.5px] mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                L&apos;agente AI può analizzare il testo integrato e produrre 4 punti chiave operativi.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={requestSummary}
+              disabled={isPending}
+              className="v2-btn v2-btn--primary"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Analisi in corso…
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Genera sommario AI
+                </>
+              )}
+            </button>
+            {(errMsg || t.aiError) && (
+              <p
+                className="text-[11.5px] mt-1 inline-flex items-center gap-1.5"
+                style={{ color: "hsl(0 72% 62%)" }}
+              >
+                <AlertTriangle className="w-3 h-3" />
+                {errMsg ?? t.aiError}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
       {t.deliberaRef && <DeliberaRefCard dref={t.deliberaRef} />}
 
@@ -364,19 +502,6 @@ function DeliberaRefCard({ dref }: { dref: DeliberaRefView }) {
             style={{ color: "hsl(var(--v2-text))" }}
           >
             {dref.codice}
-            {!dref.internalHref && (
-              <span
-                className="v2-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-                style={{
-                  color: "hsl(var(--v2-warn))",
-                  background: "hsl(var(--v2-warn) / 0.08)",
-                  border: "1px solid hsl(var(--v2-warn) / 0.22)",
-                }}
-                title="Delibera non presente nell'archivio interno"
-              >
-                ext
-              </span>
-            )}
           </div>
           {dref.titolo && (
             <p
@@ -446,21 +571,9 @@ function DeliberaRefCard({ dref }: { dref: DeliberaRefView }) {
               Pubblicata {fmtFull(dref.dataPubblicazione)}
             </span>
           )}
-          {!dref.internalHref && (
-            <span
-              className="v2-mono text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-              style={{
-                color: "hsl(var(--v2-warn))",
-                background: "hsl(var(--v2-warn) / 0.08)",
-                border: "1px solid hsl(var(--v2-warn) / 0.22)",
-              }}
-            >
-              Non indicizzata
-            </span>
-          )}
         </div>
         <p className="text-[12.5px] leading-relaxed" style={{ color: "hsl(var(--v2-text))" }}>
-          {dref.titolo ?? "Delibera non presente nell'archivio — apribile su ARERA."}
+          {dref.titolo ?? "Questa delibera è più vecchia e non è nel nostro archivio. Clicca per aprirla su ARERA."}
         </p>
       </div>
     </div>

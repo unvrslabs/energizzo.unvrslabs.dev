@@ -20,6 +20,12 @@ export type DbTestoIntegrato = {
   api_updated_at: string | null;
   scraped_data_pubblicazione: string | null;
   scraped_at: string | null;
+  ai_summary: string | null;
+  ai_bullets: string[] | null;
+  ai_generated_at: string | null;
+  ai_model: string | null;
+  ai_source: string | null;
+  ai_error: string | null;
   synced_at: string;
   created_at: string;
   updated_at: string;
