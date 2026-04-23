@@ -79,11 +79,38 @@ function buildSections(counts: { delibere: number; testiIntegrati: number; scade
   return sections;
 }
 
+function romeTimeParts(d: Date): { hh: string; mm: string; ss: string; hour: number; minute: number } {
+  // Usa sempre Europe/Rome, indipendentemente dal timezone del browser
+  const parts = new Intl.DateTimeFormat("it-IT", {
+    timeZone: "Europe/Rome",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const hh = parts.find((p) => p.type === "hour")?.value ?? "00";
+  const mm = parts.find((p) => p.type === "minute")?.value ?? "00";
+  const ss = parts.find((p) => p.type === "second")?.value ?? "00";
+  return { hh, mm, ss, hour: Number(hh), minute: Number(mm) };
+}
+
 function formatClock(d: Date): string {
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  const ss = String(d.getSeconds()).padStart(2, "0");
+  const { hh, mm, ss } = romeTimeParts(d);
   return `${hh}:${mm}:${ss}`;
+}
+
+/**
+ * Stato mercato MGP (Mercato del Giorno Prima, GME).
+ * Apertura seduta: 08:00 — Chiusura: 12:00 (timezone Europe/Rome, 7/7 giorni).
+ * Pubblicazione esiti entro le 12:55, ma per il reseller lo stato "negoziazione"
+ * finisce alle 12:00.
+ * Fonte: gme.it / mercatoelettrico.org
+ */
+type MgpStatus = "open" | "closed";
+
+function mgpStatus(d: Date): MgpStatus {
+  const { hour } = romeTimeParts(d);
+  return hour >= 8 && hour < 12 ? "open" : "closed";
 }
 
 export function V2Sidebar({
@@ -95,10 +122,15 @@ export function V2Sidebar({
 }) {
   const pathname = usePathname() ?? "";
   const [now, setNow] = useState<string>(() => formatClock(new Date()));
+  const [status, setStatus] = useState<MgpStatus>(() => mgpStatus(new Date()));
   const sections = buildSections(counts);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(formatClock(new Date())), 1000);
+    const id = setInterval(() => {
+      const d = new Date();
+      setNow(formatClock(d));
+      setStatus(mgpStatus(d));
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -112,19 +144,36 @@ export function V2Sidebar({
         <ThemeToggle />
       </div>
 
-      {/* GME status — ex search slot */}
+      {/* GME status — calcolato da orari MGP (8:00-12:00, Europe/Rome, 7/7) */}
       <div
         className="flex items-center gap-2 px-3 py-2 mb-2 rounded-lg"
         style={{
           background: "hsl(var(--v2-card))",
           border: "1px solid hsl(var(--v2-border))",
         }}
+        title={
+          status === "open"
+            ? "Sessione MGP aperta (08:00–12:00)"
+            : "Sessione MGP chiusa — riapre alle 08:00"
+        }
       >
-        <span className="v2-status-dot" />
+        <span
+          className="v2-status-dot"
+          style={{
+            background:
+              status === "open"
+                ? "hsl(var(--v2-accent))"
+                : "hsl(var(--v2-text-mute))",
+            boxShadow:
+              status === "open"
+                ? "0 0 6px hsl(var(--v2-accent) / 0.55)"
+                : "none",
+          }}
+        />
         <span className="text-[11.5px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
-          GME{" "}
+          MGP{" "}
           <strong style={{ color: "hsl(var(--v2-text))", fontWeight: 600 }}>
-            aperto
+            {status === "open" ? "aperto" : "chiuso"}
           </strong>
         </span>
         <span
