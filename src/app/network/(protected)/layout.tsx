@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getNetworkMember } from "@/lib/network/session";
 import { V2Sidebar } from "@/components/network-v2/sidebar";
-import { V2Topbar } from "@/components/network-v2/topbar";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +9,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function NetworkV2Layout({
+export default async function NetworkProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -29,7 +28,6 @@ export default async function NetworkV2Layout({
         }}
       />
       <div className="v2-main">
-        <V2Topbar />
         <div className="v2-content">{children}</div>
       </div>
     </div>
