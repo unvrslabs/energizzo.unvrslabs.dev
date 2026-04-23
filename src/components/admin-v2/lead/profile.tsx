@@ -28,9 +28,9 @@ import {
   Users2,
 } from "lucide-react";
 import { StatusSelect } from "@/components/status-select";
-import { LeadPodcastInvite } from "@/components/lead-podcast-invite";
-import { LeadDocuments } from "@/components/lead-documents";
-import { SurveyEmailComposer } from "@/components/survey-email-composer";
+import { LeadPodcastInviteV2 } from "./podcast-invite-v2";
+import { LeadDocumentsV2 } from "./documents-v2";
+import { SurveyEmailComposerV2 } from "./survey-email-composer-v2";
 import { enrichContacts } from "@/actions/enrich-contacts";
 import { markSurveySent } from "@/actions/survey";
 import { updateLeadEmail, updateLeadContacts } from "@/actions/update-lead";
@@ -259,14 +259,14 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
               <span className="v2-card-title">Anagrafica ARERA</span>
             </div>
             <div className="p-5 flex flex-col gap-3">
-              <InfoRow icon={<MapPin />} label="Indirizzo" value={lead.indirizzo} />
-              <InfoRow icon={<Users2 />} label="Gruppo" value={lead.gruppo && lead.gruppo !== "NESSUNO" ? lead.gruppo : null} />
-              <InfoRow icon={<Building2 />} label="Natura giuridica" value={lead.natura_giuridica} />
-              <InfoRow icon={<Hash />} label="ID ARERA" value={lead.id_arera} mono />
-              <InfoRow icon={<Tag />} label="Settori" value={lead.settori} />
-              <InfoRow icon={<MapPin />} label="Comune" value={lead.comune} />
-              <InfoRow icon={<MapPin />} label="Provincia" value={lead.provincia} />
-              <InfoRow icon={<Tag />} label="Macro-area" value={lead.macroarea} />
+              <InfoRow icon={MapPin} label="Indirizzo" value={lead.indirizzo} />
+              <InfoRow icon={Users2} label="Gruppo" value={lead.gruppo && lead.gruppo !== "NESSUNO" ? lead.gruppo : null} />
+              <InfoRow icon={Building2} label="Natura giuridica" value={lead.natura_giuridica} />
+              <InfoRow icon={Hash} label="ID ARERA" value={lead.id_arera} mono />
+              <InfoRow icon={Tag} label="Settori" value={lead.settori} />
+              <InfoRow icon={MapPin} label="Comune" value={lead.comune} />
+              <InfoRow icon={MapPin} label="Provincia" value={lead.provincia} />
+              <InfoRow icon={Tag} label="Macro-area" value={lead.macroarea} />
               {lead.sito_web && (
                 <div className="flex items-start gap-3 text-sm">
                   <Globe className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
@@ -296,7 +296,7 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
             </div>
             <div className="p-5 flex flex-col gap-5">
               <FieldBlock
-                icon={<Mail />}
+                icon={Mail}
                 label="Email"
                 value={email}
                 onChange={setEmail}
@@ -304,7 +304,7 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
                 proposals={[lead.email_info, lead.email_commerciale].filter(Boolean) as string[]}
               />
               <FieldBlock
-                icon={<Phone />}
+                icon={Phone}
                 label="Telefono"
                 value={phone}
                 onChange={setPhone}
@@ -316,7 +316,7 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
                 }
               />
               <FieldBlock
-                icon={<MessageCircle />}
+                icon={MessageCircle}
                 label="WhatsApp"
                 value={whatsapp}
                 onChange={setWhatsapp}
@@ -468,7 +468,7 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
               <span className="v2-card-title">Documenti</span>
             </div>
             <div className="p-5">
-              <LeadDocuments leadId={lead.id} />
+              <LeadDocumentsV2 leadId={lead.id} />
             </div>
           </section>
         </div>
@@ -521,7 +521,7 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
               )}
 
               <div className="mt-2">
-                <SurveyEmailComposer
+                <SurveyEmailComposerV2
                   leadId={lead.id}
                   companyName={lead.ragione_sociale}
                   defaultRecipientName={contacts.find((c) => c.is_legal_rep)?.full_name}
@@ -572,7 +572,7 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
               <span className="v2-card-title">Invito podcast</span>
             </div>
             <div className="p-5">
-              <LeadPodcastInvite leadId={lead.id} />
+              <LeadPodcastInviteV2 leadId={lead.id} />
             </div>
           </section>
 
@@ -677,12 +677,12 @@ export function LeadProfileV2({ lead }: { lead: Lead }) {
 }
 
 function InfoRow({
-  icon,
+  icon: Icon,
   label,
   value,
   mono,
 }: {
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   label: string;
   value: string | null;
   mono?: boolean;
@@ -690,9 +690,7 @@ function InfoRow({
   if (!value) return null;
   return (
     <div className="flex items-start gap-3 text-[13px]">
-      <span className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "hsl(var(--v2-text-mute))" }}>
-        {icon}
-      </span>
+      <Icon className="w-4 h-4 shrink-0 mt-0.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
       <div className="flex-1 min-w-0">
         <div className="v2-mono text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
           {label}
@@ -709,14 +707,14 @@ function InfoRow({
 }
 
 function FieldBlock({
-  icon,
+  icon: Icon,
   label,
   value,
   onChange,
   placeholder,
   proposals,
 }: {
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   label: string;
   value: string;
   onChange: (v: string) => void;
@@ -726,7 +724,7 @@ function FieldBlock({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-        <span className="w-3.5 h-3.5">{icon}</span>
+        <Icon className="w-3 h-3" />
         {label}
       </div>
       <input
