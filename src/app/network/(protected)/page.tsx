@@ -1,13 +1,9 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   Bookmark,
   CalendarClock,
   FileText,
-  Mic,
-  Play,
-  TrendingUp,
 } from "lucide-react";
 import { SAVED_DELIBERE_MOCK } from "@/lib/delibere/mock";
 import { listDelibere } from "@/lib/delibere/db";
@@ -16,6 +12,8 @@ import { listScadenzeFuture } from "@/lib/delibere/scadenze";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
+import { ElectricityCard } from "@/components/network-v2/electricity-card";
+import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
 import { getNetworkMember } from "@/lib/network/session";
 
 export const dynamic = "force-dynamic";
@@ -206,48 +204,14 @@ export default async function V2HomePage() {
           </ul>
         </div>
 
-        {/* Gas storage AGSI — 6 */}
+        {/* Mercato elettrico (placeholder) — 6 */}
+        <ElectricityCard />
+
+        {/* Mercato gas AGSI — 6 */}
         <GasStorageCard latest={gasLatest} history={gasHistory} />
 
-        {/* Latest podcast — 6 */}
-        <div className="v2-card v2-col-6">
-          <div className="v2-card-head flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Mic className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
-              <span className="v2-card-title">Podcast · ultimo episodio</span>
-            </div>
-            <span className="v2-card-kicker">nuovo</span>
-          </div>
-          <div className="p-4 flex gap-4">
-            <div
-              className="w-24 h-24 rounded-lg shrink-0 grid place-items-center"
-              style={{
-                background: "linear-gradient(135deg, hsl(158 60% 32%), hsl(200 40% 24%))",
-                border: "1px solid hsl(var(--v2-border-strong))",
-              }}
-            >
-              <Mic className="w-8 h-8 opacity-70" style={{ color: "hsl(var(--v2-accent))" }} />
-            </div>
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="v2-mono text-[10.5px] font-semibold tracking-[0.14em] uppercase" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                Ep.12 · 47 min
-              </div>
-              <h4 className="text-[15px] font-semibold leading-snug mt-1" style={{ color: "hsl(var(--v2-text))" }}>
-                PUN Index, Market Coupling e formule di indicizzazione: cosa cambia davvero per i reseller
-              </h4>
-              <p className="text-[12px] mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                Con Marco Conti, ex-GME
-              </p>
-              <div className="flex items-center gap-2 mt-auto pt-3">
-                <button type="button" className="v2-btn v2-btn--primary">
-                  <Play className="w-3.5 h-3.5" fill="currentColor" />
-                  Ascolta
-                </button>
-                <Link href="/network/podcast" className="v2-btn">Archivio</Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Podcast video preview — 12 */}
+        <PodcastPreviewCard />
 
         {/* Saved — 12 */}
         <div className="v2-card v2-col-12">
@@ -290,31 +254,3 @@ export default async function V2HomePage() {
   );
 }
 
-function MiniSpark() {
-  // decorative inline svg sparkline — non-interactive, mock data
-  const points = [12, 18, 14, 22, 19, 25, 30, 28, 35, 32, 40, 45, 42, 50];
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const w = 360;
-  const h = 56;
-  const step = w / (points.length - 1);
-  const path = points
-    .map((p, i) => {
-      const x = i * step;
-      const y = h - ((p - min) / (max - min)) * h;
-      return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
-    })
-    .join(" ");
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-12" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="v2-spark" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="hsl(158 72% 48%)" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="hsl(158 72% 48%)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${path} L ${w} ${h} L 0 ${h} Z`} fill="url(#v2-spark)" />
-      <path d={path} fill="none" stroke="hsl(158 72% 55%)" strokeWidth="1.5" />
-    </svg>
-  );
-}

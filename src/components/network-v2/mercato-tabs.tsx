@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { Flame, Zap } from "lucide-react";
 
 const TABS = [
-  { href: "/network/mercato/gas", label: "Gas", Icon: Flame, status: "live" as const },
   { href: "/network/mercato/elettrico", label: "Elettrico", Icon: Zap, status: "coming" as const },
+  { href: "/network/mercato/gas", label: "Gas", Icon: Flame, status: "live" as const },
 ];
 
 export function MercatoTabs() {

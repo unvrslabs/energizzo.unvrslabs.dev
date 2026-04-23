@@ -2,7 +2,7 @@ import type { DeliberaSector } from "@/lib/delibere/mock";
 import { cn } from "@/lib/utils";
 
 const LABEL: Record<DeliberaSector, string> = {
-  eel: "EEL",
+  eel: "EE",
   gas: "GAS",
 };
 
