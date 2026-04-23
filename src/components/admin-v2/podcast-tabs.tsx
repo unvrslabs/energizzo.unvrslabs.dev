@@ -25,7 +25,6 @@ const TABS: TabItem[] = [
   { href: "/dashboard-v2/podcast", label: "Home", icon: Home, exact: true },
   { href: "/dashboard-v2/podcast/episodi", label: "Episodi", icon: Radio },
   { href: "/dashboard-v2/podcast/ospiti", label: "Ospiti", icon: Users },
-  { href: "/dashboard-v2/podcast/domande", label: "Domande", icon: MessageSquare },
   { href: "/dashboard-v2/podcast/temi-caldi", label: "Temi caldi", icon: Flame },
   { href: "/dashboard-v2/podcast/glossario", label: "Glossario", icon: BookOpen },
   { href: "/dashboard-v2/podcast/knowledge", label: "Knowledge", icon: FileText },

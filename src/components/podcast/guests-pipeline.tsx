@@ -22,9 +22,14 @@ type LeadMini = Pick<Lead, "id" | "ragione_sociale" | "piva" | "provincia" | "em
 type Props = {
   guests: PodcastGuest[];
   leads: LeadMini[];
+  leadBasePath?: string;
 };
 
-export function GuestsPipeline({ guests, leads }: Props) {
+export function GuestsPipeline({
+  guests,
+  leads,
+  leadBasePath = "/dashboard/leads",
+}: Props) {
   const [view, setView] = useState<"tabella" | "kanban">("kanban");
   const [query, setQuery] = useState("");
   const [addLeadOpen, setAddLeadOpen] = useState(false);
@@ -83,7 +88,11 @@ export function GuestsPipeline({ guests, leads }: Props) {
         </div>
       </div>
 
-      {view === "tabella" ? <GuestsTable guests={filtered} /> : <GuestsKanban guests={filtered} />}
+      {view === "tabella" ? (
+        <GuestsTable guests={filtered} leadBasePath={leadBasePath} />
+      ) : (
+        <GuestsKanban guests={filtered} leadBasePath={leadBasePath} />
+      )}
 
       <GuestAddFromLead open={addLeadOpen} onOpenChange={setAddLeadOpen} leads={leads} />
       <GuestAddExternal open={addExternalOpen} onOpenChange={setAddExternalOpen} />
@@ -91,7 +100,7 @@ export function GuestsPipeline({ guests, leads }: Props) {
   );
 }
 
-function GuestsTable({ guests }: { guests: PodcastGuest[] }) {
+function GuestsTable({ guests, leadBasePath }: { guests: PodcastGuest[]; leadBasePath: string }) {
   if (guests.length === 0) {
     return (
       <div className="liquid-glass rounded-2xl py-14 text-center text-muted-foreground text-sm">
@@ -120,7 +129,7 @@ function GuestsTable({ guests }: { guests: PodcastGuest[] }) {
         return (
           <Link
             key={g.id}
-            href={g.lead_id ? `/dashboard/leads/${g.lead_id}` : `#external-${g.id}`}
+            href={g.lead_id ? `${leadBasePath}/${g.lead_id}` : `#external-${g.id}`}
             className={cn(
               "grid grid-cols-[24px_1.5fr_100px_120px_140px_140px] items-center gap-0 border-b border-white/5 hover:bg-primary/5 transition-colors text-sm",
               i % 2 === 0 ? "bg-white/[0.015]" : "bg-transparent",
@@ -154,7 +163,7 @@ function GuestsTable({ guests }: { guests: PodcastGuest[] }) {
   );
 }
 
-function GuestsKanban({ guests }: { guests: PodcastGuest[] }) {
+function GuestsKanban({ guests, leadBasePath }: { guests: PodcastGuest[]; leadBasePath: string }) {
   const [local, setLocal] = useState<Record<string, GuestStatus>>({});
   const [, startTransition] = useTransition();
 
@@ -214,7 +223,7 @@ function GuestsKanban({ guests }: { guests: PodcastGuest[] }) {
                         <Draggable key={g.id} draggableId={g.id} index={idx}>
                           {(d) => (
                             <Link
-                              href={g.lead_id ? `/dashboard/leads/${g.lead_id}` : `#external-${g.id}`}
+                              href={g.lead_id ? `${leadBasePath}/${g.lead_id}` : `#external-${g.id}`}
                               ref={d.innerRef}
                               {...d.draggableProps}
                               {...d.dragHandleProps}

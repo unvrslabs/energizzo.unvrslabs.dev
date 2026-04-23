@@ -30,6 +30,7 @@ export default async function OspitiV2Page() {
           "id" | "ragione_sociale" | "piva" | "provincia" | "email" | "telefoni"
         >[]
       }
+      leadBasePath="/dashboard-v2/lead"
     />
   );
 }
