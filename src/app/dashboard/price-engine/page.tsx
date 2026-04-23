@@ -21,23 +21,14 @@ async function loadReports(): Promise<ReportRow[]> {
     .from("remo_reports")
     .select("id, month, category, pdf_url, published_at, remo_sections(count)")
     .order("month", { ascending: false });
-  return (data ?? []).map(
-    (r: {
-      id: string;
-      month: string;
-      category: "luce" | "gas";
-      pdf_url: string | null;
-      published_at: string | null;
-      remo_sections?: { count: number }[];
-    }) => ({
-      id: r.id,
-      month: r.month,
-      category: r.category,
-      pdf_url: r.pdf_url,
-      published_at: r.published_at,
-      sections_count: r.remo_sections?.[0]?.count ?? 0,
-    }),
-  );
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    month: r.month,
+    category: r.category as "luce" | "gas",
+    pdf_url: r.pdf_url,
+    published_at: r.published_at,
+    sections_count: r.remo_sections?.[0]?.count ?? 0,
+  }));
 }
 
 const MONTHS_IT = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];

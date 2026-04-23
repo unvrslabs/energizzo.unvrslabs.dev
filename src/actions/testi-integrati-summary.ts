@@ -40,19 +40,15 @@ export type TiSummaryResult = {
   cached: boolean;
 };
 
-const pendingTiIds = new Set<number>();
 const PDF_FETCH_TIMEOUT_MS = 60_000;
 const HTML_FETCH_TIMEOUT_MS = 15_000;
+const AI_LOCK_TTL_MS = 5 * 60 * 1000;
 
 export async function generateTestoIntegratoSummary(
   tiId: number,
 ): Promise<TiSummaryResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
-
-  if (pendingTiIds.has(tiId)) {
-    throw new Error("Sommario AI già in generazione. Attendi qualche secondo e ricarica la pagina.");
-  }
 
   const supabase = await createClient();
   const { data: row, error } = await supabase
@@ -74,11 +70,33 @@ export async function generateTestoIntegratoSummary(
     };
   }
 
-  pendingTiIds.add(tiId);
+  // Lock DB atomico
+  const lockCutoff = new Date(Date.now() - AI_LOCK_TTL_MS).toISOString();
+  const now = new Date().toISOString();
+  const { data: locked, error: lockErr } = await supabase
+    .from("testi_integrati_cache")
+    .update({ ai_generating_at: now })
+    .eq("id", tiId)
+    .is("ai_generated_at", null)
+    .or(`ai_generating_at.is.null,ai_generating_at.lt.${lockCutoff}`)
+    .select("id");
+  if (lockErr) {
+    throw new Error(`ti summary: lock acquire fallito: ${lockErr.message}`);
+  }
+  if (!locked || locked.length === 0) {
+    throw new Error(
+      "Sommario AI già in generazione da un altro utente. Attendi qualche secondo e ricarica.",
+    );
+  }
+
   try {
     return await generateTiImpl(supabase, row, tiId, apiKey);
-  } finally {
-    pendingTiIds.delete(tiId);
+  } catch (err) {
+    await supabase
+      .from("testi_integrati_cache")
+      .update({ ai_generating_at: null })
+      .eq("id", tiId);
+    throw err;
   }
 }
 
@@ -197,6 +215,7 @@ async function generateTiImpl(
       ai_summary: summary,
       ai_bullets: bullets,
       ai_generated_at: new Date().toISOString(),
+      ai_generating_at: null,
       ai_model: MODEL,
       ai_source: source,
       ai_error: null,

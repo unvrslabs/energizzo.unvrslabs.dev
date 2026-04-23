@@ -13,12 +13,12 @@ export function getAdminSiteUrl(): string {
   return (envUrl ?? DEFAULT_ADMIN_SITE_URL).replace(/\/$/, "");
 }
 
-export function getSurveyUrl(token: string): string {
-  return `${getPublicSiteUrl()}/invito-network/${token}`;
+export function getSurveyUrl(token: string | null | undefined): string {
+  return `${getPublicSiteUrl()}/invito-network/${token ?? ""}`;
 }
 
-export function getPodcastInviteUrl(token: string): string {
-  return `${getPublicSiteUrl()}/podcast/invito/${token}`;
+export function getPodcastInviteUrl(token: string | null | undefined): string {
+  return `${getPublicSiteUrl()}/podcast/invito/${token ?? ""}`;
 }
 
 export function getGuestDashboardUrl(guestId: string): string {

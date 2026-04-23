@@ -82,7 +82,7 @@ export default async function DashboardV2Home() {
       .limit(5),
     supabase
       .from("leads")
-      .select("id, ragione_sociale, categoria, network_status, updated_at, macroarea")
+      .select("id, ragione_sociale, categoria, updated_at, macroarea")
       .order("updated_at", { ascending: false })
       .limit(6),
     supabase.from("leads").select("categoria"),

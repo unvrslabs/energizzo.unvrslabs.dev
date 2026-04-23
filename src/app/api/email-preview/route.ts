@@ -32,6 +32,9 @@ export async function GET(req: NextRequest) {
   if (!lead) {
     return NextResponse.json({ error: "Lead non trovato" }, { status: 404 });
   }
+  if (!lead.survey_token) {
+    return NextResponse.json({ error: "Lead senza survey_token" }, { status: 400 });
+  }
 
   const props = {
     companyName: lead.ragione_sociale,

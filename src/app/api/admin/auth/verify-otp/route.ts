@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
   }
 
   const newAttempts = otp.attempts + 1;
-  const inputHash = hashOtp(parsed.code);
+  const inputHash = hashOtp(parsed.code, "admin");
   const isMatch = inputHash === otp.code_hash;
 
   if (!isMatch) {

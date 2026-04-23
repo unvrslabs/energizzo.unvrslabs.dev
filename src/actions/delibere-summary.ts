@@ -85,12 +85,10 @@ export type SummaryResult = {
   source: "pdf" | "url";
 };
 
-// In-process lock per evitare doppia call Claude sulla stessa delibera
-// (utente che clicca 2 volte, o 2 utenti simultanei). Protegge da cost-leak.
-// Per setup multi-istanza servirà lock DB-based.
-const pendingDelibereIds = new Set<number>();
-
 const PDF_FETCH_TIMEOUT_MS = 60_000;
+// Lock DB: la UPDATE settando ai_generating_at si auto-libera dopo TTL se il
+// worker crasha. 5 minuti copre il caso peggiore (PDF grande + Claude lento).
+const AI_LOCK_TTL_MS = 5 * 60 * 1000;
 
 /**
  * Generate AI summary for a delibera by id.
@@ -104,15 +102,11 @@ export async function generateDeliberaSummary(
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
 
-  if (pendingDelibereIds.has(deliberaId)) {
-    throw new Error("Sommario AI già in generazione. Attendi qualche secondo e ricarica la pagina.");
-  }
-
   const supabase = await createClient();
   const { data: row, error } = await supabase
     .from("delibere_cache")
     .select(
-      "id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento, ai_summary, ai_bullets, ai_sectors, ai_source, ai_generated_at",
+      "id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento, ai_summary, ai_bullets, ai_sectors, ai_source, ai_generated_at, ai_scadenze, ai_importanza, ai_categoria_impatto",
     )
     .eq("id", deliberaId)
     .maybeSingle();
@@ -121,26 +115,49 @@ export async function generateDeliberaSummary(
 
   // Summary già presente: ritorna cached, non rigenerare (evita costi duplicati).
   if (row.ai_generated_at && row.ai_summary && Array.isArray(row.ai_bullets)) {
-    const raw = row as Record<string, unknown>;
     return {
       summary: row.ai_summary,
       bullets: row.ai_bullets as string[],
       sectors: Array.isArray(row.ai_sectors)
         ? (row.ai_sectors as UiSector[])
         : mapSettoreToSector(row.settore),
-      scadenze: Array.isArray(raw.ai_scadenze) ? (raw.ai_scadenze as Scadenza[]) : [],
-      importanza: isImportanza(raw.ai_importanza) ? (raw.ai_importanza as Importanza) : "normale",
-      categoria_impatto: typeof raw.ai_categoria_impatto === "string" ? (raw.ai_categoria_impatto as string) : null,
+      scadenze: Array.isArray(row.ai_scadenze) ? (row.ai_scadenze as Scadenza[]) : [],
+      importanza: isImportanza(row.ai_importanza) ? (row.ai_importanza as Importanza) : "normale",
+      categoria_impatto: typeof row.ai_categoria_impatto === "string" ? row.ai_categoria_impatto : null,
       source: row.ai_source === "pdf" ? "pdf" : "url",
       cached: true,
     };
   }
 
-  pendingDelibereIds.add(deliberaId);
+  // Acquisisce lock DB atomico: UPDATE con predicate "nessuno sta elaborando O lock scaduto".
+  // Se 0 righe update, un altro worker è già in corso → errore amichevole.
+  const lockCutoff = new Date(Date.now() - AI_LOCK_TTL_MS).toISOString();
+  const now = new Date().toISOString();
+  const { data: locked, error: lockErr } = await supabase
+    .from("delibere_cache")
+    .update({ ai_generating_at: now })
+    .eq("id", deliberaId)
+    .is("ai_generated_at", null)
+    .or(`ai_generating_at.is.null,ai_generating_at.lt.${lockCutoff}`)
+    .select("id");
+  if (lockErr) {
+    throw new Error(`summary: lock acquire fallito: ${lockErr.message}`);
+  }
+  if (!locked || locked.length === 0) {
+    throw new Error(
+      "Sommario AI già in generazione da un altro utente. Attendi qualche secondo e ricarica.",
+    );
+  }
+
   try {
     return await generateImpl(supabase, row, deliberaId, apiKey);
-  } finally {
-    pendingDelibereIds.delete(deliberaId);
+  } catch (err) {
+    // Se l'AI fallisce, libera il lock per permettere retry
+    await supabase
+      .from("delibere_cache")
+      .update({ ai_generating_at: null })
+      .eq("id", deliberaId);
+    throw err;
   }
 }
 
@@ -158,6 +175,9 @@ type DeliberaRow = {
   ai_sectors: unknown;
   ai_source: string | null;
   ai_generated_at: string | null;
+  ai_scadenze?: unknown;
+  ai_importanza?: unknown;
+  ai_categoria_impatto?: unknown;
 };
 
 async function generateImpl(
@@ -263,6 +283,7 @@ async function generateImpl(
       ai_importanza: result.importanza,
       ai_categoria_impatto: result.categoria_impatto,
       ai_generated_at: new Date().toISOString(),
+      ai_generating_at: null,
       ai_model: MODEL,
       ai_source: result.source,
       ai_error: null,

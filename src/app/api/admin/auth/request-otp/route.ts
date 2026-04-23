@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   }
 
   const code = generateOtpCode();
-  const codeHash = hashOtp(code);
+  const codeHash = hashOtp(code, "admin");
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000).toISOString();
 
   const { error: insertError } = await supabase.from("admin_otp_codes").insert({

@@ -137,8 +137,11 @@ export async function replaceRemoSections(
     title: s.title,
     subtitle: s.subtitle ?? null,
     description: s.description ?? null,
-    columns: s.columns ?? null,
-    rows: s.rows ?? null,
+    // JSONB columns: il DB accetta Json (oggetto/array/primitivo), ma Zod infers
+    // Record<string, unknown>[] che TypeScript non considera compatibile.
+    // Cast pragmatico: i dati sono validati da Zod e fix-shape upstream.
+    columns: (s.columns ?? null) as unknown as never,
+    rows: (s.rows ?? null) as unknown as never,
     footnote: s.footnote ?? null,
   }));
 

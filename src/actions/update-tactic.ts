@@ -16,7 +16,10 @@ export async function updateTactic(input: unknown) {
   if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = Schema.parse(input);
   const supabase = await createClient();
-  const patch: Record<string, string | null> = {};
+  const patch: {
+    status?: "da_fare" | "in_corso" | "fatto" | "archiviato";
+    notes?: string | null;
+  } = {};
   if (parsed.status !== undefined) patch.status = parsed.status;
   if (parsed.notes !== undefined) patch.notes = parsed.notes;
   if (Object.keys(patch).length === 0) return { ok: true as const };

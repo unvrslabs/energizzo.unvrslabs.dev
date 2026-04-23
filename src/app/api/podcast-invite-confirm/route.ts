@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     p_token: parsed.token,
     p_name: parsed.name,
     p_whatsapp: parsed.whatsapp,
-    p_availability: parsed.availability ?? null,
+    p_availability: parsed.availability ?? "",
   });
 
   if (error) {

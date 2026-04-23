@@ -4,9 +4,9 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin/session";
-import { STATUSES_IN_ORDER } from "@/lib/status-config";
+import { STATUSES_IN_ORDER, type Status } from "@/lib/status-config";
 
-const statusEnum = z.enum(STATUSES_IN_ORDER as [string, ...string[]]);
+const statusEnum = z.enum(STATUSES_IN_ORDER as unknown as readonly [Status, ...Status[]]);
 
 const StatusSchema = z.object({
   id: z.string().uuid(),
@@ -60,7 +60,7 @@ export async function updateLeadContacts(input: unknown) {
   if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = ContactsSchema.parse(input);
   const supabase = await createClient();
-  const patch: Record<string, string | null> = {};
+  const patch: { telefono?: string | null; whatsapp?: string | null } = {};
   if ("telefono" in parsed.patch) {
     const v = parsed.patch.telefono;
     patch.telefono = v && v.trim() ? v.trim() : null;
