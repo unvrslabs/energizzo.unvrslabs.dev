@@ -14,9 +14,8 @@ function readCurrentTheme(): Theme {
 }
 
 /**
- * Toggle tema chiaro/scuro. Scrive su <html data-theme> e in localStorage.
- * Il ThemeScript nel layout legge lo storage al boot e applica subito
- * l'attributo, così non c'è flash sul primo render.
+ * Toggle tema chiaro/scuro. Scrive su <html data-theme> e in sessionStorage.
+ * Il default è sempre dark ad ogni nuova sessione browser.
  */
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
@@ -29,9 +28,9 @@ export function ThemeToggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
     try {
-      localStorage.setItem(STORAGE_KEY, next);
+      sessionStorage.setItem(STORAGE_KEY, next);
     } catch {
-      // localStorage può essere disabilitato (private mode) — toggle resta session-only
+      // sessionStorage può essere disabilitato (private mode) — toggle resta volatile
     }
     setTheme(next);
   }

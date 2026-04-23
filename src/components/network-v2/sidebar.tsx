@@ -163,11 +163,11 @@ export function V2Sidebar({
             background:
               status === "open"
                 ? "hsl(var(--v2-accent))"
-                : "hsl(var(--v2-text-mute))",
+                : "hsl(var(--v2-danger))",
             boxShadow:
               status === "open"
                 ? "0 0 6px hsl(var(--v2-accent) / 0.55)"
-                : "none",
+                : "0 0 6px hsl(var(--v2-danger) / 0.5)",
           }}
         />
         <span className="text-[11.5px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
