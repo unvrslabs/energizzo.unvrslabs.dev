@@ -611,6 +611,39 @@ export type Database = {
         }
         Relationships: []
       }
+      market_power_pun: {
+        Row: {
+          created_at: string
+          id: number
+          method: string
+          price_day: string
+          price_eur_mwh: number
+          source: string
+          synced_at: string
+          zones: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          method?: string
+          price_day: string
+          price_eur_mwh: number
+          source?: string
+          synced_at?: string
+          zones?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          method?: string
+          price_day?: string
+          price_eur_mwh?: number
+          source?: string
+          synced_at?: string
+          zones?: Json
+        }
+        Relationships: []
+      }
       network_join_requests: {
         Row: {
           created_at: string | null

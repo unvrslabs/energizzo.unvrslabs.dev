@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateAndInsert } from "@/lib/social/generator";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
+import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -53,6 +54,13 @@ type Candidate =
       working_gas_volume_twh: number | null;
       net_withdrawal_gwh: number | null;
       phase: "iniezione" | "erogazione" | "equilibrio";
+    }
+  | {
+      kind: "market_power";
+      price_day: string;
+      pun_eur_mwh: number;
+      delta_week_pct: number | null;
+      zones: Record<string, number>;
     }
   | { kind: "digest_week"; label: string; brief: string };
 
@@ -189,9 +197,11 @@ async function findCandidateScadenze(
 async function findMarketSnapshot(
   supabase: Awaited<ReturnType<typeof createClient>>,
 ): Promise<Candidate[]> {
-  // Solo lunedì e giovedì, e se non abbiamo già postato market nelle ultime 48h
-  const dow = new Date().getDay();
-  if (dow !== 1 && dow !== 4) return [];
+  const dow = new Date().getDay(); // 0 dom, 1 lun, 2 mar, 3 mer, 4 gio, 5 ven, 6 sab
+  // Lun+Gio: gas storage AGSI / Mar+Ven: PUN elettrico
+  const pickGas = dow === 1 || dow === 4;
+  const pickPower = dow === 2 || dow === 5;
+  if (!pickGas && !pickPower) return [];
 
   const since = addDays(new Date(), -2).toISOString();
   const { data: recentMarket } = await supabase
@@ -202,43 +212,77 @@ async function findMarketSnapshot(
     .limit(1);
   if (recentMarket && recentMarket.length > 0) return [];
 
-  // Dati AGSI reali: ultimo snapshot + confronto settimanale
-  const latest = await getLatestGasStorage();
-  if (!latest || latest.full_pct == null) return [];
+  if (pickGas) {
+    const latest = await getLatestGasStorage();
+    if (!latest || latest.full_pct == null) return [];
 
-  const history = await listGasStorageHistory(10);
+    const history = await listGasStorageHistory(10);
+    const weekAgo = history.find((row) => {
+      const d = new Date(row.gas_day);
+      const diff = (new Date(latest.gas_day).getTime() - d.getTime()) / 86400000;
+      return diff >= 6.5 && diff <= 8;
+    });
+    const delta_week_pp =
+      weekAgo?.full_pct != null && latest.full_pct != null
+        ? Number(latest.full_pct) - Number(weekAgo.full_pct)
+        : null;
+
+    const netWithdrawal = Number(latest.net_withdrawal_gwh ?? 0);
+    const phase: "iniezione" | "erogazione" | "equilibrio" =
+      netWithdrawal < -100
+        ? "iniezione"
+        : netWithdrawal > 100
+          ? "erogazione"
+          : "equilibrio";
+
+    return [
+      {
+        kind: "market_gas" as const,
+        gas_day: latest.gas_day,
+        full_pct: Number(latest.full_pct),
+        trend_pct: latest.trend_pct != null ? Number(latest.trend_pct) : null,
+        delta_week_pp,
+        gas_in_storage_twh:
+          latest.gas_in_storage_twh != null
+            ? Number(latest.gas_in_storage_twh)
+            : null,
+        working_gas_volume_twh:
+          latest.working_gas_volume_twh != null
+            ? Number(latest.working_gas_volume_twh)
+            : null,
+        net_withdrawal_gwh:
+          latest.net_withdrawal_gwh != null
+            ? Number(latest.net_withdrawal_gwh)
+            : null,
+        phase,
+      },
+    ];
+  }
+
+  // pickPower = PUN
+  const latestPun = await getLatestPun();
+  if (!latestPun) return [];
+  const history = await listPunHistory(14);
   const weekAgo = history.find((row) => {
-    const d = new Date(row.gas_day);
-    const diff = (new Date(latest.gas_day).getTime() - d.getTime()) / 86400000;
+    const d = new Date(row.price_day);
+    const diff =
+      (new Date(latestPun.price_day).getTime() - d.getTime()) / 86400000;
     return diff >= 6.5 && diff <= 8;
   });
-  const delta_week_pp =
-    weekAgo?.full_pct != null && latest.full_pct != null
-      ? Number(latest.full_pct) - Number(weekAgo.full_pct)
+  const delta_week_pct =
+    weekAgo && Number(weekAgo.price_eur_mwh) > 0
+      ? ((Number(latestPun.price_eur_mwh) - Number(weekAgo.price_eur_mwh)) /
+          Number(weekAgo.price_eur_mwh)) *
+        100
       : null;
-
-  const netWithdrawal = Number(latest.net_withdrawal_gwh ?? 0);
-  const phase: "iniezione" | "erogazione" | "equilibrio" =
-    netWithdrawal < -100
-      ? "iniezione"
-      : netWithdrawal > 100
-        ? "erogazione"
-        : "equilibrio";
 
   return [
     {
-      kind: "market_gas" as const,
-      gas_day: latest.gas_day,
-      full_pct: Number(latest.full_pct),
-      trend_pct: latest.trend_pct != null ? Number(latest.trend_pct) : null,
-      delta_week_pp,
-      gas_in_storage_twh: latest.gas_in_storage_twh != null ? Number(latest.gas_in_storage_twh) : null,
-      working_gas_volume_twh:
-        latest.working_gas_volume_twh != null
-          ? Number(latest.working_gas_volume_twh)
-          : null,
-      net_withdrawal_gwh: latest.net_withdrawal_gwh != null ? Number(latest.net_withdrawal_gwh) : null,
-      phase,
+      kind: "market_power" as const,
+      price_day: latestPun.price_day,
+      pun_eur_mwh: Number(latestPun.price_eur_mwh),
+      delta_week_pct,
+      zones: (latestPun.zones as Record<string, number>) ?? {},
     },
   ];
 }
@@ -339,6 +383,58 @@ export async function GET(req: Request) {
             },
           );
           stats.scadenze_generated++;
+        } else if (c.kind === "market_power") {
+          const pun = c.pun_eur_mwh.toFixed(1).replace(".", ",");
+          const deltaWeek =
+            c.delta_week_pct != null
+              ? `${c.delta_week_pct > 0 ? "+" : ""}${c.delta_week_pct.toFixed(1).replace(".", ",")}%`
+              : "";
+          const zonesMinMax = Object.entries(c.zones).sort(
+            (a, b) => a[1] - b[1],
+          );
+          const minZone = zonesMinMax[0];
+          const maxZone = zonesMinMax[zonesMinMax.length - 1];
+          const spread =
+            minZone && maxZone ? (maxZone[1] - minZone[1]).toFixed(1).replace(".", ",") : "";
+
+          const brief = `Market snapshot PUN REALE (stima media pesata zone italiane da dati ENTSO-E).
+
+DATO UFFICIALE:
+- Data rilevamento: ${c.price_day}
+- PUN stimato: ${pun} €/MWh
+- Variazione vs settimana scorsa: ${deltaWeek || "non calcolabile"}
+- Zona più bassa: ${minZone ? `${minZone[0]} a ${minZone[1].toFixed(1)} €/MWh` : ""}
+- Zona più alta: ${maxZone ? `${maxZone[0]} a ${maxZone[1].toFixed(1)} €/MWh` : ""}
+- Spread Nord-Sud: ${spread} €/MWh
+- Fonte: ENTSO-E via energy-charts.info (PUN stimato come media pesata su 7 zone)
+
+CONTESTO per reseller:
+Il PUN è il riferimento per i contratti indicizzati. Uno spread Nord-Sud >15 €/MWh
+segnala tensioni di rete (congestioni interzonali). Variazioni settimanali >10%
+meritano un commento operativo (cosa sta cambiando: meteo? nucleare francese?
+domanda industriale?).
+
+ISTRUZIONI output:
+- copy_linkedin deve citare il numero ${pun} €/MWh e la variazione ${deltaWeek}
+- hook forte: parla del numero
+- Usa "PUN stimato" (non "PUN" secco) per correttezza — è una media pesata zone ENTSO-E, non il PUN ufficiale GME
+- image_strategy.template = "data_card"
+- image_data.kicker = "MERCATO ELETTRICO · ITALIA"
+- image_data.label = "PUN"
+- image_data.valore_grande = "${pun}"
+- image_data.unita = "€/MWh"
+- image_data.variazione = "${deltaWeek}"
+- image_data.sottotitolo = "Media pesata 7 zone · ${c.price_day}"`;
+
+          await generateAndInsert(
+            supabase,
+            { tipo: "market", brief },
+            {
+              generatedBy: "auto",
+              notes: `🤖 Auto-generato · PUN ${c.price_day} · ${pun} €/MWh · ${new Date().toISOString()}`,
+            },
+          );
+          stats.market_generated++;
         } else if (c.kind === "market_gas") {
           const fullPct = c.full_pct.toFixed(1).replace(".", ",");
           const deltaWeek =
