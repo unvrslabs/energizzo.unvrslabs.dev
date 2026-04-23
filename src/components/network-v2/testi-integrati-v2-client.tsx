@@ -300,9 +300,8 @@ function DetailPanel({ t }: { t: TestoIntegratoView }) {
             {t.attachments.map((a, i) => (
               <a
                 key={`${a.url}-${i}`}
-                href={a.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                // Proxy server-side: risolve il PDF da ARERA e lo scarica.
+                href={`/api/testi-integrati/${t.id}/document?idx=${i}`}
                 className="v2-card v2-card--interactive p-3 flex items-center gap-3 text-left"
               >
                 {attachmentIcon(a.kind)}
