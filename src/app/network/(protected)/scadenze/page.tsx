@@ -1,111 +1,228 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarClock } from "lucide-react";
-import { DELIBERE_DEADLINES } from "@/lib/delibere/mock";
+import { ArrowRight, CalendarClock } from "lucide-react";
+import { listScadenzeFuture, SCADENZA_LABEL, type ScadenzaTipo, type ScadenzaView } from "@/lib/delibere/scadenze";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Scadenze · Terminal",
 };
 
-const MONTHS_IT = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+const MONTHS_IT = [
+  "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+  "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre",
+];
+const MONTHS_IT_SHORT = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
 
 function fmtDate(iso: string) {
-  const d = new Date(iso);
-  return `${d.getDate()} ${MONTHS_IT[d.getMonth()]} ${d.getFullYear()}`;
+  const d = new Date(iso + "T12:00:00Z");
+  return `${d.getUTCDate()} ${MONTHS_IT_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
-
+function monthKey(iso: string) {
+  return iso.slice(0, 7);
+}
+function monthLabel(key: string) {
+  const [y, m] = key.split("-").map(Number);
+  return `${MONTHS_IT[m - 1]} ${y}`;
+}
 function daysTo(iso: string) {
-  const diff = new Date(iso).getTime() - Date.now();
-  return Math.ceil(diff / 86400000);
+  const now = Date.now();
+  const target = new Date(iso + "T12:00:00Z").getTime();
+  return Math.ceil((target - now) / 86400000);
 }
 
-const SEV_LABEL: Record<string, string> = {
-  live: "Live",
-  imminent: "Imminente",
-  upcoming: "In arrivo",
-  far: "Pianificata",
+const TIPO_COLOR: Record<ScadenzaTipo, { fg: string; bg: string; border: string }> = {
+  entrata_vigore: {
+    fg: "hsl(var(--v2-accent))",
+    bg: "hsl(var(--v2-accent) / 0.1)",
+    border: "hsl(var(--v2-accent) / 0.28)",
+  },
+  adempimento: {
+    fg: "hsl(var(--v2-warn))",
+    bg: "hsl(var(--v2-warn) / 0.1)",
+    border: "hsl(var(--v2-warn) / 0.28)",
+  },
+  consultazione: {
+    fg: "hsl(var(--v2-info))",
+    bg: "hsl(var(--v2-info) / 0.1)",
+    border: "hsl(var(--v2-info) / 0.28)",
+  },
+  asta: {
+    fg: "hsl(var(--v2-danger))",
+    bg: "hsl(var(--v2-danger) / 0.1)",
+    border: "hsl(var(--v2-danger) / 0.28)",
+  },
+  scadenza: {
+    fg: "hsl(var(--v2-text))",
+    bg: "hsl(var(--v2-bg-elev))",
+    border: "hsl(var(--v2-border-strong))",
+  },
+  reporting: {
+    fg: "hsl(var(--v2-info))",
+    bg: "hsl(var(--v2-info) / 0.08)",
+    border: "hsl(var(--v2-info) / 0.22)",
+  },
 };
 
-export default function ScadenzeV2Page() {
-  const ordered = [...DELIBERE_DEADLINES].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  );
+function severityOf(days: number) {
+  if (days <= 0) return { label: "oggi", color: "hsl(var(--v2-danger))" };
+  if (days <= 7) return { label: `+${days}g`, color: "hsl(var(--v2-danger))" };
+  if (days <= 30) return { label: `+${days}g`, color: "hsl(var(--v2-warn))" };
+  if (days <= 90) return { label: `+${days}g`, color: "hsl(var(--v2-info))" };
+  return { label: `+${days}g`, color: "hsl(var(--v2-text-mute))" };
+}
+
+export default async function ScadenzePage() {
+  const scadenze = await listScadenzeFuture();
+
+  // Raggruppa per mese
+  const byMonth = new Map<string, ScadenzaView[]>();
+  for (const s of scadenze) {
+    const k = monthKey(s.date);
+    if (!byMonth.has(k)) byMonth.set(k, []);
+    byMonth.get(k)!.push(s);
+  }
+  const months = Array.from(byMonth.keys()).sort();
 
   return (
     <div className="flex flex-col gap-5">
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <p className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+          <p
+            className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]"
+            style={{ color: "hsl(var(--v2-text-mute))" }}
+          >
             Compliance · Timeline
           </p>
-          <h1 className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1" style={{ color: "hsl(var(--v2-text))" }}>
+          <h1
+            className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1"
+            style={{ color: "hsl(var(--v2-text))" }}
+          >
             Scadenze regolatorie
           </h1>
           <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            Date chiave estratte dalle delibere ARERA · ordinate per imminenza
+            {scadenze.length} scadenze estratte dai PDF delle delibere ARERA · ordinamento per data
           </p>
         </div>
       </header>
 
-      <div className="v2-card overflow-hidden">
-        <ul>
-          {ordered.map((dl) => {
-            const days = daysTo(dl.date);
+      {scadenze.length === 0 ? (
+        <div className="v2-card p-10 text-center flex flex-col items-center gap-3">
+          <div
+            className="inline-flex items-center justify-center w-12 h-12 rounded-xl"
+            style={{
+              background: "hsl(var(--v2-accent) / 0.1)",
+              border: "1px solid hsl(var(--v2-accent) / 0.28)",
+              color: "hsl(var(--v2-accent))",
+            }}
+          >
+            <CalendarClock className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-[15px] font-semibold" style={{ color: "hsl(var(--v2-text))" }}>
+              Nessuna scadenza futura
+            </p>
+            <p className="text-[13px] mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
+              Le scadenze vengono estratte automaticamente dai PDF delle delibere ARERA quando
+              viene generato il sommario AI.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-5">
+          {months.map((mk) => {
+            const items = byMonth.get(mk)!;
             return (
-              <li
-                key={dl.deliberaCode + dl.date}
-                className="grid grid-cols-[24px_110px_1fr_auto_auto] gap-4 items-center px-5 py-4 hover:bg-white/[0.02]"
-                style={{ borderBottom: "1px solid hsl(var(--v2-border))" }}
-              >
-                <span className={`v2-sev v2-sev--${dl.severity}`} />
-                <span className="v2-mono text-[11.5px]" style={{ color: "hsl(var(--v2-text))" }}>
-                  {fmtDate(dl.date)}
-                </span>
-                <div className="min-w-0">
-                  <div className="text-[13.5px] font-medium" style={{ color: "hsl(var(--v2-text))" }}>
-                    {dl.label}
-                  </div>
-                  <div className="v2-mono text-[10.5px] mt-0.5" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                    {dl.deliberaCode}
-                  </div>
-                </div>
-                <span
-                  className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.14em] px-2 py-1 rounded"
-                  style={{
-                    color:
-                      dl.severity === "live"
-                        ? "hsl(var(--v2-danger))"
-                        : dl.severity === "imminent"
-                        ? "hsl(var(--v2-warn))"
-                        : dl.severity === "upcoming"
-                        ? "hsl(var(--v2-info))"
-                        : "hsl(var(--v2-text-dim))",
-                    background:
-                      dl.severity === "live"
-                        ? "hsl(var(--v2-danger) / 0.12)"
-                        : dl.severity === "imminent"
-                        ? "hsl(var(--v2-warn) / 0.12)"
-                        : dl.severity === "upcoming"
-                        ? "hsl(var(--v2-info) / 0.12)"
-                        : "hsl(var(--v2-border))",
-                  }}
+              <section key={mk} className="v2-card overflow-hidden">
+                <div
+                  className="px-5 py-3 flex items-center justify-between"
+                  style={{ borderBottom: "1px solid hsl(var(--v2-border))" }}
                 >
-                  {SEV_LABEL[dl.severity]}
-                </span>
-                <span className="v2-mono text-[11.5px] w-16 text-right" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                  {days > 0 ? `+${days}g` : days === 0 ? "oggi" : `${days}g`}
-                </span>
-              </li>
+                  <div
+                    className="v2-mono text-[11px] font-bold uppercase tracking-[0.18em]"
+                    style={{ color: "hsl(var(--v2-accent))" }}
+                  >
+                    {monthLabel(mk)}
+                  </div>
+                  <span
+                    className="v2-mono text-[10.5px]"
+                    style={{ color: "hsl(var(--v2-text-mute))" }}
+                  >
+                    {items.length} {items.length === 1 ? "scadenza" : "scadenze"}
+                  </span>
+                </div>
+                <ul>
+                  {items.map((s, idx) => {
+                    const col = TIPO_COLOR[s.tipo] ?? TIPO_COLOR.scadenza;
+                    const days = daysTo(s.date);
+                    const sev = severityOf(days);
+                    return (
+                      <li
+                        key={`${s.deliberaId}-${idx}`}
+                        style={{ borderBottom: idx < items.length - 1 ? "1px solid hsl(var(--v2-border))" : undefined }}
+                      >
+                        <Link
+                          href={`/network/delibere?open=${encodeURIComponent(s.deliberaNumero)}`}
+                          className="grid gap-4 items-start px-5 py-4 hover:bg-white/[0.02] transition-colors"
+                          style={{ gridTemplateColumns: "90px 1fr auto" }}
+                        >
+                          <div className="flex flex-col gap-0.5">
+                            <span
+                              className="v2-mono text-[12px] font-semibold"
+                              style={{ color: "hsl(var(--v2-text))" }}
+                            >
+                              {fmtDate(s.date)}
+                            </span>
+                            <span
+                              className="v2-mono text-[10.5px] font-semibold"
+                              style={{ color: sev.color }}
+                            >
+                              {sev.label}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span
+                                className="v2-mono text-[9.5px] font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+                                style={{ color: col.fg, background: col.bg, border: `1px solid ${col.border}` }}
+                              >
+                                {SCADENZA_LABEL[s.tipo] ?? s.tipo}
+                              </span>
+                              <span
+                                className="v2-mono text-[10px]"
+                                style={{ color: "hsl(var(--v2-text-mute))" }}
+                              >
+                                {s.deliberaNumero}
+                              </span>
+                            </div>
+                            <p
+                              className="text-[13.5px] leading-relaxed"
+                              style={{ color: "hsl(var(--v2-text))" }}
+                            >
+                              {s.label}
+                            </p>
+                            <p
+                              className="text-[11.5px] line-clamp-1"
+                              style={{ color: "hsl(var(--v2-text-mute))" }}
+                            >
+                              {s.deliberaTitolo}
+                            </p>
+                          </div>
+                          <ArrowRight
+                            className="w-4 h-4 mt-1 shrink-0"
+                            style={{ color: "hsl(var(--v2-text-mute))" }}
+                          />
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
             );
           })}
-        </ul>
-      </div>
-
-      <Link href="/network" className="v2-btn v2-btn--ghost self-start">
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Torna alla dashboard
-      </Link>
+        </div>
+      )}
     </div>
   );
 }

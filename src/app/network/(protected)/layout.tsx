@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getNetworkMember } from "@/lib/network/session";
 import { V2Sidebar } from "@/components/network-v2/sidebar";
 import { createClient } from "@/lib/supabase/server";
-import { DELIBERE_DEADLINES } from "@/lib/delibere/mock";
+import { listScadenzeFuture } from "@/lib/delibere/scadenze";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +22,7 @@ export default async function NetworkProtectedLayout({
   }
 
   const supabase = await createClient();
-  const [delibereRes, testiRes] = await Promise.all([
+  const [delibereRes, testiRes, scadenze] = await Promise.all([
     supabase
       .from("delibere_cache")
       .select("*", { count: "exact", head: true })
@@ -30,12 +30,10 @@ export default async function NetworkProtectedLayout({
     supabase
       .from("testi_integrati_cache")
       .select("*", { count: "exact", head: true }),
+    listScadenzeFuture(),
   ]);
 
-  const now = Date.now();
-  const scadenzeCount = DELIBERE_DEADLINES.filter(
-    (d) => new Date(d.date).getTime() >= now,
-  ).length;
+  const scadenzeCount = scadenze.length;
 
   return (
     <div className="v2">
