@@ -1,0 +1,317 @@
+/**
+ * Sync delibere from Energizzo public API into Supabase delibere_cache.
+ *
+ * Usage (from repo root):
+ *   npx tsx scripts/sync-delibere.ts            # full sync, no AI
+ *   npx tsx scripts/sync-delibere.ts --ai 30    # sync + generate first 30 AI summaries
+ */
+
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { createClient } from "@supabase/supabase-js";
+import Anthropic from "@anthropic-ai/sdk";
+
+// --- load .env.local ---
+const envPath = resolve(process.cwd(), ".env.local");
+if (existsSync(envPath)) {
+  const envRaw = readFileSync(envPath, "utf8");
+  for (const line of envRaw.split(/\r?\n/)) {
+    const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
+    if (!m) continue;
+    if (!process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+}
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+
+if (!SUPABASE_URL || !SERVICE_ROLE) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  process.exit(1);
+}
+
+const API_BASE = "https://api8055.energizzo.it/api/public/delibere";
+const MODEL = "claude-sonnet-4-5-20250929";
+
+const SYSTEM_PROMPT = `Sei un analista regolatorio esperto del mercato energia italiano.
+Lavori per Il Dispaccio, il network dei reseller energia italiani.
+
+Ti verrà fornita una delibera ARERA/GME/MASE.
+Il tuo compito: produrre un riassunto OPERATIVO per un reseller.
+
+Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
+
+{
+  "summary": "1-2 frasi che spiegano di cosa parla la delibera e per chi è rilevante. Italiano tecnico ma asciutto.",
+  "bullets": [
+    "Bullet 1 operativo: cosa cambia, scadenza, soglia, aliquota, componente impattata",
+    "Bullet 2 operativo",
+    "Bullet 3 operativo",
+    "Bullet 4 operativo"
+  ],
+  "sectors": ["eel" | "gas" | "com"]
+}
+
+Regole:
+- 4 bullet esatti, ciascuno ≤ 140 caratteri.
+- Ogni bullet deve contenere UN dato concreto (numero, data, %, soglia) se presente nel testo.
+- Niente fluff ("si fa presente che", "è importante"). Prima parola → azione o dato.
+- "sectors" deve contenere uno o più tra "eel" (energia elettrica), "gas", "com" (comune/entrambi i vettori).
+- Se la delibera cita STG, TRAS, DIS, MIS, PUN, asta, tariffa, oneri, switching, recupero crediti → PRIORITIZZA quella info nei bullet.
+- Se il PDF è lungo o complesso, concentrati sul dispositivo (la parte decisionale, non le premesse).`;
+
+type ApiDelibera = {
+  id: number;
+  numero: string;
+  titolo: string;
+  descrizione: string | null;
+  tipo: string | null;
+  settore: string | null;
+  data_delibera: string | null;
+  data_scadenza: string | null;
+  data_pubblicazione: string | null;
+  fonte: string | null;
+  url_riferimento: string | null;
+  stato: string | null;
+  note: string | null;
+  documento_url: string | null;
+  documenti_urls: string[] | null;
+  autore: { id: number; name: string } | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+type ApiResponse = {
+  success: boolean;
+  data: ApiDelibera[];
+  total: number;
+};
+
+async function fetchAllDelibere(): Promise<ApiDelibera[]> {
+  const res = await fetch(`${API_BASE}?per_page=500`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  const json = (await res.json()) as ApiResponse;
+  if (!json.success) throw new Error("API success=false");
+  return json.data;
+}
+
+function mapSettoreToSector(settore: string | null): string[] {
+  if (!settore) return ["com"];
+  const s = settore.toLowerCase();
+  const result: string[] = [];
+  if (s.includes("luce") || s.includes("elett") || s.includes("eel")) result.push("eel");
+  if (s.includes("gas")) result.push("gas");
+  if (result.length === 0) result.push("com");
+  return result;
+}
+
+async function main() {
+  const supabase = createClient(SUPABASE_URL!, SERVICE_ROLE!, {
+    auth: { persistSession: false },
+  });
+
+  console.log("⏳ Fetching delibere from Energizzo API…");
+  const items = await fetchAllDelibere();
+  console.log(`   ${items.length} records`);
+
+  console.log("⏳ Upsert into delibere_cache…");
+  const rows = items.map((d) => ({
+    id: d.id,
+    numero: d.numero,
+    titolo: d.titolo,
+    descrizione: d.descrizione,
+    tipo: d.tipo,
+    settore: d.settore,
+    data_delibera: d.data_delibera,
+    data_scadenza: d.data_scadenza,
+    data_pubblicazione: d.data_pubblicazione,
+    fonte: d.fonte,
+    url_riferimento: d.url_riferimento,
+    documento_url: d.documento_url,
+    documenti_urls: d.documenti_urls ?? [],
+    stato: d.stato,
+    note: d.note,
+    autore: d.autore,
+    api_created_at: d.created_at,
+    api_updated_at: d.updated_at,
+    synced_at: new Date().toISOString(),
+  }));
+
+  // Upsert in chunks of 100
+  for (let i = 0; i < rows.length; i += 100) {
+    const chunk = rows.slice(i, i + 100);
+    const { error } = await supabase
+      .from("delibere_cache")
+      .upsert(chunk, { onConflict: "id" });
+    if (error) {
+      console.error(`   chunk ${i}: ${error.message}`);
+      process.exit(1);
+    }
+  }
+  console.log(`   ${rows.length} rows upserted`);
+
+  // AI summaries
+  const aiArgIdx = process.argv.indexOf("--ai");
+  if (aiArgIdx >= 0) {
+    const n = Number(process.argv[aiArgIdx + 1] ?? "10");
+    if (!ANTHROPIC_KEY) {
+      console.error("Missing ANTHROPIC_API_KEY — skip AI");
+      return;
+    }
+    await generateAiBatch(supabase, n);
+  }
+
+  console.log("✅ Done");
+}
+
+async function generateAiBatch(supabase: any, n: number) {
+  console.log(`⏳ Generating AI summaries for top ${n}…`);
+  const { data, error } = await supabase
+    .from("delibere_cache")
+    .select("id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento")
+    .is("ai_generated_at", null)
+    .is("ai_error", null)
+    .order("data_delibera", { ascending: false, nullsFirst: false })
+    .limit(n);
+  if (error) {
+    console.error(`   list failed: ${error.message}`);
+    return;
+  }
+  if (!data || data.length === 0) {
+    console.log("   nothing to generate");
+    return;
+  }
+
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_KEY! });
+
+  let ok = 0;
+  let fail = 0;
+  for (const row of data) {
+    process.stdout.write(`   [${ok + fail + 1}/${data.length}] ${row.numero}… `);
+    try {
+      const result = await summarizeOne(anthropic, row);
+      await supabase
+        .from("delibere_cache")
+        .update({
+          ai_summary: result.summary,
+          ai_bullets: result.bullets,
+          ai_sectors: result.sectors,
+          ai_generated_at: new Date().toISOString(),
+          ai_model: MODEL,
+          ai_source: result.source,
+          ai_error: null,
+        })
+        .eq("id", row.id);
+      console.log(`ok (${result.source})`);
+      ok++;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.log(`FAIL — ${msg}`);
+      await supabase
+        .from("delibere_cache")
+        .update({ ai_error: msg.slice(0, 500) })
+        .eq("id", row.id);
+      fail++;
+    }
+  }
+  console.log(`   → ${ok} ok, ${fail} fail`);
+}
+
+async function summarizeOne(
+  anthropic: Anthropic,
+  row: {
+    id: number;
+    numero: string;
+    titolo: string;
+    descrizione: string | null;
+    tipo: string | null;
+    settore: string | null;
+    documento_url: string | null;
+    url_riferimento: string | null;
+  },
+): Promise<{ summary: string; bullets: string[]; sectors: string[]; source: "pdf" | "url" }> {
+  const header =
+    `Delibera ${row.tipo ?? ""} ${row.numero}\n` +
+    `Titolo: ${row.titolo}\n` +
+    (row.descrizione ? `Descrizione: ${row.descrizione}\n` : "") +
+    (row.settore ? `Settore API: ${row.settore}\n` : "");
+
+  let source: "pdf" | "url" = "url";
+  const content: any[] = [];
+
+  if (row.documento_url) {
+    try {
+      const res = await fetch(row.documento_url);
+      if (!res.ok) throw new Error(`PDF ${res.status}`);
+      const buf = await res.arrayBuffer();
+      if (buf.byteLength > 30 * 1024 * 1024) {
+        throw new Error(`PDF too large ${buf.byteLength}`);
+      }
+      content.push({
+        type: "document",
+        source: {
+          type: "base64",
+          media_type: "application/pdf",
+          data: Buffer.from(buf).toString("base64"),
+        },
+      });
+      source = "pdf";
+    } catch (err) {
+      // fall back to URL
+      console.log(`\n     (pdf fetch failed: ${err instanceof Error ? err.message : err})`);
+    }
+  }
+
+  content.push({
+    type: "text",
+    text:
+      `${header}\n` +
+      (source === "pdf"
+        ? "Analizza il PDF della delibera sopra allegato.\nProduci il JSON secondo lo schema richiesto."
+        : `Non ho il PDF. URL di riferimento: ${row.url_riferimento ?? "n/a"}.\n` +
+          "Genera il JSON usando titolo/descrizione/numero come base."),
+  });
+
+  const resp = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 1024,
+    system: [
+      {
+        type: "text",
+        text: SYSTEM_PROMPT,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    messages: [{ role: "user", content }],
+  });
+
+  const textBlock = resp.content.find((c) => c.type === "text");
+  if (!textBlock || textBlock.type !== "text") throw new Error("no text from Claude");
+
+  const txt = textBlock.text.trim();
+  const jsonStart = txt.indexOf("{");
+  const jsonEnd = txt.lastIndexOf("}");
+  if (jsonStart === -1 || jsonEnd === -1) throw new Error("no JSON in response");
+  const parsed = JSON.parse(txt.slice(jsonStart, jsonEnd + 1));
+
+  const summary = String(parsed.summary ?? "").trim();
+  const bullets = Array.isArray(parsed.bullets)
+    ? parsed.bullets.map((b: unknown) => String(b).trim()).filter(Boolean).slice(0, 5)
+    : [];
+  let sectors = Array.isArray(parsed.sectors)
+    ? parsed.sectors.map((s: unknown) => String(s).toLowerCase()).filter((s: string) => ["eel", "gas", "com"].includes(s))
+    : [];
+  if (sectors.length === 0) sectors = mapSettoreToSector(row.settore);
+
+  if (!summary || bullets.length === 0) throw new Error("empty summary or bullets");
+
+  return { summary, bullets, sectors, source };
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

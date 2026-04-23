@@ -10,10 +10,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 import {
-  DELIBERE,
   DELIBERE_DEADLINES,
   SAVED_DELIBERE_MOCK,
 } from "@/lib/delibere/mock";
+import { listDelibere } from "@/lib/delibere/db";
+import { mapSettoreToSector } from "@/lib/delibere/api";
 import { V2TickerRow } from "@/components/network-v2/ticker-row";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { getNetworkMember } from "@/lib/network/session";
@@ -48,20 +49,39 @@ function greeting(): string {
 }
 
 export default async function V2HomePage() {
-  const member = await getNetworkMember();
+  const [member, allDelibere] = await Promise.all([
+    getNetworkMember(),
+    listDelibere({ limit: 200 }),
+  ]);
   const firstName = (member?.referente ?? "").split(" ")[0] || "operatore";
 
-  const latest = DELIBERE.slice()
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 4);
+  const latest = allDelibere.slice(0, 4).map((d) => ({
+    code: d.numero,
+    title: d.titolo,
+    date: d.data_delibera ?? d.data_pubblicazione ?? d.api_created_at ?? d.created_at,
+    sectors:
+      Array.isArray(d.ai_sectors) && d.ai_sectors.length > 0
+        ? d.ai_sectors
+        : mapSettoreToSector(d.settore),
+  }));
 
   const upcoming = DELIBERE_DEADLINES.slice()
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 4);
 
   const saved = SAVED_DELIBERE_MOCK.map((s) => {
-    const d = DELIBERE.find((x) => x.code === s.code);
-    return d ? { ...d, savedAt: s.savedAt } : null;
+    const d = allDelibere.find((x) => x.numero === s.code);
+    return d
+      ? {
+          code: d.numero,
+          title: d.titolo,
+          sectors:
+            Array.isArray(d.ai_sectors) && d.ai_sectors.length > 0
+              ? d.ai_sectors
+              : mapSettoreToSector(d.settore),
+          savedAt: s.savedAt,
+        }
+      : null;
   }).filter(Boolean);
 
   return (
@@ -76,7 +96,7 @@ export default async function V2HomePage() {
             {greeting()}, {firstName}.
           </h1>
           <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            8 nuove delibere pubblicate · 1 scadenza live · PUN in salita del 25%
+            {allDelibere.length} delibere indicizzate · {upcoming.length} scadenze in arrivo · PUN in salita del 25%
           </p>
         </div>
         <Link href="/network/delibere" className="v2-btn v2-btn--primary">
@@ -109,22 +129,28 @@ export default async function V2HomePage() {
             </Link>
           </div>
           <div className="divide-y" style={{ borderColor: "hsl(var(--v2-border))" }}>
-            {latest.map((d) => (
-              <Link
-                key={d.code}
-                href={`/network/delibere?open=${encodeURIComponent(d.code)}`}
-                className="v2-delibera-row"
-              >
-                <span className="v2-delibera-code">{d.code}</span>
-                <span className="v2-delibera-date">{formatShortDate(d.date)}</span>
-                <span className="v2-delibera-title">{d.title}</span>
-                <span className="flex items-center gap-1">
-                  {d.sectors.map((s) => (
-                    <V2SectorChip key={s} sector={s} />
-                  ))}
-                </span>
-              </Link>
-            ))}
+            {latest.length === 0 ? (
+              <div className="p-6 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                Nessuna delibera indicizzata.
+              </div>
+            ) : (
+              latest.map((d) => (
+                <Link
+                  key={d.code}
+                  href={`/network/delibere?open=${encodeURIComponent(d.code)}`}
+                  className="v2-delibera-row"
+                >
+                  <span className="v2-delibera-code">{d.code.split("/").slice(0, 2).join("/")}</span>
+                  <span className="v2-delibera-date">{d.date ? formatShortDate(d.date) : "—"}</span>
+                  <span className="v2-delibera-title">{d.title}</span>
+                  <span className="flex items-center gap-1">
+                    {d.sectors.map((s) => (
+                      <V2SectorChip key={s} sector={s} />
+                    ))}
+                  </span>
+                </Link>
+              ))
+            )}
           </div>
         </div>
 
