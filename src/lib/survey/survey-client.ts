@@ -9,6 +9,7 @@ export type LeadForSurvey = {
   tipo_servizio: string;
   provincia: string | null;
   survey_completed: boolean;
+  invite_number: number | null;
 };
 
 export async function fetchLeadForSurvey(

@@ -40,6 +40,7 @@ export type Lead = {
   survey_sent_at: string | null;
   survey_completed_at: string | null;
   survey_last_step_at: string | null;
+  invite_number: number | null;
   whatsapp: string | null;
   telefono: string | null;
   podcast_status?: string | null;

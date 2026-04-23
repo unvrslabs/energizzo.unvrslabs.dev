@@ -886,6 +886,384 @@
 ::-webkit-scrollbar-thumb { background: hsl(215 25% 22%); border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: hsl(215 25% 28%); }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   INVITO NETWORK · Welcome editoriale riservato
+   Monocroma carta nera + panna + accent emerald scuro unico. Tipografia serif.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.invito-welcome {
+  --ink: 40 12% 92%;            /* panna */
+  --ink-dim: 40 8% 72%;
+  --ink-mute: 40 6% 52%;
+  --paper: 210 18% 6%;           /* nero carta */
+  --paper-raised: 210 15% 8%;
+  --hairline: 40 10% 25% / 0.4;
+  --accent: 155 55% 38%;         /* emerald scuro, non saturato */
+
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  background-color: hsl(var(--paper));
+  background-image:
+    radial-gradient(ellipse 100% 70% at 50% 0%, hsl(var(--accent) / 0.06), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, hsl(var(--accent) / 0.04), transparent 70%);
+  color: hsl(var(--ink));
+  font-family: var(--font-inter), var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01" 1, "cv11" 1;
+  letter-spacing: -0.005em;
+}
+
+/* Noise overlay sottilissimo per dare texture carta */
+.invito-welcome::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  mix-blend-mode: overlay;
+}
+
+.invito-sheet {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: clamp(32px, 8vw, 88px) clamp(24px, 6vw, 64px) clamp(40px, 8vw, 88px);
+}
+
+/* Header */
+.invito-header {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-bottom: 48px;
+}
+
+.invito-header-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--ink-mute));
+}
+
+.invito-kicker { white-space: nowrap; }
+
+.invito-divider {
+  flex: 1;
+  height: 1px;
+  background: hsl(var(--hairline));
+}
+
+.invito-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.invito-monogram {
+  width: 38px;
+  height: 38px;
+  color: hsl(var(--ink));
+  flex-shrink: 0;
+}
+
+.invito-brand {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: hsl(var(--ink));
+}
+
+.invito-number-plate {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 20px;
+}
+
+.invito-number-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: hsl(var(--ink-mute));
+}
+
+.invito-number-big {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: clamp(44px, 10vw, 72px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: hsl(var(--ink));
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.invito-number-total {
+  font-size: 0.5em;
+  color: hsl(var(--ink-mute));
+  font-weight: 300;
+}
+
+/* Hairline separator */
+.invito-rule {
+  width: 100%;
+  height: 1px;
+  background: hsl(var(--hairline));
+  margin: 40px 0;
+}
+
+.invito-rule--short {
+  width: 88px;
+  margin: 48px auto;
+  background: hsl(var(--accent) / 0.5);
+  height: 1px;
+}
+
+/* Intro */
+.invito-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.invito-title {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: clamp(38px, 7vw, 56px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: hsl(var(--ink));
+}
+
+.invito-title em {
+  font-style: italic;
+  color: hsl(var(--accent));
+  font-weight: 400;
+}
+
+.invito-lede {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: clamp(17px, 2.2vw, 19px);
+  line-height: 1.55;
+  color: hsl(var(--ink-dim));
+  font-weight: 300;
+}
+
+.invito-lede em {
+  font-style: italic;
+  color: hsl(var(--ink));
+}
+
+/* Blocks */
+.invito-block {
+  margin-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.invito-block-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: hsl(var(--accent));
+}
+
+.invito-body {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: 16px;
+  line-height: 1.65;
+  color: hsl(var(--ink-dim));
+  font-weight: 300;
+}
+
+.invito-body strong {
+  font-weight: 500;
+  color: hsl(var(--ink));
+}
+
+/* Elenco */
+.invito-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: invito-item;
+}
+
+.invito-list li {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: hsl(var(--ink-dim));
+  font-weight: 300;
+  padding-left: 28px;
+  position: relative;
+  counter-increment: invito-item;
+}
+
+.invito-list li::before {
+  content: counter(invito-item, lower-roman);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: hsl(var(--accent));
+  padding-top: 4px;
+  min-width: 20px;
+}
+
+.invito-list li strong {
+  font-weight: 500;
+  color: hsl(var(--ink));
+}
+
+.invito-hyphen {
+  color: hsl(var(--ink-mute));
+  margin: 0 2px;
+}
+
+/* CTA */
+.invito-cta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.invito-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 36px;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: hsl(var(--paper));
+  background: hsl(var(--ink));
+  border: 1px solid hsl(var(--ink));
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.invito-cta:hover {
+  background: hsl(var(--accent));
+  border-color: hsl(var(--accent));
+  color: hsl(var(--ink));
+  transform: translateY(-1px);
+}
+
+.invito-cta-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.invito-cta-note {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.5;
+  color: hsl(var(--ink-mute));
+  text-align: center;
+  max-width: 400px;
+  font-weight: 300;
+}
+
+/* Footer firmato */
+.invito-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.invito-sign {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.invito-sign-cursive {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: hsl(var(--ink));
+  letter-spacing: -0.01em;
+}
+
+.invito-sign-meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(var(--ink-mute));
+  font-weight: 500;
+}
+
+.invito-stamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 16px;
+  border: 1px solid hsl(var(--accent) / 0.5);
+  border-radius: 999px;
+  color: hsl(var(--accent));
+  flex-shrink: 0;
+}
+
+.invito-stamp-label {
+  font-family: var(--font-mono), monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.invito-stamp-number {
+  font-family: var(--font-serif), Newsreader, Georgia, serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .invito-rule { margin: 32px 0; }
+  .invito-header { gap: 20px; margin-bottom: 32px; }
+  .invito-number-plate { padding-top: 12px; }
+  .invito-block { margin-bottom: 28px; }
+  .invito-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .invito-stamp { align-self: flex-end; }
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════════
    NETWORK · Cockpit reseller energia (area riservata /network/*)

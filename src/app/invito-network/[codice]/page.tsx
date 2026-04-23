@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SurveyPage } from "@/components/survey/survey-page";
-import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Invito al network · Il Dispaccio",
   description:
-    "Sei stato selezionato per accedere al network Il Dispaccio. Completa il questionario per attivare il tuo accesso gratuito.",
+    "Documento riservato. Invito nominale al network Il Dispaccio per il reseller selezionato.",
   robots: { index: false, follow: false },
 };
 
@@ -27,7 +26,6 @@ export default async function InvitoNetworkPage({
 
   return (
     <main className="relative min-h-screen">
-      <AnimatedBackground />
       <SurveyPage token={codice} />
     </main>
   );

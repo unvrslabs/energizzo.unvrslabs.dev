@@ -207,6 +207,19 @@ export function LeadProfileV2({
                 >
                   P.IVA {lead.piva}
                 </span>
+                {lead.invite_number != null && (
+                  <span
+                    className="v2-mono text-[10.5px] font-bold uppercase tracking-[0.12em] px-2 py-1 rounded inline-flex items-center gap-1.5"
+                    style={{
+                      background: "hsl(var(--v2-warn) / 0.1)",
+                      color: "hsl(var(--v2-warn))",
+                      border: "1px solid hsl(var(--v2-warn) / 0.3)",
+                    }}
+                    title="Numero invito nominale"
+                  >
+                    Inv. N.&nbsp;{String(lead.invite_number).padStart(3, "0")}
+                  </span>
+                )}
                 {membership && !membership.revoked_at && (
                   <span
                     className="v2-mono text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded inline-flex items-center gap-1.5"

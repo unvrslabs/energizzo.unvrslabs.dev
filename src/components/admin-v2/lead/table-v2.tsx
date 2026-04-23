@@ -20,12 +20,12 @@ export function LeadsTableV2({
     );
   }
 
-  const GRID = "minmax(260px, 2fr) 140px 150px 110px 90px 180px";
+  const GRID = "minmax(260px, 2fr) 70px 140px 150px 110px 90px 180px";
 
   return (
     <div className="v2-card overflow-hidden">
       <div className="overflow-x-auto">
-        <div style={{ minWidth: "1100px" }}>
+        <div style={{ minWidth: "1170px" }}>
           {/* Header */}
           <div
             className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
@@ -36,6 +36,7 @@ export function LeadsTableV2({
             }}
           >
             <span>Ragione sociale</span>
+            <span>Invito</span>
             <span>Stato</span>
             <span>Categoria</span>
             <span>Network</span>
@@ -80,6 +81,24 @@ export function LeadsTableV2({
                   </div>
                 </div>
               </div>
+
+              {l.invite_number != null ? (
+                <span
+                  className="v2-mono text-[10.5px] font-bold px-1.5 py-0.5 rounded w-fit"
+                  style={{
+                    background: "hsl(var(--v2-warn) / 0.1)",
+                    color: "hsl(var(--v2-warn))",
+                    border: "1px solid hsl(var(--v2-warn) / 0.3)",
+                  }}
+                  title="Invito nominale"
+                >
+                  #{String(l.invite_number).padStart(3, "0")}
+                </span>
+              ) : (
+                <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                  —
+                </span>
+              )}
 
               <StatusPill color={statusCfg.color} label={statusCfg.label} />
 
