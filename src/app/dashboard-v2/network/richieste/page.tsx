@@ -27,41 +27,45 @@ export default async function RichiestePage() {
 
   const rows = data ?? [];
 
+  const GRID = "minmax(240px, 1.6fr) 150px minmax(140px, 1fr) 170px 130px 110px 220px";
+
   return (
     <div className="v2-card overflow-hidden">
-      {/* Header row */}
-      <div
-        className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
-        style={{
-          gridTemplateColumns: "minmax(0, 1.6fr) 150px minmax(0, 1fr) 140px 130px 110px auto",
-          color: "hsl(var(--v2-text-mute))",
-          borderBottom: "1px solid hsl(var(--v2-border))",
-        }}
-      >
-        <span>Azienda</span>
-        <span>P.IVA</span>
-        <span>Referente</span>
-        <span>WhatsApp</span>
-        <span>Ricevuta</span>
-        <span>Origine</span>
-        <span className="text-right">Azioni</span>
-      </div>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: "1240px" }}>
+          {/* Header row */}
+          <div
+            className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{
+              gridTemplateColumns: GRID,
+              color: "hsl(var(--v2-text-mute))",
+              borderBottom: "1px solid hsl(var(--v2-border))",
+            }}
+          >
+            <span>Azienda</span>
+            <span>P.IVA</span>
+            <span>Referente</span>
+            <span>WhatsApp</span>
+            <span>Ricevuta</span>
+            <span>Origine</span>
+            <span className="text-right">Azioni</span>
+          </div>
 
-      <ul>
-        {rows.length === 0 ? (
-          <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            Nessuna richiesta.
-          </li>
-        ) : (
-          rows.map((r) => (
-            <li
-              key={r.id}
-              className="grid gap-3 px-4 py-3 items-center"
-              style={{
-                gridTemplateColumns: "minmax(0, 1.6fr) 150px minmax(0, 1fr) 140px 130px 110px auto",
-                borderBottom: "1px solid hsl(var(--v2-border))",
-              }}
-            >
+          <ul>
+            {rows.length === 0 ? (
+              <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                Nessuna richiesta.
+              </li>
+            ) : (
+              rows.map((r) => (
+                <li
+                  key={r.id}
+                  className="grid gap-3 px-4 py-3 items-center"
+                  style={{
+                    gridTemplateColumns: GRID,
+                    borderBottom: "1px solid hsl(var(--v2-border))",
+                  }}
+                >
               <div className="flex items-center gap-2 min-w-0">
                 <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
                 <div className="min-w-0">
@@ -115,7 +119,9 @@ export default async function RichiestePage() {
             </li>
           ))
         )}
-      </ul>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

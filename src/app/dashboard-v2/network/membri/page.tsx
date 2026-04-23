@@ -27,43 +27,47 @@ export default async function MembriPage() {
 
   const rows = data ?? [];
 
+  const GRID = "minmax(260px, 1.6fr) minmax(140px, 1fr) 170px 120px 130px 100px 120px";
+
   return (
     <div className="v2-card overflow-hidden">
-      <div
-        className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
-        style={{
-          gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr) 140px 130px 130px 110px auto",
-          color: "hsl(var(--v2-text-mute))",
-          borderBottom: "1px solid hsl(var(--v2-border))",
-        }}
-      >
-        <span>Azienda</span>
-        <span>Referente</span>
-        <span>WhatsApp</span>
-        <span>Ammesso</span>
-        <span>Ultimo accesso</span>
-        <span>Stato</span>
-        <span className="text-right">Azioni</span>
-      </div>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: "1140px" }}>
+          <div
+            className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{
+              gridTemplateColumns: GRID,
+              color: "hsl(var(--v2-text-mute))",
+              borderBottom: "1px solid hsl(var(--v2-border))",
+            }}
+          >
+            <span>Azienda</span>
+            <span>Referente</span>
+            <span>WhatsApp</span>
+            <span>Ammesso</span>
+            <span>Ultimo accesso</span>
+            <span>Stato</span>
+            <span className="text-right">Azioni</span>
+          </div>
 
-      <ul>
-        {rows.length === 0 ? (
-          <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            Nessun membro nel network.
-          </li>
-        ) : (
-          rows.map((m) => {
-            const revoked = !!m.revoked_at;
-            return (
-              <li
-                key={m.id}
-                className="grid gap-3 px-4 py-3 items-center"
-                style={{
-                  gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr) 140px 130px 130px 110px auto",
-                  borderBottom: "1px solid hsl(var(--v2-border))",
-                  opacity: revoked ? 0.5 : 1,
-                }}
-              >
+          <ul>
+            {rows.length === 0 ? (
+              <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                Nessun membro nel network.
+              </li>
+            ) : (
+              rows.map((m) => {
+                const revoked = !!m.revoked_at;
+                return (
+                  <li
+                    key={m.id}
+                    className="grid gap-3 px-4 py-3 items-center"
+                    style={{
+                      gridTemplateColumns: GRID,
+                      borderBottom: "1px solid hsl(var(--v2-border))",
+                      opacity: revoked ? 0.5 : 1,
+                    }}
+                  >
                 <div className="flex items-center gap-2 min-w-0">
                   <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
                   <div className="min-w-0">
@@ -119,7 +123,9 @@ export default async function MembriPage() {
             );
           })
         )}
-      </ul>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

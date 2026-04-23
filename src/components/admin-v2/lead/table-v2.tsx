@@ -20,41 +20,45 @@ export function LeadsTableV2({
     );
   }
 
+  const GRID = "minmax(260px, 2fr) 140px 150px 110px 90px 80px 160px 70px";
+
   return (
     <div className="v2-card overflow-hidden">
-      {/* Header */}
-      <div
-        className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
-        style={{
-          gridTemplateColumns: "minmax(0, 2fr) 130px 130px 110px 90px 90px 140px auto",
-          color: "hsl(var(--v2-text-mute))",
-          borderBottom: "1px solid hsl(var(--v2-border))",
-        }}
-      >
-        <span>Ragione sociale</span>
-        <span>Stato</span>
-        <span>Categoria</span>
-        <span>Network</span>
-        <span>Tipo</span>
-        <span>Prov.</span>
-        <span>Comune</span>
-        <span className="text-right">Apri</span>
-      </div>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: "1260px" }}>
+          {/* Header */}
+          <div
+            className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{
+              gridTemplateColumns: GRID,
+              color: "hsl(var(--v2-text-mute))",
+              borderBottom: "1px solid hsl(var(--v2-border))",
+            }}
+          >
+            <span>Ragione sociale</span>
+            <span>Stato</span>
+            <span>Categoria</span>
+            <span>Network</span>
+            <span>Tipo</span>
+            <span>Prov.</span>
+            <span>Comune</span>
+            <span className="text-right">Apri</span>
+          </div>
 
-      {/* Rows */}
-      <ul>
-        {leads.map((l) => {
-          const statusCfg = STATUS_CONFIG[l.status];
-          return (
-            <li
-              key={l.id}
-              onClick={() => onSelect(l.id)}
-              className="grid gap-3 px-4 py-3 items-center cursor-pointer transition-colors hover:bg-white/[0.02]"
-              style={{
-                gridTemplateColumns: "minmax(0, 2fr) 130px 130px 110px 90px 90px 140px auto",
-                borderBottom: "1px solid hsl(var(--v2-border))",
-              }}
-            >
+          {/* Rows */}
+          <ul>
+            {leads.map((l) => {
+              const statusCfg = STATUS_CONFIG[l.status];
+              return (
+                <li
+                  key={l.id}
+                  onClick={() => onSelect(l.id)}
+                  className="grid gap-3 px-4 py-3 items-center cursor-pointer transition-colors hover:bg-white/[0.02]"
+                  style={{
+                    gridTemplateColumns: GRID,
+                    borderBottom: "1px solid hsl(var(--v2-border))",
+                  }}
+                >
               <div className="flex items-center gap-2 min-w-0">
                 <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
                 <div className="min-w-0">
@@ -112,7 +116,9 @@ export function LeadsTableV2({
             </li>
           );
         })}
-      </ul>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

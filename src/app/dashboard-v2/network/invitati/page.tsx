@@ -36,43 +36,47 @@ export default async function InvitatiPage() {
 
   const rows = data ?? [];
 
+  const GRID = "minmax(240px, 1.8fr) 150px 120px 170px 120px 130px 110px";
+
   return (
     <div className="v2-card overflow-hidden">
-      <div
-        className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
-        style={{
-          gridTemplateColumns: "minmax(0, 1.8fr) 140px 120px 120px 130px 130px auto",
-          color: "hsl(var(--v2-text-mute))",
-          borderBottom: "1px solid hsl(var(--v2-border))",
-        }}
-      >
-        <span>Azienda</span>
-        <span>P.IVA</span>
-        <span>Stato</span>
-        <span>Contatto</span>
-        <span>Invitato</span>
-        <span>Ultima att.</span>
-        <span className="text-right">Link</span>
-      </div>
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: "1200px" }}>
+          <div
+            className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
+            style={{
+              gridTemplateColumns: GRID,
+              color: "hsl(var(--v2-text-mute))",
+              borderBottom: "1px solid hsl(var(--v2-border))",
+            }}
+          >
+            <span>Azienda</span>
+            <span>P.IVA</span>
+            <span>Stato</span>
+            <span>Contatto</span>
+            <span>Invitato</span>
+            <span>Ultima att.</span>
+            <span className="text-right">Link</span>
+          </div>
 
-      <ul>
-        {rows.length === 0 ? (
-          <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            Nessun lead invitato al network.
-          </li>
-        ) : (
-          rows.map((l) => {
-            const st = STATUS_CONFIG[l.survey_status ?? "sent"] ?? STATUS_CONFIG.not_sent;
-            const contact = l.whatsapp ?? l.telefono;
-            return (
-              <li
-                key={l.id}
-                className="grid gap-3 px-4 py-3 items-center"
-                style={{
-                  gridTemplateColumns: "minmax(0, 1.8fr) 140px 120px 120px 130px 130px auto",
-                  borderBottom: "1px solid hsl(var(--v2-border))",
-                }}
-              >
+          <ul>
+            {rows.length === 0 ? (
+              <li className="p-10 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                Nessun lead invitato al network.
+              </li>
+            ) : (
+              rows.map((l) => {
+                const st = STATUS_CONFIG[l.survey_status ?? "sent"] ?? STATUS_CONFIG.not_sent;
+                const contact = l.whatsapp ?? l.telefono;
+                return (
+                  <li
+                    key={l.id}
+                    className="grid gap-3 px-4 py-3 items-center"
+                    style={{
+                      gridTemplateColumns: GRID,
+                      borderBottom: "1px solid hsl(var(--v2-border))",
+                    }}
+                  >
                 <div className="flex items-center gap-2 min-w-0">
                   <Building2 className="w-4 h-4 shrink-0" style={{ color: "hsl(var(--v2-text-mute))" }} />
                   <Link
@@ -132,7 +136,9 @@ export default async function InvitatiPage() {
             );
           })
         )}
-      </ul>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
