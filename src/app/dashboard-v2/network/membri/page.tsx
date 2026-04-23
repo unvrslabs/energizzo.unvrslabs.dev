@@ -27,16 +27,6 @@ export default async function MembriPage() {
 
   const rows = data ?? [];
 
-  // Recupero lead_id per ciascun membro tramite piva → per aprire la pagina profilo lead
-  const pivas = rows.map((r) => r.piva).filter(Boolean) as string[];
-  const leadIdByPiva = new Map<string, string>();
-  if (pivas.length) {
-    const { data: leads } = await supabase.from("leads").select("id, piva").in("piva", pivas);
-    for (const l of (leads ?? []) as { id: string; piva: string }[]) {
-      leadIdByPiva.set(l.piva, l.id);
-    }
-  }
-
   const GRID = "minmax(260px, 1.6fr) minmax(140px, 1fr) 170px 120px 130px 100px 120px";
 
   return (
@@ -68,10 +58,7 @@ export default async function MembriPage() {
             ) : (
               rows.map((m) => {
                 const revoked = !!m.revoked_at;
-                const leadId = m.piva ? leadIdByPiva.get(m.piva) : null;
-                const profileHref = leadId
-                  ? `/dashboard-v2/lead/${leadId}`
-                  : `/dashboard-v2/network/membri/${m.id}`;
+                const profileHref = `/dashboard-v2/network/membri/${m.id}`;
                 return (
                   <li
                     key={m.id}

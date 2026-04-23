@@ -63,6 +63,8 @@ export function LeadProfileV2({
   initialActivity = [],
   initialContacts = [],
   initialSurvey = null,
+  backHref = "/dashboard-v2/lead",
+  backLabel = "Torna ai lead",
 }: {
   lead: Lead;
   membership?: MembershipInfo | null;
@@ -70,6 +72,8 @@ export function LeadProfileV2({
   initialActivity?: ActivityEvent[];
   initialContacts?: LeadContact[];
   initialSurvey?: SurveyResponse | null;
+  backHref?: string;
+  backLabel?: string;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState(lead.email ?? "");
@@ -177,9 +181,9 @@ export function LeadProfileV2({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/dashboard-v2/lead" className="v2-btn v2-btn--ghost w-fit">
+      <Link href={backHref} className="v2-btn v2-btn--ghost w-fit">
         <ArrowLeft className="w-3.5 h-3.5" />
-        Torna ai lead
+        {backLabel}
       </Link>
 
       {/* Header hero */}
