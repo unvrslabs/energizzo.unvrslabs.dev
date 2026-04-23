@@ -7,12 +7,10 @@ import {
   Activity,
   Bell,
   CalendarClock,
-  Command,
   FileText,
   LayoutDashboard,
   LogOut,
   Mic,
-  Search,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -101,23 +99,27 @@ export function V2Sidebar({
         <span className="v2-brand-name">Il Dispaccio</span>
       </Link>
 
-      {/* Search */}
-      <div className="v2-sidebar-search">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
-        <input
-          type="text"
-          placeholder="Cerca…"
-          className="v2-input"
-        />
-        <kbd
-          className="v2-mono absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px]"
-          style={{
-            background: "hsl(var(--v2-border))",
-            color: "hsl(var(--v2-text-mute))",
-          }}
+      {/* GME status — ex search slot */}
+      <div
+        className="flex items-center gap-2 px-3 py-2 mb-2 rounded-lg"
+        style={{
+          background: "hsl(var(--v2-card))",
+          border: "1px solid hsl(var(--v2-border))",
+        }}
+      >
+        <span className="v2-status-dot" />
+        <span className="text-[11.5px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
+          GME{" "}
+          <strong style={{ color: "hsl(var(--v2-text))", fontWeight: 600 }}>
+            aperto
+          </strong>
+        </span>
+        <span
+          className="v2-mono text-[11px] ml-auto"
+          style={{ color: "hsl(var(--v2-text-dim))" }}
         >
-          <Command className="w-2.5 h-2.5" />K
-        </kbd>
+          {now}
+        </span>
       </div>
 
       <nav className="flex flex-col gap-0.5">
@@ -161,18 +163,8 @@ export function V2Sidebar({
         </button>
       </nav>
 
-      {/* Bottom stack: status + footer */}
+      {/* Bottom stack: footer only (GME status moved to top) */}
       <div className="v2-sidebar-bottom">
-        <div className="v2-sidebar-status">
-          <span className="v2-status-dot" />
-          <span className="text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            GME <strong style={{ color: "hsl(var(--v2-text))", fontWeight: 600 }}>aperto</strong>
-          </span>
-          <span className="v2-mono text-[11px] ml-auto" style={{ color: "hsl(var(--v2-text-dim))" }}>
-            {now}
-          </span>
-        </div>
-
         <div className="v2-sidebar-footer">
           <div className="flex-1 min-w-0">
             <div className="text-[12.5px] font-semibold truncate" style={{ color: "hsl(var(--v2-text))" }}>
