@@ -23,9 +23,9 @@ const PRODUCTION_STATUS_META: Record<
 
 const PRODUCTION_ORDER = ["da_registrare", "registrata", "pubblicata"] as const;
 
-type Props = { episodes: EpisodePreview[] };
+type Props = { episodes: EpisodePreview[]; basePath?: string };
 
-export function EpisodesBoard({ episodes }: Props) {
+export function EpisodesBoard({ episodes, basePath = "/dashboard/podcast/episodi" }: Props) {
   const [view, setView] = useState<"timeline" | "kanban">("timeline");
 
   return (
@@ -67,15 +67,15 @@ export function EpisodesBoard({ episodes }: Props) {
           Nessun episodio caricato.
         </div>
       ) : view === "timeline" ? (
-        <TimelineView episodes={episodes} />
+        <TimelineView episodes={episodes} basePath={basePath} />
       ) : (
-        <KanbanView episodes={episodes} />
+        <KanbanView episodes={episodes} basePath={basePath} />
       )}
     </div>
   );
 }
 
-function TimelineView({ episodes }: Props) {
+function TimelineView({ episodes, basePath = "/dashboard/podcast/episodi" }: Props) {
   return (
     <ol className="relative space-y-4 before:absolute before:left-5 before:top-2 before:bottom-2 before:w-px before:bg-white/10">
       {episodes.map((ep) => {
@@ -89,7 +89,7 @@ function TimelineView({ episodes }: Props) {
               {ep.numero !== null ? String(ep.numero).padStart(2, "0") : "·"}
             </div>
             <Link
-              href={`/dashboard/podcast/episodi/${ep.slug}`}
+              href={`${basePath}/${ep.slug}`}
               className="liquid-glass rounded-2xl p-4 flex-1 hover:bg-white/5 transition-colors"
             >
               <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -122,7 +122,7 @@ function TimelineView({ episodes }: Props) {
   );
 }
 
-function KanbanView({ episodes }: Props) {
+function KanbanView({ episodes, basePath = "/dashboard/podcast/episodi" }: Props) {
   return (
     <div className="flex gap-3 overflow-x-auto pb-4 scroll-x-contained">
       {PRODUCTION_ORDER.map((key) => {
@@ -148,7 +148,7 @@ function KanbanView({ episodes }: Props) {
                 return (
                   <Link
                     key={ep.slug}
-                    href={`/dashboard/podcast/episodi/${ep.slug}`}
+                    href={`${basePath}/${ep.slug}`}
                     className="block rounded-lg bg-white/5 p-3 text-sm hover:bg-white/10 transition-colors"
                   >
                     <div className="flex items-center gap-2">

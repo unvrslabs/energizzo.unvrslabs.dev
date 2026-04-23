@@ -45,5 +45,5 @@ export default async function EpisodiV2Index() {
     };
   });
 
-  return <EpisodesBoard episodes={enriched} />;
+  return <EpisodesBoard episodes={enriched} basePath="/dashboard-v2/podcast/episodi" />;
 }

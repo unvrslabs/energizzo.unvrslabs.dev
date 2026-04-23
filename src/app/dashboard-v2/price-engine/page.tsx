@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, FileText, Flame, Zap } from "lucide-react";
+import { ArrowUpRight, ExternalLink, FileText, Flame, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatMonthLabel } from "@/lib/remo/queries";
 
@@ -150,7 +150,7 @@ export default async function PriceEngineV2Page() {
 
                   <div className="flex justify-end gap-2">
                     <Link
-                      href={`/dashboard/price-engine/${r.id}`}
+                      href={`/dashboard-v2/price-engine/${r.id}`}
                       className="v2-btn"
                       style={{ padding: "4px 10px", fontSize: "11.5px" }}
                     >
