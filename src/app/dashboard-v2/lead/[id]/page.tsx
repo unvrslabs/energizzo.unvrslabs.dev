@@ -1,23 +1,15 @@
 import { DashboardView } from "@/components/dashboard-view";
 
-export const dynamic = "force-dynamic";
-export const metadata = { title: "Lead · Admin v2" };
+type SearchParams = { q?: string; status?: string; tipo?: string; categoria?: string; prov?: string; network?: string };
 
-type SearchParams = {
-  q?: string;
-  status?: string;
-  tipo?: string;
-  categoria?: string;
-  prov?: string;
-  network?: string;
-};
-
-export default async function LeadV2Page({
+export default async function LeadV2DeepLinkPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ id: string }>;
   searchParams: Promise<SearchParams>;
 }) {
-  const sp = await searchParams;
+  const { id } = await params;
   return (
     <div className="flex flex-col gap-4">
       <header>
@@ -27,12 +19,8 @@ export default async function LeadV2Page({
         <h1 className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1" style={{ color: "hsl(var(--v2-text))" }}>
           Lead
         </h1>
-        <p className="text-sm mt-1" style={{ color: "hsl(var(--v2-text-dim))" }}>
-          Kanban · Tabella · Mappa · filtri completi · drag&amp;drop status · drawer dettaglio
-        </p>
       </header>
-
-      <DashboardView searchParams={sp} initialLeadId={null} />
+      <DashboardView searchParams={await searchParams} initialLeadId={id} />
     </div>
   );
 }

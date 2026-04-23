@@ -21,7 +21,7 @@ type NavItem = {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
+  badgeKey?: "leads" | "networkPending" | "guestsTarget";
 };
 
 const SECTIONS: { title: string; items: NavItem[] }[] = [
@@ -34,15 +34,15 @@ const SECTIONS: { title: string; items: NavItem[] }[] = [
   {
     title: "CRM",
     items: [
-      { href: "/dashboard-v2/lead", label: "Lead", icon: Users, badge: "819" },
-      { href: "/dashboard-v2/network", label: "Network", icon: NetworkIcon, badge: "5" },
+      { href: "/dashboard-v2/lead", label: "Lead", icon: Users, badgeKey: "leads" },
+      { href: "/dashboard-v2/network", label: "Network", icon: NetworkIcon, badgeKey: "networkPending" },
       { href: "/dashboard-v2/price-engine", label: "Price Engine", icon: Activity },
     ],
   },
   {
     title: "Content",
     items: [
-      { href: "/dashboard-v2/podcast", label: "Podcast", icon: Mic },
+      { href: "/dashboard-v2/podcast", label: "Podcast", icon: Mic, badgeKey: "guestsTarget" },
     ],
   },
   {
@@ -60,7 +60,26 @@ function formatClock(d: Date): string {
   return `${hh}:${mm}:${ss}`;
 }
 
-export function AdminV2Sidebar({ admin }: { admin: { nome: string; role: string } }) {
+export type AdminV2Counts = {
+  leads?: number;
+  networkPending?: number;
+  guestsTarget?: number;
+};
+
+function fmtBadge(n?: number): string | undefined {
+  if (n === undefined || n === null) return undefined;
+  if (n === 0) return undefined;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
+
+export function AdminV2Sidebar({
+  admin,
+  counts,
+}: {
+  admin: { nome: string; role: string };
+  counts?: AdminV2Counts;
+}) {
   const pathname = usePathname() ?? "";
   const [now, setNow] = useState<string>(() => formatClock(new Date()));
 
@@ -105,6 +124,7 @@ export function AdminV2Sidebar({ admin }: { admin: { nome: string; role: string 
                 item.href === "/dashboard-v2"
                   ? pathname === "/dashboard-v2"
                   : pathname.startsWith(item.href);
+              const badge = item.badgeKey ? fmtBadge(counts?.[item.badgeKey]) : undefined;
               return (
                 <Link
                   key={item.href}
@@ -113,7 +133,7 @@ export function AdminV2Sidebar({ admin }: { admin: { nome: string; role: string 
                 >
                   <Icon />
                   <span>{item.label}</span>
-                  {item.badge && <span className="v2-nav-badge">{item.badge}</span>}
+                  {badge && <span className="v2-nav-badge">{badge}</span>}
                 </Link>
               );
             })}
