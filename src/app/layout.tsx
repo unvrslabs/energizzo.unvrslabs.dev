@@ -7,6 +7,7 @@ import {
   Newsreader,
 } from "next/font/google";
 import { Toaster } from "sonner";
+import { ThemeScript } from "@/components/v2/theme-script";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -68,19 +69,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="it"
       className={`${orbitron.variable} ${jakarta.variable} ${inter.variable} ${jetbrains.variable} ${newsreader.variable}`}
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body>
         {children}
-        <Toaster
-          theme="dark"
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: "hsl(215 30% 15%)",
-              border: "1px solid hsl(215 25% 22%)",
-              color: "hsl(0 0% 98%)",
-            },
-          }}
-        />
+        {/* Toaster: stili in globals.css via [data-theme] override per adattarsi al tema */}
+        <Toaster position="top-right" className="ild-toaster" />
       </body>
     </html>
   );

@@ -2164,6 +2164,11 @@
   --v2-warn: 38 92% 60%;
   --v2-danger: 358 75% 62%;
   --v2-info: 200 70% 58%;
+  --v2-shadow: 0 0 0 0 transparent;
+  --v2-grid-line: 0 0% 100% / 0.018;
+  --v2-mesh: 158 50% 40% / 0.08;
+  --v2-sidebar-shadow: 0 12px 32px hsl(0 0% 0% / 0.35), 0 2px 6px hsl(0 0% 0% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.04);
+  --v2-brand-mark-shadow: 0 2px 8px hsl(158 60% 30% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.25);
 
   background-color: hsl(var(--v2-bg));
   color: hsl(var(--v2-text));
@@ -2175,6 +2180,33 @@
   letter-spacing: -0.005em;
 }
 
+/* Light theme — palette desaturata, bianco caldo, emerald come unico accent.
+   Pensata per uso prolungato: contrasto alto sul testo, border hairline,
+   niente ombre colorate. */
+html[data-theme="light"] .v2 {
+  --v2-bg: 210 25% 97%;
+  --v2-bg-elev: 0 0% 100%;
+  --v2-card: 0 0% 100%;
+  --v2-card-hover: 210 25% 96%;
+  --v2-border: 215 16% 88%;
+  --v2-border-strong: 215 16% 76%;
+  --v2-text: 215 28% 16%;
+  --v2-text-dim: 215 14% 38%;
+  --v2-text-mute: 215 10% 54%;
+  --v2-accent: 158 65% 36%;
+  --v2-accent-dim: 158 40% 88%;
+  --v2-warn: 32 85% 42%;
+  --v2-danger: 358 68% 50%;
+  --v2-info: 205 70% 42%;
+  --v2-shadow: 0 1px 2px hsl(215 28% 16% / 0.04), 0 4px 12px hsl(215 28% 16% / 0.03);
+  --v2-grid-line: 215 25% 20% / 0.025;
+  --v2-mesh: 158 60% 45% / 0.04;
+  --v2-sidebar-shadow: 0 1px 2px hsl(215 28% 16% / 0.04), 0 8px 24px hsl(215 28% 16% / 0.06);
+  --v2-brand-mark-shadow: 0 1px 3px hsl(158 60% 30% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.3);
+
+  color-scheme: light;
+}
+
 /* Fixed backdrop that covers the body gradient from root layout */
 .v2::before {
   content: "";
@@ -2183,9 +2215,9 @@
   z-index: -1;
   background-color: hsl(var(--v2-bg));
   background-image:
-    linear-gradient(hsl(0 0% 100% / 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(0 0% 100% / 0.018) 1px, transparent 1px),
-    radial-gradient(ellipse 80% 60% at 50% -10%, hsl(158 50% 40% / 0.08), transparent 70%);
+    linear-gradient(hsl(var(--v2-grid-line)) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--v2-grid-line)) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 60% at 50% -10%, hsl(var(--v2-mesh)), transparent 70%);
   background-size: 48px 48px, 48px 48px, 100% 100%;
   pointer-events: none;
 }
@@ -2211,10 +2243,7 @@
   gap: 4px;
   z-index: 30;
   overflow: hidden;
-  box-shadow:
-    0 12px 32px hsl(0 0% 0% / 0.35),
-    0 2px 6px hsl(0 0% 0% / 0.2),
-    inset 0 1px 0 hsl(0 0% 100% / 0.04);
+  box-shadow: var(--v2-sidebar-shadow);
 }
 
 .v2-brand {
@@ -2222,6 +2251,56 @@
   align-items: center;
   gap: 10px;
   padding: 6px 10px 20px;
+}
+
+/* ─── Theme toggle (dark/light) ─── */
+.v2-sidebar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.v2-sidebar-top .v2-brand {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px 0;
+}
+.v2-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid hsl(var(--v2-border));
+  color: hsl(var(--v2-text-dim));
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 4px;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+.v2-theme-toggle:hover {
+  background: hsl(var(--v2-card-hover));
+  color: hsl(var(--v2-text));
+  border-color: hsl(var(--v2-border-strong));
+}
+.v2-theme-toggle:focus-visible {
+  outline: 2px solid hsl(var(--v2-accent));
+  outline-offset: 2px;
+}
+
+/* ─── Toaster (sonner) — adatta al tema corrente ─── */
+.ild-toaster [data-sonner-toast] {
+  background: hsl(215 30% 15%);
+  border: 1px solid hsl(215 25% 22%);
+  color: hsl(0 0% 98%);
+}
+html[data-theme="light"] .ild-toaster [data-sonner-toast] {
+  background: hsl(0 0% 100%);
+  border: 1px solid hsl(215 16% 88%);
+  color: hsl(215 28% 16%);
+  box-shadow: 0 2px 8px hsl(215 28% 16% / 0.08), 0 8px 24px hsl(215 28% 16% / 0.06);
 }
 .v2-brand-mark {
   width: 28px;
@@ -2235,7 +2314,7 @@
   font-weight: 800;
   color: hsl(215 30% 10%);
   letter-spacing: -0.04em;
-  box-shadow: 0 2px 8px hsl(158 60% 30% / 0.4), inset 0 1px 0 hsl(0 0% 100% / 0.25);
+  box-shadow: var(--v2-brand-mark-shadow);
 }
 .v2-brand-name {
   font-weight: 700;
@@ -2525,6 +2604,17 @@
   color: hsl(200 75% 66%);
   border-color: hsl(200 75% 55% / 0.3);
   background: hsl(200 75% 55% / 0.08);
+}
+/* Light theme: chip con contrasto migliore su bg chiaro */
+html[data-theme="light"] .v2-chip--eel {
+  color: hsl(32 85% 34%);
+  border-color: hsl(38 70% 55% / 0.4);
+  background: hsl(38 80% 90%);
+}
+html[data-theme="light"] .v2-chip--gas {
+  color: hsl(205 72% 34%);
+  border-color: hsl(200 60% 55% / 0.4);
+  background: hsl(200 75% 92%);
 }
 .v2-chip--com {
   color: hsl(var(--v2-text-dim));

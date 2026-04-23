@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/v2/theme-toggle";
 
 type NavItem = {
   href: string;
@@ -103,10 +104,13 @@ export function V2Sidebar({
 
   return (
     <aside className="v2-sidebar">
-      <Link href="/network" className="v2-brand">
-        <span className="v2-brand-mark">D</span>
-        <span className="v2-brand-name">Il Dispaccio</span>
-      </Link>
+      <div className="v2-sidebar-top">
+        <Link href="/network" className="v2-brand">
+          <span className="v2-brand-mark">D</span>
+          <span className="v2-brand-name">Il Dispaccio</span>
+        </Link>
+        <ThemeToggle />
+      </div>
 
       {/* GME status — ex search slot */}
       <div

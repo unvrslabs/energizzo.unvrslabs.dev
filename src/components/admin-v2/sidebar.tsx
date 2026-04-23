@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/v2/theme-toggle";
 
 type NavItem = {
   href: string;
@@ -74,18 +75,21 @@ export function AdminV2Sidebar({
 
   return (
     <aside className="v2-sidebar">
-      <Link href="/dashboard" className="v2-brand">
-        <span className="v2-brand-mark">A</span>
-        <span className="flex flex-col leading-tight">
-          <span className="v2-brand-name">Il Dispaccio</span>
-          <span
-            className="v2-mono text-[9px] font-bold uppercase tracking-[0.18em]"
-            style={{ color: "hsl(var(--v2-warn))" }}
-          >
-            Admin
+      <div className="v2-sidebar-top">
+        <Link href="/dashboard" className="v2-brand">
+          <span className="v2-brand-mark">A</span>
+          <span className="flex flex-col leading-tight">
+            <span className="v2-brand-name">Il Dispaccio</span>
+            <span
+              className="v2-mono text-[9px] font-bold uppercase tracking-[0.18em]"
+              style={{ color: "hsl(var(--v2-warn))" }}
+            >
+              Admin
+            </span>
           </span>
-        </span>
-      </Link>
+        </Link>
+        <ThemeToggle />
+      </div>
 
       <div className="v2-sidebar-search">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
