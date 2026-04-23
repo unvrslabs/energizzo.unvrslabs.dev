@@ -13,16 +13,20 @@ import { PodcastV2 } from "@/components/landing-v2/PodcastV2";
 import { FAQV2 } from "@/components/landing-v2/FAQV2";
 import { JoinFormV2 } from "@/components/landing-v2/JoinFormV2";
 import { FooterV2 } from "@/components/landing-v2/FooterV2";
+import { CookieBanner } from "@/components/landing-v2/CookieBanner";
+import { StructuredData } from "@/components/landing-v2/StructuredData";
 
 export const metadata: Metadata = {
   title: "Il Dispaccio · Il network dei reseller energia in Italia",
   description:
-    "Delibere ARERA decifrate, benchmark tariffario live, podcast \"Il Reseller\" e report indipendente. Il primo network italiano dei reseller energia.",
+    "Delibere ARERA decifrate dall'AI, benchmark tariffario live (PUN, PSV, TTF), podcast \"Il Reseller\" e report indipendente. Il primo network italiano dei reseller energia. 100 posti Anno I, €0 per sempre.",
+  alternates: { canonical: "https://ildispaccio.energy/" },
 };
 
 export default function HomePage() {
   return (
     <div className="lv2">
+      <StructuredData />
       <NavbarV2 />
       <main>
         <HeroV2 />
@@ -38,6 +42,7 @@ export default function HomePage() {
         <JoinFormV2 />
       </main>
       <FooterV2 />
+      <CookieBanner />
     </div>
   );
 }

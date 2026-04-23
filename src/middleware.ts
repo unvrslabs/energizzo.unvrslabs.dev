@@ -11,6 +11,10 @@ const ADMIN_COOKIE_NAME = "ildispaccio_admin";
 function isPublicRoute(pathname: string): boolean {
   return (
     pathname === "/" ||
+    pathname === "/privacy" ||
+    pathname === "/cookie" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
     pathname.startsWith("/report/") ||
     pathname.startsWith("/invito-network/") ||
     pathname.startsWith("/podcast/invito") ||

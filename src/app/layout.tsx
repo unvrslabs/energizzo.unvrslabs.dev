@@ -44,22 +44,64 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ildispaccio.energy"),
   title: {
-    default: "Il Dispaccio",
+    default: "Il Dispaccio · Il network dei reseller energia in Italia",
     template: "%s · Il Dispaccio",
   },
-  description: "Il primo network italiano dei reseller energia.",
+  description:
+    "Il primo network italiano dei reseller energia. Delibere ARERA decifrate dall'AI, benchmark tariffario live, podcast editoriale e report indipendente annuale.",
   applicationName: "Il Dispaccio",
   authors: [{ name: "UNVRS Labs" }],
   creator: "UNVRS Labs",
   publisher: "UNVRS Labs",
-  robots: { index: false, follow: false },
+  keywords: [
+    "reseller energia",
+    "network reseller energia",
+    "delibere ARERA",
+    "benchmark tariffario",
+    "PUN PSV TTF",
+    "mercato energia Italia",
+    "podcast reseller",
+    "report energia",
+    "ildispaccio",
+    "energizzo",
+  ],
+  category: "Business",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Il Dispaccio",
-    description: "Il primo network italiano dei reseller energia.",
+    title: "Il Dispaccio · Il network dei reseller energia in Italia",
+    description:
+      "Delibere ARERA decifrate dall'AI, benchmark tariffario live, podcast editoriale e report indipendente annuale. 100 posti Anno I · €0 per sempre.",
+    url: "https://ildispaccio.energy",
     type: "website",
     siteName: "Il Dispaccio",
     locale: "it_IT",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Il Dispaccio · Il network dei reseller energia in Italia",
+    description:
+      "Delibere ARERA decifrate, benchmark tariffario live, podcast editoriale, report annuale. 100 posti · €0.",
+    site: "@il_dispaccio",
+    creator: "@il_dispaccio",
+  },
+  formatDetection: {
+    email: false,
+    telephone: false,
   },
 };
 

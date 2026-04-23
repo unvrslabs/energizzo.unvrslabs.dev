@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Linkedin } from "lucide-react";
 
 export function FooterV2() {
   return (
@@ -40,6 +41,34 @@ export function FooterV2() {
                 energizzo
               </a>
             </p>
+
+            <div className="flex items-center gap-2 mt-1">
+              <a
+                href="https://www.linkedin.com/company/113185607/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Il Dispaccio su LinkedIn"
+                className="lv2-social"
+              >
+                <Linkedin className="w-4 h-4" strokeWidth={2} />
+              </a>
+              <a
+                href="https://x.com/il_dispaccio"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Il Dispaccio su X"
+                className="lv2-social"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-[14px] h-[14px]"
+                  fill="currentColor"
+                  aria-hidden
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+            </div>
           </div>
 
           <nav className="flex flex-col gap-6 md:flex-row md:gap-12">
@@ -64,7 +93,7 @@ export function FooterV2() {
                 Accedi al cockpit
               </Link>
               <a
-                href="#richiedi"
+                href="/#richiedi"
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: "hsl(var(--lv2-text-dim))" }}
               >
@@ -117,14 +146,14 @@ export function FooterV2() {
                 Legale
               </span>
               <Link
-                href="#"
+                href="/privacy"
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: "hsl(var(--lv2-text-dim))" }}
               >
                 Privacy
               </Link>
               <Link
-                href="#"
+                href="/cookie"
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: "hsl(var(--lv2-text-dim))" }}
               >
@@ -147,8 +176,7 @@ export function FooterV2() {
               color: "hsl(var(--lv2-text-mute))",
             }}
           >
-            © {new Date().getFullYear()} Il Dispaccio · Tutti i diritti
-            riservati
+            © {new Date().getFullYear()} Il Dispaccio · UNVRS Labs · P.IVA IT00000000000 · Tutti i diritti riservati
           </p>
         </div>
       </div>
