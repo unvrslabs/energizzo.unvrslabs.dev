@@ -60,7 +60,6 @@ export function V2Sidebar({
   member: { referente: string; ragione_sociale: string };
 }) {
   const pathname = usePathname() ?? "";
-  const initial = member.referente.trim().charAt(0).toUpperCase() || "·";
 
   return (
     <aside className="v2-sidebar">
@@ -99,12 +98,8 @@ export function V2Sidebar({
       </nav>
 
       <div className="v2-sidebar-footer">
-        <div className="v2-avatar">{initial}</div>
         <div className="flex-1 min-w-0">
           <div className="text-[12.5px] font-semibold truncate" style={{ color: "hsl(var(--v2-text))" }}>
-            {member.referente}
-          </div>
-          <div className="text-[10.5px] truncate" style={{ color: "hsl(var(--v2-text-mute))" }}>
             {member.ragione_sociale}
           </div>
         </div>
