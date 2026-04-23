@@ -134,9 +134,8 @@ export function DelibereV2Client({
     );
   }
 
-  // Lista compatta: toolbar ~84px + 7 righe visibili × ~115px = ~890px
-  // (ogni row ha code/data + 2 linee titolo + chip settore/AI = ~115px)
-  const listMaxHeight = "calc(84px + 7 * 115px)";
+  // Lista compatta: toolbar ~84px + 6 righe visibili × ~115px = ~774px
+  const listMaxHeight = "calc(84px + 6 * 115px)";
 
   return (
     <div
@@ -174,9 +173,16 @@ export function DelibereV2Client({
             )}
           </div>
           <div className="flex items-center gap-1 flex-wrap">
-            {(["all", "eel", "gas", "com"] as const).map((s) => {
+            {(["all", "com", "eel", "gas"] as const).map((s) => {
               const active = sector === s;
-              const label = s === "all" ? "Tutte" : s === "eel" ? "Energia" : s === "gas" ? "Gas" : "Comune";
+              const label =
+                s === "all"
+                  ? "Tutti"
+                  : s === "com"
+                  ? "Energia + Gas"
+                  : s === "eel"
+                  ? "Energia"
+                  : "Gas";
               const count =
                 s === "all" ? items.length : items.filter((d) => d.sectors.includes(s)).length;
               return (
