@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { generateAndInsert } from "@/lib/social/generator";
+import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -42,7 +43,17 @@ type Candidate =
       data_scadenza: string;
       giorni_mancanti: number;
     }
-  | { kind: "market"; label: string; valore: string; variazione: string }
+  | {
+      kind: "market_gas";
+      gas_day: string;
+      full_pct: number;
+      trend_pct: number | null;
+      delta_week_pp: number | null;
+      gas_in_storage_twh: number | null;
+      working_gas_volume_twh: number | null;
+      net_withdrawal_gwh: number | null;
+      phase: "iniezione" | "erogazione" | "equilibrio";
+    }
   | { kind: "digest_week"; label: string; brief: string };
 
 function startOfDay(d = new Date()) {
@@ -179,7 +190,7 @@ async function findMarketSnapshot(
   supabase: Awaited<ReturnType<typeof createClient>>,
 ): Promise<Candidate[]> {
   // Solo lunedì e giovedì, e se non abbiamo già postato market nelle ultime 48h
-  const dow = new Date().getDay(); // 0 dom, 1 lun, ... 4 gio
+  const dow = new Date().getDay();
   if (dow !== 1 && dow !== 4) return [];
 
   const since = addDays(new Date(), -2).toISOString();
@@ -191,17 +202,43 @@ async function findMarketSnapshot(
     .limit(1);
   if (recentMarket && recentMarket.length > 0) return [];
 
-  // Per ora passiamo brief testuale: il cron non ha accesso diretto all'API AGSI/GME.
-  // In futuro: query market_gas_storage / fetch API cache locale.
-  const today = new Date();
-  const week = Math.ceil(((+today - +new Date(today.getFullYear(), 0, 1)) / 86400000 + new Date(today.getFullYear(), 0, 1).getDay() + 1) / 7);
+  // Dati AGSI reali: ultimo snapshot + confronto settimanale
+  const latest = await getLatestGasStorage();
+  if (!latest || latest.full_pct == null) return [];
+
+  const history = await listGasStorageHistory(10);
+  const weekAgo = history.find((row) => {
+    const d = new Date(row.gas_day);
+    const diff = (new Date(latest.gas_day).getTime() - d.getTime()) / 86400000;
+    return diff >= 6.5 && diff <= 8;
+  });
+  const delta_week_pp =
+    weekAgo?.full_pct != null && latest.full_pct != null
+      ? Number(latest.full_pct) - Number(weekAgo.full_pct)
+      : null;
+
+  const netWithdrawal = Number(latest.net_withdrawal_gwh ?? 0);
+  const phase: "iniezione" | "erogazione" | "equilibrio" =
+    netWithdrawal < -100
+      ? "iniezione"
+      : netWithdrawal > 100
+        ? "erogazione"
+        : "equilibrio";
 
   return [
     {
-      kind: "market" as const,
-      label: `Settimana ${week}`,
-      valore: "",
-      variazione: "",
+      kind: "market_gas" as const,
+      gas_day: latest.gas_day,
+      full_pct: Number(latest.full_pct),
+      trend_pct: latest.trend_pct != null ? Number(latest.trend_pct) : null,
+      delta_week_pp,
+      gas_in_storage_twh: latest.gas_in_storage_twh != null ? Number(latest.gas_in_storage_twh) : null,
+      working_gas_volume_twh:
+        latest.working_gas_volume_twh != null
+          ? Number(latest.working_gas_volume_twh)
+          : null,
+      net_withdrawal_gwh: latest.net_withdrawal_gwh != null ? Number(latest.net_withdrawal_gwh) : null,
+      phase,
     },
   ];
 }
@@ -251,13 +288,21 @@ export async function GET(req: Request) {
       Promise.resolve(findDigestWeekly()),
     ]);
 
-    // Priority queue: scadenze urgenti > delibere alta > digest lunedì > market > delibere media
+    // Priority queue: scadenze urgenti > delibere alta > digest lunedì > market AGSI > delibere media
     const queue: Candidate[] = [];
     queue.push(...scadenze);
-    queue.push(...delibere.filter((d) => d.kind === "delibera" && d.importanza === "alta"));
+    queue.push(
+      ...delibere.filter(
+        (d) => d.kind === "delibera" && d.importanza === "alta",
+      ),
+    );
     queue.push(...digest);
     queue.push(...market);
-    queue.push(...delibere.filter((d) => d.kind === "delibera" && d.importanza !== "alta"));
+    queue.push(
+      ...delibere.filter(
+        (d) => d.kind === "delibera" && d.importanza !== "alta",
+      ),
+    );
 
     const capped = queue.slice(0, HARD_LIMIT);
 
@@ -294,16 +339,48 @@ export async function GET(req: Request) {
             },
           );
           stats.scadenze_generated++;
-        } else if (c.kind === "market") {
+        } else if (c.kind === "market_gas") {
+          const fullPct = c.full_pct.toFixed(1).replace(".", ",");
+          const deltaWeek =
+            c.delta_week_pp != null
+              ? `${c.delta_week_pp > 0 ? "+" : ""}${c.delta_week_pp.toFixed(1).replace(".", ",")} pp`
+              : "";
+          const storage = c.gas_in_storage_twh?.toFixed(1).replace(".", ",") ?? "";
+          const capacity =
+            c.working_gas_volume_twh?.toFixed(1).replace(".", ",") ?? "";
+          const netFlow = c.net_withdrawal_gwh?.toFixed(0) ?? "";
+
+          const brief = `Market snapshot settimanale DATI REALI AGSI (gas storage Italia aggregato).
+
+DATO UFFICIALE:
+- Data rilevamento: ${c.gas_day}
+- Riempimento stoccaggi: ${fullPct}%
+- Gas in storage: ${storage} TWh su ${capacity} TWh di working gas volume
+- Variazione settimanale: ${deltaWeek || "non calcolabile"}
+- Fase: ${c.phase} (net flow giornaliero ${netFlow} GWh)
+- Fonte: AGSI+ (Gas Infrastructure Europe)
+
+CONTESTO per reseller:
+${c.phase === "iniezione" ? "Siamo in fase di riempimento estivo — momento per valutare coperture strutturali." : c.phase === "erogazione" ? "Siamo in fase di erogazione invernale — occhio alle tensioni di prezzo PSV." : "Il sistema è in equilibrio tra iniezione/erogazione."}
+${c.delta_week_pp != null && Math.abs(c.delta_week_pp) > 2 ? `Variazione settimanale significativa (${deltaWeek}): segnalalo come fatto operativo.` : ""}
+
+ISTRUZIONI output:
+- copy_linkedin e copy_x devono citare esplicitamente il numero ${fullPct}% e il dato a confronto
+- hook forte con il numero o la fase
+- image_strategy.template = "data_card"
+- image_data.kicker = "STOCCAGGI GAS · ITALIA"
+- image_data.label = "RIEMPIMENTO"
+- image_data.valore_grande = "${fullPct}"
+- image_data.unita = "%"
+- image_data.variazione = "${deltaWeek}"
+- image_data.sottotitolo = "${storage} TWh in stoccaggio · fase ${c.phase}"`;
+
           await generateAndInsert(
             supabase,
-            {
-              tipo: "market",
-              brief: `Market snapshot settimanale. Produci un post su uno degli indicatori principali (PUN elettrico, PSV gas, TTF). Usa toni conversazionali e fai un'osservazione di mercato operativa per i reseller. Se non hai dati puntuali, commenta in generale il trend della settimana ${c.label}. image_data.label: PUN/PSV/TTF, image_data.valore_grande: un valore plausibile di questi giorni (es. 89,40 per PUN in €/MWh o 28,50 per TTF in €/MWh), image_data.unita: €/MWh, image_data.variazione con segno.`,
-            },
+            { tipo: "market", brief },
             {
               generatedBy: "auto",
-              notes: `🤖 Auto-generato · market ${c.label} · ${new Date().toISOString()}`,
+              notes: `🤖 Auto-generato · AGSI ${c.gas_day} · ${fullPct}% · ${new Date().toISOString()}`,
             },
           );
           stats.market_generated++;
