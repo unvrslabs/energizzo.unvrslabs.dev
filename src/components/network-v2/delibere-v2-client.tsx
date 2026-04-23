@@ -74,6 +74,24 @@ function attachmentIcon(kind: UiAttachment["kind"]) {
   }
 }
 
+type SectorFilter = "all" | "eel" | "gas" | "dual";
+
+/**
+ * Matching mutuamente esclusivo: le categorie sommano sempre al totale.
+ * - "eel"  → solo elettrico (non dual)
+ * - "gas"  → solo gas (non dual)
+ * - "dual" → impatta entrambi i vettori
+ */
+function matchesSectorFilter(sectors: UiSector[], f: SectorFilter): boolean {
+  if (f === "all") return true;
+  const hasEel = sectors.includes("eel");
+  const hasGas = sectors.includes("gas");
+  if (f === "dual") return hasEel && hasGas;
+  if (f === "eel") return hasEel && !hasGas;
+  if (f === "gas") return hasGas && !hasEel;
+  return false;
+}
+
 export function DelibereV2Client({
   delibere,
   initialCode,
@@ -84,7 +102,7 @@ export function DelibereV2Client({
   const [items, setItems] = useState<DeliberaView[]>(delibere);
 
   const [query, setQuery] = useState("");
-  const [sector, setSector] = useState<"all" | UiSector>("all");
+  const [sector, setSector] = useState<SectorFilter>("all");
   const [selectedCode, setSelectedCode] = useState<string>(
     items.length > 0
       ? initialCode && items.find((d) => d.code === initialCode)
@@ -96,7 +114,7 @@ export function DelibereV2Client({
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return items.filter((d) => {
-      if (sector !== "all" && !d.sectors.includes(sector)) return false;
+      if (!matchesSectorFilter(d.sectors, sector)) return false;
       if (q) {
         const hay = [
           d.title,
@@ -176,11 +194,20 @@ export function DelibereV2Client({
             )}
           </div>
           <div className="flex items-center gap-1 flex-wrap">
-            {(["all", "eel", "gas"] as const).map((s) => {
+            {(["all", "dual", "eel", "gas"] as const).map((s) => {
               const active = sector === s;
-              const label = s === "all" ? "Tutti" : s === "eel" ? "Energia" : "Gas";
+              const label =
+                s === "all"
+                  ? "Tutti"
+                  : s === "dual"
+                  ? "Energia + Gas"
+                  : s === "eel"
+                  ? "Energia"
+                  : "Gas";
               const count =
-                s === "all" ? items.length : items.filter((d) => d.sectors.includes(s)).length;
+                s === "all"
+                  ? items.length
+                  : items.filter((d) => matchesSectorFilter(d.sectors, s)).length;
               return (
                 <button
                   key={s}
