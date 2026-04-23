@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://ildispaccio.energy/" },
 };
 
+// Ticker con dati market live: revalida ogni 30 minuti
+export const revalidate = 1800;
+
 export default function HomePage() {
   return (
     <div className="lv2">

@@ -10,6 +10,7 @@ import { listDelibere } from "@/lib/delibere/db";
 import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { listScadenzeFuture } from "@/lib/delibere/scadenze";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
+import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
@@ -46,13 +47,26 @@ function greeting(): string {
 }
 
 export default async function V2HomePage() {
-  const [member, allDelibere, allScadenze, gasLatest, gasHistory] = await Promise.all([
-    getNetworkMember(),
-    listDelibere({ limit: 200 }),
-    listScadenzeFuture(),
-    getLatestGasStorage(),
-    listGasStorageHistory(60),
-  ]);
+  const [member, allDelibere, allScadenze, gasLatest, gasHistory, punLatest, punHistory] =
+    await Promise.all([
+      getNetworkMember(),
+      listDelibere({ limit: 200 }),
+      listScadenzeFuture(),
+      getLatestGasStorage(),
+      listGasStorageHistory(60),
+      getLatestPun(),
+      listPunHistory(14),
+    ]);
+
+  const punWeekAgo = punLatest
+    ? punHistory.find((row) => {
+        const diff =
+          (new Date(punLatest.price_day).getTime() -
+            new Date(row.price_day).getTime()) /
+          86400000;
+        return diff >= 6.5 && diff <= 8;
+      }) ?? null
+    : null;
   const firstName = (member?.referente ?? "").split(" ")[0] || "operatore";
 
   const latest = allDelibere
@@ -205,7 +219,7 @@ export default async function V2HomePage() {
         </div>
 
         {/* Mercato elettrico (placeholder) — 6 */}
-        <ElectricityCard />
+        <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} />
 
         {/* Mercato gas AGSI — 6 */}
         <GasStorageCard latest={gasLatest} history={gasHistory} />
