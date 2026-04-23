@@ -80,22 +80,19 @@ export async function fetchAllDelibere(
 /**
  * Map API settore text to internal sector enum used by UI.
  */
-export type UiSector = "eel" | "gas" | "com";
+export type UiSector = "eel" | "gas";
 
 export function mapSettoreToSector(
   settore: string | null | undefined,
 ): UiSector[] {
-  if (!settore) return ["com"];
+  if (!settore) return [];
   const s = settore.toLowerCase();
   const result: UiSector[] = [];
-  if (s.includes("luce") || s.includes("elett") || s.includes("eel")) {
+  if (s.includes("luce") || s.includes("elett") || s.includes("eel") || s.includes("energia")) {
     result.push("eel");
   }
   if (s.includes("gas")) {
     result.push("gas");
   }
-  if (s.includes("comune") || s.includes("com") || s.includes("entrambi") || s.includes("dual")) {
-    if (!result.length) result.push("com");
-  }
-  return result.length ? result : ["com"];
+  return result;
 }

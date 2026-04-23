@@ -51,14 +51,14 @@ Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
     "Bullet 3 operativo",
     "Bullet 4 operativo"
   ],
-  "sectors": ["eel" | "gas" | "com"]
+  "sectors": ["eel" | "gas"]
 }
 
 Regole:
 - 4 bullet esatti, ciascuno ≤ 140 caratteri.
 - Ogni bullet deve contenere UN dato concreto (numero, data, %, soglia) se presente nel testo.
 - Niente fluff ("si fa presente che", "è importante"). Prima parola → azione o dato.
-- "sectors" deve contenere uno o più tra "eel" (energia elettrica), "gas", "com" (comune/entrambi i vettori).
+- "sectors": uno o più tra "eel" (energia elettrica), "gas". Se impatta entrambi, includi entrambi. Se non impatta né energia né gas, ritorna [].
 - Se la delibera cita STG, TRAS, DIS, MIS, PUN, asta, tariffa, oneri, switching, recupero crediti → PRIORITIZZA quella info nei bullet.
 - Se il PDF è lungo o complesso, concentrati sul dispositivo (la parte decisionale, non le premesse).`;
 
@@ -100,12 +100,11 @@ async function fetchAllDelibere(): Promise<ApiDelibera[]> {
 }
 
 function mapSettoreToSector(settore: string | null): string[] {
-  if (!settore) return ["com"];
+  if (!settore) return [];
   const s = settore.toLowerCase();
   const result: string[] = [];
-  if (s.includes("luce") || s.includes("elett") || s.includes("eel")) result.push("eel");
+  if (s.includes("luce") || s.includes("elett") || s.includes("eel") || s.includes("energia")) result.push("eel");
   if (s.includes("gas")) result.push("gas");
-  if (result.length === 0) result.push("com");
   return result;
 }
 
@@ -303,7 +302,7 @@ async function summarizeOne(
     ? parsed.bullets.map((b: unknown) => String(b).trim()).filter(Boolean).slice(0, 5)
     : [];
   let sectors = Array.isArray(parsed.sectors)
-    ? parsed.sectors.map((s: unknown) => String(s).toLowerCase()).filter((s: string) => ["eel", "gas", "com"].includes(s))
+    ? parsed.sectors.map((s: unknown) => String(s).toLowerCase()).filter((s: string) => ["eel", "gas"].includes(s))
     : [];
   if (sectors.length === 0) sectors = mapSettoreToSector(row.settore);
 

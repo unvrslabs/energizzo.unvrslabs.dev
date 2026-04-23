@@ -20,7 +20,7 @@ import {
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { cn } from "@/lib/utils";
 
-export type UiSector = "eel" | "gas" | "com";
+export type UiSector = "eel" | "gas";
 
 export type UiAttachment = {
   label: string;
@@ -174,16 +174,9 @@ export function DelibereV2Client({
             )}
           </div>
           <div className="flex items-center gap-1 flex-wrap">
-            {(["all", "com", "eel", "gas"] as const).map((s) => {
+            {(["all", "eel", "gas"] as const).map((s) => {
               const active = sector === s;
-              const label =
-                s === "all"
-                  ? "Tutti"
-                  : s === "com"
-                  ? "Energia + Gas"
-                  : s === "eel"
-                  ? "Energia"
-                  : "Gas";
+              const label = s === "all" ? "Tutti" : s === "eel" ? "Energia" : "Gas";
               const count =
                 s === "all" ? items.length : items.filter((d) => d.sectors.includes(s)).length;
               return (

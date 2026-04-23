@@ -24,14 +24,14 @@ Output OBBLIGATORIO in JSON (niente markdown, niente backtick):
     "Bullet 3 operativo",
     "Bullet 4 operativo"
   ],
-  "sectors": ["eel" | "gas" | "com"]
+  "sectors": ["eel" | "gas"]
 }
 
 Regole:
 - 4 bullet esatti, ciascuno ≤ 140 caratteri.
 - Ogni bullet deve contenere UN dato concreto (numero, data, %, soglia) se presente nel testo.
 - Niente fluff ("si fa presente che", "è importante"). Prima parola → azione o dato.
-- "sectors" deve contenere uno o più tra "eel" (energia elettrica), "gas", "com" (comune/entrambi i vettori).
+- "sectors": uno o più tra "eel" (energia elettrica), "gas". Se la delibera impatta entrambi i vettori, includi entrambi. Se non impatta né energia né gas (es. delibera organizzativa interna ARERA), ritorna array vuoto [].
 - Se la delibera cita STG, TRAS, DIS, MIS, PUN, asta, tariffa, oneri, switching, recupero crediti → PRIORITIZZA quella info nei bullet.
 - Se il PDF è lungo o complesso, concentrati sul dispositivo (la parte decisionale, non le premesse).`;
 
@@ -214,11 +214,11 @@ function normalizeSectors(raw: unknown, apiSettore: string | null): UiSector[] {
     const ok: UiSector[] = [];
     for (const s of raw) {
       const v = String(s).toLowerCase();
-      if (v === "eel" || v === "gas" || v === "com") {
+      if (v === "eel" || v === "gas") {
         if (!ok.includes(v)) ok.push(v);
       }
     }
-    if (ok.length) return ok;
+    return ok;
   }
   return mapSettoreToSector(apiSettore);
 }

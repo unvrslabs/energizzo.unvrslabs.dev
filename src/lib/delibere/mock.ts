@@ -1,4 +1,4 @@
-export type DeliberaSector = "eel" | "gas" | "com";
+export type DeliberaSector = "eel" | "gas";
 
 export type DeliberaAttachment = {
   label: string;
@@ -20,13 +20,11 @@ export type Delibera = {
 export const SECTOR_LABEL: Record<DeliberaSector, string> = {
   eel: "Energia elettrica",
   gas: "Gas",
-  com: "Comune",
 };
 
 export const SECTOR_SHORT: Record<DeliberaSector, string> = {
   eel: "EEL",
   gas: "GAS",
-  com: "COM",
 };
 
 export type DeadlineSeverity = "live" | "imminent" | "upcoming" | "far";
@@ -50,8 +48,8 @@ export const DELIBERE_DEADLINES: DeliberaDeadline[] = [
   {
     date: "2026-05-15",
     label: "Chiusura consultazione TIMOE 2026",
-    deliberaCode: "590/2024/R/COM",
-    sector: "com",
+    deliberaCode: "590/2024/R/EEL",
+    sector: "eel",
     severity: "imminent",
   },
   {
