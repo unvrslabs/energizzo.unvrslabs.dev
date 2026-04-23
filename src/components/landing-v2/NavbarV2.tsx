@@ -12,7 +12,7 @@ const LINKS = [
 export function NavbarV2() {
   return (
     <nav className="lv2-nav" aria-label="Navigazione principale">
-      <Link href="/v2" className="lv2-nav-brand" aria-label="Il Dispaccio">
+      <Link href="/" className="lv2-nav-brand" aria-label="Il Dispaccio">
         <span className="lv2-nav-brand-mark">D</span>
         <span>
           Il Dispaccio<span className="lv2-mono" style={{ fontSize: "9.5px", letterSpacing: "0.18em", marginLeft: 6, color: "hsl(var(--lv2-text-mute))" }}>v26</span>

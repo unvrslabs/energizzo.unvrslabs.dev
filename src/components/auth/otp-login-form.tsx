@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Loader2,
-  Lock,
   MessageCircle,
   RotateCcw,
 } from "lucide-react";
@@ -136,180 +134,153 @@ export function OtpLoginForm({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] via-white/[0.02] to-transparent backdrop-blur-sm p-6 md:p-8">
-      <div
-        aria-hidden
-        className="absolute -top-24 -right-16 w-64 h-64 rounded-full bg-primary/15 blur-3xl pointer-events-none"
-      />
-      <div
-        aria-hidden
-        className="absolute -bottom-24 -left-16 w-64 h-64 rounded-full bg-accent/10 blur-3xl pointer-events-none"
-      />
-
-      <div className="relative">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1">
-            <Lock className="w-3 h-3 text-primary" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
-              {badgeLabel}
-            </span>
-          </div>
-        </div>
-
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight mb-2">
-          {title}
-        </h1>
-        <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-          {subtitle}
-        </p>
-
-        <AnimatePresence mode="wait">
-          {step === "phone" ? (
-            <motion.form
-              key="phone"
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -8 }}
-              onSubmit={(e) => {
-                e.preventDefault();
-                requestOtp();
-              }}
-              className="space-y-4"
-            >
-              <label className="block">
-                <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-1.5">
-                  Numero WhatsApp
-                </span>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+39 333 1234567"
-                  required
-                  autoFocus
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-3 text-base text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary/40 focus:bg-white/[0.07] focus:ring-2 focus:ring-primary/20"
-                />
-              </label>
-
-              <motion.button
-                type="submit"
-                disabled={loading || phone.length < 6}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-primary/40 disabled:opacity-70"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Invio in corso…
-                  </>
-                ) : (
-                  <>
-                    <MessageCircle className="w-4 h-4" />
-                    Invia codice su WhatsApp
-                  </>
-                )}
-              </motion.button>
-
-              {error && (
-                <p className="text-xs text-red-400 text-center">{error}</p>
-              )}
-
-              <p className="text-[11px] text-muted-foreground/70 leading-relaxed text-center pt-1">
-                {phoneFooter}
-              </p>
-            </motion.form>
-          ) : (
-            <motion.form
-              key="otp"
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
-              onSubmit={(e) => {
-                e.preventDefault();
-                verifyOtp();
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    Codice ricevuto su WhatsApp
-                  </span>
-                  <span
-                    className={`text-[10px] font-mono ${countdown < 30 ? "text-red-400" : "text-muted-foreground"}`}
-                  >
-                    {countdown > 0 ? `Scade tra ${mmss(countdown)}` : "Scaduto"}
-                  </span>
-                </div>
-                <div className="grid grid-cols-6 gap-2">
-                  {otp.map((digit, idx) => (
-                    <input
-                      key={idx}
-                      ref={(el) => {
-                        otpRefs.current[idx] = el;
-                      }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(idx, e.target.value)}
-                      onKeyDown={(e) => handleOtpKey(idx, e)}
-                      className="aspect-square w-full rounded-xl border border-white/10 bg-white/[0.04] text-center text-xl font-bold text-foreground outline-none transition-colors focus:border-primary/40 focus:bg-white/[0.07] focus:ring-2 focus:ring-primary/20"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <motion.button
-                type="submit"
-                disabled={loading || otp.join("").length !== 6}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-primary/40 disabled:opacity-70"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Verifica…
-                  </>
-                ) : (
-                  <>
-                    Accedi
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </motion.button>
-
-              {error && (
-                <p className="text-xs text-red-400 text-center">{error}</p>
-              )}
-
-              <div className="flex items-center justify-between text-xs pt-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep("phone");
-                    setError(null);
-                  }}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ← Cambia numero
-                </button>
-                <button
-                  type="button"
-                  disabled={cooldown > 0 || loading}
-                  onClick={requestOtp}
-                  className="inline-flex items-center gap-1 text-primary hover:text-primary/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  {cooldown > 0 ? `Reinvia in ${cooldown}s` : "Reinvia codice"}
-                </button>
-              </div>
-            </motion.form>
-          )}
-        </AnimatePresence>
+    <div className="lv2-login-card">
+      <div className="lv2-login-header">
+        <span className="lv2-login-badge">
+          <span className="lv2-login-badge-dot" />
+          {badgeLabel}
+        </span>
       </div>
+
+      <h1 className="lv2-login-title">{title}</h1>
+      <p className="lv2-login-subtitle">{subtitle}</p>
+
+      {step === "phone" ? (
+        <form
+          key="phone"
+          onSubmit={(e) => {
+            e.preventDefault();
+            requestOtp();
+          }}
+          className="space-y-4"
+        >
+          <label className="block">
+            <span className="lv2-login-label">Numero WhatsApp</span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+39 333 1234567"
+              required
+              autoFocus
+              className="lv2-login-input"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading || phone.length < 6}
+            className="lv2-btn-primary w-full"
+            style={{ padding: "13px 22px" }}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Invio in corso…
+              </>
+            ) : (
+              <>
+                <MessageCircle className="w-4 h-4" />
+                Invia codice su WhatsApp
+              </>
+            )}
+          </button>
+
+          {error && <p className="lv2-login-error">{error}</p>}
+
+          <p className="lv2-login-footer-note">{phoneFooter}</p>
+        </form>
+      ) : (
+        <form
+          key="otp"
+          onSubmit={(e) => {
+            e.preventDefault();
+            verifyOtp();
+          }}
+          className="space-y-4"
+        >
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="lv2-login-label" style={{ marginBottom: 0 }}>
+                Codice ricevuto su WhatsApp
+              </span>
+              <span
+                className="lv2-mono"
+                style={{
+                  fontSize: "10.5px",
+                  letterSpacing: "0.12em",
+                  color:
+                    countdown < 30
+                      ? "hsl(0 72% 62%)"
+                      : "hsl(var(--lv2-text-mute))",
+                }}
+              >
+                {countdown > 0 ? `scade ${mmss(countdown)}` : "scaduto"}
+              </span>
+            </div>
+            <div className="grid grid-cols-6 gap-2">
+              {otp.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => {
+                    otpRefs.current[idx] = el;
+                  }}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleOtpChange(idx, e.target.value)}
+                  onKeyDown={(e) => handleOtpKey(idx, e)}
+                  className="lv2-login-otp-cell"
+                />
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || otp.join("").length !== 6}
+            className="lv2-btn-primary w-full"
+            style={{ padding: "13px 22px" }}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Verifica…
+              </>
+            ) : (
+              <>
+                Accedi
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+
+          {error && <p className="lv2-login-error">{error}</p>}
+
+          <div className="flex items-center justify-between pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                setStep("phone");
+                setError(null);
+              }}
+              className="lv2-login-link"
+            >
+              ← Cambia numero
+            </button>
+            <button
+              type="button"
+              disabled={cooldown > 0 || loading}
+              onClick={requestOtp}
+              className="lv2-login-link lv2-login-link--accent inline-flex items-center gap-1.5"
+            >
+              <RotateCcw className="w-3 h-3" />
+              {cooldown > 0 ? `Reinvia in ${cooldown}s` : "Reinvia codice"}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

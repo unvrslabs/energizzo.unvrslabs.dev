@@ -6,7 +6,7 @@ export function FooterV2() {
       <div className="lv2-container">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-3">
-            <Link href="/v2" className="lv2-nav-brand" aria-label="Il Dispaccio">
+            <Link href="/" className="lv2-nav-brand" aria-label="Il Dispaccio">
               <span className="lv2-nav-brand-mark">D</span>
               <span
                 style={{
@@ -92,13 +92,15 @@ export function FooterV2() {
               >
                 Scrivici
               </a>
-              <Link
-                href="/"
+              <a
+                href="https://www.energizzo.it"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: "hsl(var(--lv2-text-dim))" }}
               >
-                Versione classica
-              </Link>
+                Energizzo
+              </a>
             </div>
 
             <div className="flex flex-col gap-2.5">

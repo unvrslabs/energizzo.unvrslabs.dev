@@ -3278,3 +3278,241 @@
   .lv2-nav { padding: 6px 6px 6px 14px; }
   .lv2-nav-links { display: none; }
 }
+
+/* ── Login (admin + network) ── */
+.lv2-login-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.lv2-login-topbar {
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.lv2-login-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--lv2-border));
+  background: hsl(var(--lv2-bg-elev) / 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(var(--lv2-text));
+  letter-spacing: -0.01em;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+.lv2-login-back:hover {
+  border-color: hsl(var(--lv2-accent) / 0.45);
+  background: hsl(var(--lv2-card));
+}
+.lv2-login-back-arrow {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: hsl(var(--lv2-accent) / 0.14);
+  color: hsl(var(--lv2-accent));
+}
+.lv2-login-topbar-meta {
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--lv2-text-mute));
+}
+
+.lv2-login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 72px;
+}
+
+.lv2-login-card {
+  width: 100%;
+  max-width: 440px;
+  background: hsl(var(--lv2-bg-elev));
+  border: 1px solid hsl(var(--lv2-border));
+  border-radius: 18px;
+  padding: 34px 32px 32px;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 24px 60px hsl(0 0% 0% / 0.45),
+    0 4px 12px hsl(158 60% 30% / 0.1),
+    inset 0 1px 0 hsl(0 0% 100% / 0.04);
+}
+.lv2-login-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--lv2-accent) / 0.55),
+    transparent
+  );
+}
+
+.lv2-login-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 18px;
+}
+.lv2-login-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px 5px 8px;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--lv2-accent) / 0.3);
+  background: hsl(var(--lv2-accent) / 0.08);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--lv2-accent));
+}
+.lv2-login-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: hsl(var(--lv2-accent));
+  box-shadow: 0 0 10px hsl(var(--lv2-accent) / 0.7);
+  animation: v2-pulse 2s ease-in-out infinite;
+}
+
+.lv2-login-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: hsl(var(--lv2-text));
+  margin-bottom: 8px;
+  line-height: 1.15;
+}
+.lv2-login-subtitle {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: hsl(var(--lv2-text-dim));
+  margin-bottom: 24px;
+}
+
+.lv2-login-label {
+  display: block;
+  font-family: var(--font-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--lv2-text-mute));
+  margin-bottom: 8px;
+}
+
+.lv2-login-input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid hsl(var(--lv2-border));
+  background: hsl(var(--lv2-card));
+  padding: 13px 14px;
+  font-size: 15px;
+  color: hsl(var(--lv2-text));
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.lv2-login-input::placeholder {
+  color: hsl(var(--lv2-text-mute));
+}
+.lv2-login-input:focus {
+  border-color: hsl(var(--lv2-accent) / 0.55);
+  background: hsl(var(--lv2-card-hover));
+  box-shadow: 0 0 0 3px hsl(var(--lv2-accent) / 0.12);
+}
+
+.lv2-login-otp-cell {
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid hsl(var(--lv2-border));
+  background: hsl(var(--lv2-card));
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: hsl(var(--lv2-text));
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.lv2-login-otp-cell:focus {
+  border-color: hsl(var(--lv2-accent) / 0.55);
+  background: hsl(var(--lv2-card-hover));
+  box-shadow: 0 0 0 3px hsl(var(--lv2-accent) / 0.12);
+}
+
+.lv2-login-error {
+  font-size: 12.5px;
+  text-align: center;
+  color: hsl(0 72% 62%);
+  letter-spacing: -0.005em;
+}
+
+.lv2-login-footer-note {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: hsl(var(--lv2-text-mute));
+  text-align: center;
+  line-height: 1.65;
+  padding-top: 4px;
+}
+
+.lv2-login-link {
+  font-size: 12px;
+  font-weight: 500;
+  color: hsl(var(--lv2-text-mute));
+  transition: color 160ms ease;
+}
+.lv2-login-link:hover {
+  color: hsl(var(--lv2-text));
+}
+.lv2-login-link--accent {
+  color: hsl(var(--lv2-accent));
+}
+.lv2-login-link--accent:hover {
+  color: hsl(158 76% 56%);
+}
+.lv2-login-link:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lv2-login-switch {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: hsl(var(--lv2-text-mute));
+}
+.lv2-login-switch a {
+  color: hsl(var(--lv2-accent));
+  font-weight: 600;
+  transition: color 160ms ease;
+}
+.lv2-login-switch a:hover {
+  color: hsl(158 76% 56%);
+}

@@ -1,43 +1,41 @@
 import type { Metadata } from "next";
 
-import { AnimatedBackground } from "@/components/landing/AnimatedBackground";
-import { Navbar } from "@/components/landing/Navbar";
-import { Hero } from "@/components/landing/Hero";
-import { EnergyTicker } from "@/components/landing/EnergyTicker";
-import { FreeNetworkSection } from "@/components/landing/FreeNetworkSection";
-import { PlatformTabs } from "@/components/landing/PlatformTabs";
-import { HowItWorks } from "@/components/landing/HowItWorks";
-import { ReportSpotlight } from "@/components/landing/ReportSpotlight";
-import { JoinSection } from "@/components/landing/JoinSection";
-import { PodcastSection } from "@/components/landing/PodcastSection";
-import { ComparisonTable } from "@/components/landing/ComparisonTable";
-import { FAQ } from "@/components/landing/FAQ";
-import { FinalCTA } from "@/components/landing/FinalCTA";
-import { Footer } from "@/components/landing/Footer";
+import { NavbarV2 } from "@/components/landing-v2/NavbarV2";
+import { HeroV2 } from "@/components/landing-v2/HeroV2";
+import { TickerBarV2 } from "@/components/landing-v2/TickerBarV2";
+import { PillarsV2 } from "@/components/landing-v2/PillarsV2";
+import { StatsV2 } from "@/components/landing-v2/StatsV2";
+import { HowItWorksV2 } from "@/components/landing-v2/HowItWorksV2";
+import { SponsorV2 } from "@/components/landing-v2/SponsorV2";
+import { ReportV2 } from "@/components/landing-v2/ReportV2";
+import { PodcastV2 } from "@/components/landing-v2/PodcastV2";
+import { FAQV2 } from "@/components/landing-v2/FAQV2";
+import { JoinFormV2 } from "@/components/landing-v2/JoinFormV2";
+import { FooterV2 } from "@/components/landing-v2/FooterV2";
 
 export const metadata: Metadata = {
   title: "Il Dispaccio · Il network dei reseller energia in Italia",
   description:
-    "Delibere ARERA decifrate, tariffe benchmark, podcast 'Il Reseller', eventi privati e un report indipendente. Il network dei reseller energia italiani.",
+    "Delibere ARERA decifrate, benchmark tariffario live, podcast \"Il Reseller\" e report indipendente. Il primo network italiano dei reseller energia.",
 };
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen text-foreground">
-      <AnimatedBackground />
-      <Navbar />
-      <Hero />
-      <FreeNetworkSection />
-      <HowItWorks />
-      <PlatformTabs />
-      <EnergyTicker />
-      <ReportSpotlight />
-      <JoinSection />
-      <PodcastSection />
-      <ComparisonTable />
-      <FAQ />
-      <FinalCTA />
-      <Footer />
-    </main>
+    <div className="lv2">
+      <NavbarV2 />
+      <main>
+        <HeroV2 />
+        <TickerBarV2 />
+        <PillarsV2 />
+        <StatsV2 />
+        <HowItWorksV2 />
+        <SponsorV2 />
+        <PodcastV2 />
+        <ReportV2 />
+        <FAQV2 />
+        <JoinFormV2 />
+      </main>
+      <FooterV2 />
+    </div>
   );
 }
