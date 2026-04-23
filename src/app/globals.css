@@ -1844,6 +1844,307 @@
 
 
 /* ═══════════════════════════════════════════════════════════════════════
+   SURVEY EDITORIAL · Stile questionario editoriale (coerente con welcome)
+   Scoped via .se-root wrapper — override a classi esistenti
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.se-root {
+  --se-ink: 40 12% 94%;
+  --se-ink-dim: 40 8% 72%;
+  --se-ink-mute: 40 6% 48%;
+  --se-paper: 210 18% 6%;
+  --se-paper-raised: 210 15% 10%;
+  --se-hairline: 40 10% 25% / 0.35;
+  --se-accent: 155 55% 40%;
+
+  background-color: hsl(var(--se-paper));
+  color: hsl(var(--se-ink));
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "ss01" 1;
+  letter-spacing: -0.005em;
+}
+
+/* Backdrop: noise + glow sottile */
+.se-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 100%, hsl(var(--se-accent) / 0.05), transparent 70%),
+    radial-gradient(ellipse 80% 40% at 50% 0%, hsl(var(--se-accent) / 0.04), transparent 70%);
+}
+
+/* Tutti i titoli: Newsreader serif */
+.se-root h1,
+.se-root h2,
+.se-root h3,
+.se-root h4,
+.se-root .font-display {
+  font-family: var(--font-serif), Newsreader, Georgia, serif !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.022em !important;
+  color: hsl(var(--se-ink)) !important;
+  line-height: 1.1 !important;
+}
+
+.se-root .font-display { font-weight: 400 !important; }
+
+.se-root h2.font-display,
+.se-root h2 {
+  font-size: clamp(28px, 4.5vw, 44px) !important;
+}
+
+/* Muted paragraphs */
+.se-root .text-muted-foreground {
+  color: hsl(var(--se-ink-dim)) !important;
+}
+
+/* Section pill "Domanda 3/23" */
+.se-root .section-pill {
+  background: transparent !important;
+  border: 1px solid hsl(var(--se-accent) / 0.3) !important;
+  color: hsl(var(--se-accent)) !important;
+  font-family: var(--font-mono), monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.22em !important;
+  padding: 6px 12px !important;
+  border-radius: 2px !important;
+  text-transform: uppercase !important;
+}
+.se-root .section-pill span.h-1\.5 {
+  box-shadow: none !important;
+}
+
+/* Underline input serif */
+.se-root .underline-input {
+  font-family: var(--font-serif), Newsreader, Georgia, serif !important;
+  font-weight: 400 !important;
+  font-size: clamp(22px, 3.5vw, 32px) !important;
+  line-height: 1.3 !important;
+  color: hsl(var(--se-ink)) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid hsl(var(--se-ink) / 0.2) !important;
+  padding: 12px 0 !important;
+  letter-spacing: -0.01em !important;
+}
+.se-root .underline-input::placeholder {
+  color: hsl(var(--se-ink-mute) / 0.6) !important;
+  font-style: italic;
+}
+.se-root .underline-input:focus {
+  outline: none !important;
+  border-bottom-color: hsl(var(--se-accent)) !important;
+  box-shadow: 0 1px 0 0 hsl(var(--se-accent)) !important;
+}
+
+/* Choice rows: row minimale editoriale */
+.se-root .choice-row {
+  background: transparent !important;
+  border: 1px solid hsl(var(--se-ink) / 0.12) !important;
+  border-radius: 2px !important;
+  padding: 16px 18px !important;
+  color: hsl(var(--se-ink)) !important;
+  font-family: var(--font-serif), Newsreader, Georgia, serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+}
+.se-root .choice-row:hover:not(:disabled) {
+  background: hsl(var(--se-accent) / 0.05) !important;
+  border-color: hsl(var(--se-accent) / 0.5) !important;
+  transform: none !important;
+}
+.se-root .choice-row.active {
+  background: hsl(var(--se-accent) / 0.1) !important;
+  border-color: hsl(var(--se-accent)) !important;
+  box-shadow: inset 0 0 0 1px hsl(var(--se-accent)) !important;
+  color: hsl(var(--se-ink)) !important;
+}
+
+.se-root .choice-key {
+  background: hsl(var(--se-ink) / 0.08) !important;
+  border: none !important;
+  border-radius: 2px !important;
+  color: hsl(var(--se-ink-dim)) !important;
+  font-family: var(--font-mono), monospace !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  height: 28px !important;
+  width: 28px !important;
+}
+.se-root .choice-row.active .choice-key {
+  background: hsl(var(--se-accent)) !important;
+  color: hsl(var(--se-paper)) !important;
+}
+
+/* Button premium → minimal editoriale nero */
+.se-root .btn-premium {
+  background: hsl(var(--se-ink)) !important;
+  color: hsl(var(--se-paper)) !important;
+  border: 1px solid hsl(var(--se-ink)) !important;
+  border-radius: 0 !important;
+  padding: 14px 32px !important;
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease !important;
+}
+.se-root .btn-premium:hover {
+  background: hsl(var(--se-accent)) !important;
+  border-color: hsl(var(--se-accent)) !important;
+  color: hsl(var(--se-paper)) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* kbd elegante */
+.se-root kbd,
+.se-root .survey-kbd {
+  background: transparent !important;
+  border: 1px solid hsl(var(--se-ink) / 0.2) !important;
+  color: hsl(var(--se-ink-dim)) !important;
+  font-family: var(--font-mono), monospace !important;
+  border-radius: 2px !important;
+  padding: 2px 6px !important;
+  font-size: 10px !important;
+}
+
+/* Progress bar sottile */
+.se-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: hsl(var(--se-ink) / 0.08);
+  z-index: 50;
+}
+
+.se-progress-fill {
+  height: 100%;
+  background: hsl(var(--se-accent));
+  transition: width 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Bottom nav floating */
+.se-bottom-nav {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 40;
+  font-family: var(--font-mono), monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(var(--se-ink-mute));
+}
+
+.se-bottom-counter {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: hsl(var(--se-ink-mute));
+  margin-right: 12px;
+  font-feature-settings: "tnum" 1;
+}
+
+.se-bottom-saving {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: hsl(var(--se-accent));
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.se-nav-btn {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  border: 1px solid hsl(var(--se-ink) / 0.2);
+  background: transparent;
+  color: hsl(var(--se-ink-dim));
+  transition: all 180ms ease;
+  cursor: pointer;
+}
+.se-nav-btn:hover:not(:disabled) {
+  border-color: hsl(var(--se-accent));
+  color: hsl(var(--se-accent));
+  background: hsl(var(--se-accent) / 0.06);
+}
+.se-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Loader + invalid state */
+.se-state {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.se-state-inner {
+  max-width: 420px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+.se-state-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid hsl(var(--se-ink) / 0.25);
+  color: hsl(var(--se-ink-dim));
+}
+.se-state-icon--danger {
+  border-color: hsl(358 75% 62% / 0.5);
+  color: hsl(358 75% 62%);
+  background: hsl(358 75% 62% / 0.08);
+}
+
+.se-state-title {
+  font-family: var(--font-serif), Newsreader, Georgia, serif !important;
+  font-size: 28px;
+  font-weight: 400;
+  color: hsl(var(--se-ink));
+  letter-spacing: -0.02em;
+}
+.se-state-body {
+  color: hsl(var(--se-ink-dim));
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.se-state-body a {
+  color: hsl(var(--se-accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
    NETWORK · Cockpit reseller energia (area riservata /network/*)
    Classi .v2-* ereditate dalla preview, nome conservato per semplicità
    ═══════════════════════════════════════════════════════════════════════ */

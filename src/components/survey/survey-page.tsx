@@ -56,26 +56,23 @@ export function SurveyPage({ token }: { token: string }) {
 
   if (state.phase === "loading") {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <Loader2 className="h-7 w-7 animate-spin text-primary" />
+      <div className="se-root se-state">
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: "hsl(var(--se-accent))" }} />
       </div>
     );
   }
 
   if (state.phase === "invalid") {
     return (
-      <div className="fixed inset-0 flex items-center justify-center px-6">
-        <div className="max-w-md text-center space-y-5 animate-fade-in-up">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-red-500/15 border border-red-500/40 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
-            <AlertTriangle className="h-7 w-7 text-red-400" />
+      <div className="se-root se-state">
+        <div className="se-state-inner animate-fade-in-up">
+          <div className="se-state-icon se-state-icon--danger">
+            <AlertTriangle className="h-6 w-6" />
           </div>
-          <h2 className="font-display text-3xl font-bold tracking-tight">Link non valido</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Questo link non risulta più attivo. Se pensi sia un errore, scrivi a{" "}
-            <a href="mailto:emanuele@unvrslabs.dev" className="text-primary hover:underline font-medium">
-              emanuele@unvrslabs.dev
-            </a>
-            .
+          <h2 className="se-state-title">Link non valido</h2>
+          <p className="se-state-body">
+            Questo invito non risulta più attivo. Se pensi sia un errore, scrivi a{" "}
+            <a href="mailto:emanuele@maccari.io">emanuele@maccari.io</a>.
           </p>
         </div>
       </div>
