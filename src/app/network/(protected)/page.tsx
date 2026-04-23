@@ -58,7 +58,12 @@ export default async function V2HomePage() {
   const latest = allDelibere.slice(0, 4).map((d) => ({
     code: d.numero,
     title: d.titolo,
-    date: d.data_delibera ?? d.data_pubblicazione ?? d.api_created_at ?? d.created_at,
+    date:
+      d.scraped_data_pubblicazione ??
+      d.data_pubblicazione ??
+      d.data_delibera ??
+      d.api_created_at ??
+      d.created_at,
     sectors:
       Array.isArray(d.ai_sectors) && d.ai_sectors.length > 0
         ? d.ai_sectors

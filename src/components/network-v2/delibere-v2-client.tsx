@@ -134,16 +134,24 @@ export function DelibereV2Client({
     );
   }
 
+  // Lista compatta: toolbar ~82px + 10 righe × ~56px = ~642px
+  const listMaxHeight = "calc(82px + 10 * 56px)";
+
   return (
     <div
       className="v2-card overflow-hidden grid"
       style={{
         gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.35fr)",
-        minHeight: "calc(100vh - 180px)",
       }}
     >
       {/* LIST */}
-      <div className="flex flex-col min-h-0" style={{ borderRight: "1px solid hsl(var(--v2-border))" }}>
+      <div
+        className="flex flex-col min-h-0"
+        style={{
+          borderRight: "1px solid hsl(var(--v2-border))",
+          maxHeight: listMaxHeight,
+        }}
+      >
         <div className="p-3 flex flex-col gap-2" style={{ borderBottom: "1px solid hsl(var(--v2-border))" }}>
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
@@ -242,7 +250,10 @@ export function DelibereV2Client({
       </div>
 
       {/* DETAIL */}
-      <div className="overflow-y-auto min-h-0">
+      <div
+        className="overflow-y-auto min-h-0"
+        style={{ maxHeight: listMaxHeight }}
+      >
         {selected && <DetailPanel d={selected} onSummaryUpdated={handleSummaryUpdated} />}
       </div>
     </div>
@@ -440,18 +451,6 @@ function DetailPanel({
         className="flex items-center gap-2 flex-wrap pt-2 mt-auto"
         style={{ borderTop: "1px solid hsl(var(--v2-border))", paddingTop: "16px" }}
       >
-        {d.hasSummary && (
-          <button
-            type="button"
-            onClick={requestSummary}
-            disabled={isPending}
-            className="v2-btn"
-            title="Rigenera sommario AI"
-          >
-            {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-            Rigenera
-          </button>
-        )}
         <button type="button" className="v2-btn">
           <MessageSquare className="w-3.5 h-3.5" />
           Chiedi all&apos;agente

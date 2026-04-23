@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { getNetworkMember } from "@/lib/network/session";
 import { V2Sidebar } from "@/components/network-v2/sidebar";
+import { createClient } from "@/lib/supabase/server";
+import { DELIBERE_DEADLINES } from "@/lib/delibere/mock";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +21,26 @@ export default async function NetworkProtectedLayout({
     redirect("/network/login");
   }
 
+  const supabase = await createClient();
+  const { count: delibereCount } = await supabase
+    .from("delibere_cache")
+    .select("*", { count: "exact", head: true });
+
+  const now = Date.now();
+  const scadenzeCount = DELIBERE_DEADLINES.filter(
+    (d) => new Date(d.date).getTime() >= now,
+  ).length;
+
   return (
     <div className="v2">
       <V2Sidebar
         member={{
           referente: member.referente,
           ragione_sociale: member.ragione_sociale,
+        }}
+        counts={{
+          delibere: delibereCount ?? 0,
+          scadenze: scadenzeCount,
         }}
       />
       <div className="v2-main">

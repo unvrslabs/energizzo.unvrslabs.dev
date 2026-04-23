@@ -1,6 +1,7 @@
 "use server";
 
 import Anthropic from "@anthropic-ai/sdk";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { mapSettoreToSector, type UiSector } from "@/lib/delibere/api";
 import { resolveDeliberaPdfUrl, PDF_FETCH_UA } from "@/lib/delibere/resolve-pdf";
@@ -49,18 +50,33 @@ export type SummaryResult = {
  */
 export async function generateDeliberaSummary(
   deliberaId: number,
-): Promise<SummaryResult> {
+): Promise<SummaryResult & { cached: boolean }> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
 
   const supabase = await createClient();
   const { data: row, error } = await supabase
     .from("delibere_cache")
-    .select("id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento")
+    .select(
+      "id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento, ai_summary, ai_bullets, ai_sectors, ai_source, ai_generated_at",
+    )
     .eq("id", deliberaId)
     .maybeSingle();
   if (error) throw new Error(`summary: db read failed: ${error.message}`);
   if (!row) throw new Error(`summary: delibera ${deliberaId} not found`);
+
+  // Summary già presente: ritorna cached, non rigenerare (evita costi duplicati).
+  if (row.ai_generated_at && row.ai_summary && Array.isArray(row.ai_bullets)) {
+    return {
+      summary: row.ai_summary,
+      bullets: row.ai_bullets as string[],
+      sectors: Array.isArray(row.ai_sectors)
+        ? (row.ai_sectors as UiSector[])
+        : mapSettoreToSector(row.settore),
+      source: row.ai_source === "pdf" ? "pdf" : "url",
+      cached: true,
+    };
+  }
 
   const anthropic = new Anthropic({ apiKey });
 
@@ -146,7 +162,15 @@ export async function generateDeliberaSummary(
     })
     .eq("id", deliberaId);
 
-  return result;
+  // Invalida cache SSR affinché gli altri membri vedano il summary al prossimo request.
+  try {
+    revalidatePath("/network/delibere");
+    revalidatePath("/network");
+  } catch {
+    // ignore - revalidatePath può fallire in contesti particolari
+  }
+
+  return { ...result, cached: false };
 }
 
 export async function recordSummaryError(

@@ -27,6 +27,8 @@ export type DbDelibera = {
   ai_model: string | null;
   ai_source: string | null;
   ai_error: string | null;
+  scraped_data_pubblicazione: string | null;
+  scraped_at: string | null;
   synced_at: string;
   created_at: string;
   updated_at: string;
@@ -41,7 +43,7 @@ export async function listDelibere(opts?: { limit?: number }): Promise<DbDeliber
   let query = supabase
     .from("delibere_cache")
     .select("*")
-    .order("data_delibera", { ascending: false, nullsFirst: false })
+    .order("scraped_data_pubblicazione", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false });
   if (opts?.limit) query = query.limit(opts.limit);
   const { data, error } = await query;
@@ -79,7 +81,7 @@ export async function listDelibereMissingSummary(limit = 30): Promise<DbDelibera
     .select("*")
     .is("ai_generated_at", null)
     .is("ai_error", null)
-    .order("data_delibera", { ascending: false, nullsFirst: false })
+    .order("scraped_data_pubblicazione", { ascending: false, nullsFirst: false })
     .limit(limit);
   if (error) throw new Error(`listDelibereMissingSummary: ${error.message}`);
   return (data ?? []) as DbDelibera[];

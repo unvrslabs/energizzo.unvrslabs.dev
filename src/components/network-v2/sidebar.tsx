@@ -24,39 +24,52 @@ type NavItem = {
   badge?: string;
 };
 
-const SECTIONS: { title: string; items: NavItem[] }[] = [
-  {
-    title: "Overview",
-    items: [
-      { href: "/network", label: "Dashboard", icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: "Compliance",
-    items: [
-      { href: "/network/delibere", label: "Delibere ARERA", icon: FileText, badge: "8" },
-      { href: "/network/scadenze", label: "Scadenze", icon: CalendarClock, badge: "5" },
-    ],
-  },
-  {
-    title: "Mercato",
-    items: [
-      { href: "/network/price-engine", label: "Price Engine", icon: Activity },
-    ],
-  },
-  {
-    title: "Media",
-    items: [
-      { href: "/network/podcast", label: "Podcast", icon: Mic },
-    ],
-  },
-  {
-    title: "Network",
-    items: [
-      { href: "/network/membri", label: "Membri", icon: Users },
-    ],
-  },
-];
+function buildSections(counts: { delibere: number; scadenze: number }) {
+  const sections: { title: string; items: NavItem[] }[] = [
+    {
+      title: "Overview",
+      items: [
+        { href: "/network", label: "Dashboard", icon: LayoutDashboard },
+      ],
+    },
+    {
+      title: "Compliance",
+      items: [
+        {
+          href: "/network/delibere",
+          label: "Delibere ARERA",
+          icon: FileText,
+          badge: counts.delibere > 0 ? String(counts.delibere) : undefined,
+        },
+        {
+          href: "/network/scadenze",
+          label: "Scadenze",
+          icon: CalendarClock,
+          badge: counts.scadenze > 0 ? String(counts.scadenze) : undefined,
+        },
+      ],
+    },
+    {
+      title: "Mercato",
+      items: [
+        { href: "/network/price-engine", label: "Price Engine", icon: Activity },
+      ],
+    },
+    {
+      title: "Media",
+      items: [
+        { href: "/network/podcast", label: "Podcast", icon: Mic },
+      ],
+    },
+    {
+      title: "Network",
+      items: [
+        { href: "/network/membri", label: "Membri", icon: Users },
+      ],
+    },
+  ];
+  return sections;
+}
 
 function formatClock(d: Date): string {
   const hh = String(d.getHours()).padStart(2, "0");
@@ -67,11 +80,14 @@ function formatClock(d: Date): string {
 
 export function V2Sidebar({
   member,
+  counts,
 }: {
   member: { referente: string; ragione_sociale: string };
+  counts: { delibere: number; scadenze: number };
 }) {
   const pathname = usePathname() ?? "";
   const [now, setNow] = useState<string>(() => formatClock(new Date()));
+  const sections = buildSections(counts);
 
   useEffect(() => {
     const id = setInterval(() => setNow(formatClock(new Date())), 1000);
@@ -105,7 +121,7 @@ export function V2Sidebar({
       </div>
 
       <nav className="flex flex-col gap-0.5">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <div key={section.title}>
             <div className="v2-nav-section">{section.title}</div>
             {section.items.map((item) => {

@@ -57,8 +57,13 @@ function dbToView(d: DbDelibera): DeliberaView {
     kind: kindFromUrl(url),
   }));
 
+  // Priorità: scraping ARERA (data reale) → fallback a metadati API (spesso errati).
   const date =
-    d.data_delibera ?? d.data_pubblicazione ?? d.api_created_at ?? d.created_at;
+    d.scraped_data_pubblicazione ??
+    d.data_pubblicazione ??
+    d.data_delibera ??
+    d.api_created_at ??
+    d.created_at;
 
   return {
     id: d.id,

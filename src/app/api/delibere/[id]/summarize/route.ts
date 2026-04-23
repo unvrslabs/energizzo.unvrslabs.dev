@@ -29,7 +29,7 @@ export async function POST(
 
   try {
     const result = await generateDeliberaSummary(deliberaId);
-    return NextResponse.json({ ok: true, result });
+    return NextResponse.json({ ok: true, result, cached: result.cached });
   } catch (err) {
     const message = err instanceof Error ? err.message : "summarize failed";
     console.error(`summarize ${deliberaId} failed:`, err);
