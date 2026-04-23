@@ -817,6 +817,8 @@ function GeneratorDrawer({
 // POST EDITOR DRAWER
 // ═══════════════════════════════════════════════════════════════════
 
+type EditorTab = "preview" | "testi" | "immagine" | "schedula";
+
 function PostDrawer({
   post,
   onClose,
@@ -828,6 +830,7 @@ function PostDrawer({
   onUpdate: (p: SocialPost) => void;
   onDelete: (id: string) => void;
 }) {
+  const [tab, setTab] = useState<EditorTab>("preview");
   const [copyLinkedin, setCopyLinkedin] = useState(post.copy_linkedin);
   const [copyX, setCopyX] = useState(post.copy_x);
   const [hashtags, setHashtags] = useState(post.hashtags.join(" "));
@@ -839,6 +842,7 @@ function PostDrawer({
   const [lane, setLane] = useState<SocialPost["scheduled_lane"]>(
     post.scheduled_lane,
   );
+  const [notes, setNotes] = useState(post.notes ?? "");
   const [isSaving, startSave] = useTransition();
   const [activePreview, setActivePreview] = useState<"linkedin" | "x">("linkedin");
 
@@ -859,6 +863,7 @@ function PostDrawer({
           hashtags: hashtagList,
           scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
           scheduled_lane: lane,
+          notes: notes || null,
           ...overrides,
         };
         const updated = await updateSocialPost(post.id, patch);
@@ -908,92 +913,178 @@ function PostDrawer({
     .map((h) => h.trim().replace(/^#/, ""))
     .filter(Boolean);
 
+  const statusBadge = (
+    <span style={statusChipStyle(post.status)}>{post.status}</span>
+  );
+
+  const tabsBar = (
+    <div
+      style={{
+        display: "flex",
+        gap: 2,
+        overflowX: "auto",
+      }}
+    >
+      <TabButton
+        active={tab === "preview"}
+        onClick={() => setTab("preview")}
+        icon={<Linkedin className="w-3.5 h-3.5" />}
+        label="Anteprima"
+      />
+      <TabButton
+        active={tab === "testi"}
+        onClick={() => setTab("testi")}
+        icon={<Copy className="w-3.5 h-3.5" />}
+        label="Testi"
+      />
+      <TabButton
+        active={tab === "immagine"}
+        onClick={() => setTab("immagine")}
+        icon={<ImageIcon className="w-3.5 h-3.5" />}
+        label="Immagine"
+      />
+      <TabButton
+        active={tab === "schedula"}
+        onClick={() => setTab("schedula")}
+        icon={<Calendar className="w-3.5 h-3.5" />}
+        label="Schedula"
+      />
+    </div>
+  );
+
+  const footer = (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+      <button
+        type="button"
+        className="v2-btn v2-btn--primary"
+        onClick={() => save()}
+        disabled={isSaving}
+      >
+        {isSaving ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Check className="w-4 h-4" />
+        )}
+        Salva
+      </button>
+
+      {post.status !== "schedulato" && post.status !== "pubblicato" && (
+        <button
+          type="button"
+          className="v2-btn v2-btn--ghost"
+          onClick={scheduleNow}
+          disabled={!scheduledAt || isSaving}
+          title={!scheduledAt ? "Imposta data in 'Schedula' prima" : ""}
+        >
+          <Calendar className="w-4 h-4" /> Schedula
+        </button>
+      )}
+
+      {post.status === "bozza" && (
+        <button
+          type="button"
+          className="v2-btn v2-btn--ghost"
+          onClick={approve}
+          disabled={isSaving}
+        >
+          <Check className="w-4 h-4" /> Approva
+        </button>
+      )}
+
+      <div
+        style={{
+          width: 1,
+          height: 20,
+          background: "hsl(var(--v2-border))",
+          margin: "0 4px",
+        }}
+      />
+
+      {post.status !== "pubblicato" && (
+        <>
+          <button
+            type="button"
+            className="v2-btn v2-btn--ghost"
+            onClick={() => markDone("linkedin")}
+          >
+            <Linkedin className="w-4 h-4" /> Pubblicato LI
+          </button>
+          <button
+            type="button"
+            className="v2-btn v2-btn--ghost"
+            onClick={() => markDone("x")}
+          >
+            𝕏 Pubblicato X
+          </button>
+        </>
+      )}
+
+      <button
+        type="button"
+        className="v2-btn v2-btn--ghost"
+        onClick={del}
+        style={{ marginLeft: "auto", color: "hsl(var(--v2-danger))" }}
+        aria-label="Elimina"
+        title="Elimina"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+
   return (
     <Drawer
       onClose={onClose}
-      width={900}
+      width={720}
       title={`${meta.emoji} ${meta.label}`}
       subtitle={post.hook ?? "(post senza hook)"}
+      badge={statusBadge}
+      tabs={tabsBar}
+      footer={footer}
     >
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 18,
-          alignItems: "flex-start",
-        }}
-      >
-        {/* Editor col sinistra */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {tab === "preview" && (
+        <PreviewTab
+          copyLinkedin={copyLinkedin}
+          copyX={copyX}
+          hashtags={hashtagListArr}
+          imageUrl={imageUrl}
+          activePreview={activePreview}
+          setActivePreview={setActivePreview}
+          onCopyLinkedIn={() => copyToClipboard(copyLinkedin)}
+          onCopyX={() => copyToClipboard(copyX)}
+          post={post}
+        />
+      )}
+
+      {tab === "testi" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
           <Field label="LinkedIn copy">
             <textarea
               className="v2-input"
-              rows={12}
+              rows={14}
               value={copyLinkedin}
               onChange={(e) => setCopyLinkedin(e.target.value)}
+              style={{ fontFamily: "inherit", lineHeight: 1.5 }}
             />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 4,
-                fontSize: 10,
-                color: "hsl(var(--v2-text-mute))",
-                fontFamily: "var(--font-mono), monospace",
-              }}
-            >
-              <span>{copyLinkedin.length} car</span>
-              <button
-                type="button"
-                onClick={() => copyToClipboard(copyLinkedin)}
-                style={{
-                  fontSize: 10,
-                  color: "hsl(var(--v2-accent))",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <Copy className="w-3 h-3" /> copia
-              </button>
-            </div>
+            <CharFooter
+              count={copyLinkedin.length}
+              onCopy={() => copyToClipboard(copyLinkedin)}
+            />
           </Field>
-
-          <Field label="X copy (thread: separa con '\n\n---\n\n')">
+          <Field label="X copy (separa thread con '---' su riga vuota)">
             <textarea
               className="v2-input"
               rows={8}
               value={copyX}
               onChange={(e) => setCopyX(e.target.value)}
+              style={{ fontFamily: "inherit", lineHeight: 1.5 }}
             />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 4,
-                fontSize: 10,
-                color: "hsl(var(--v2-text-mute))",
-                fontFamily: "var(--font-mono), monospace",
-              }}
-            >
-              <span>{copyX.length} car</span>
-              <button
-                type="button"
-                onClick={() => copyToClipboard(copyX)}
-                style={{
-                  fontSize: 10,
-                  color: "hsl(var(--v2-accent))",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <Copy className="w-3 h-3" /> copia
-              </button>
-            </div>
+            <CharFooter
+              count={copyX.length}
+              onCopy={() => copyToClipboard(copyX)}
+            />
           </Field>
-
-          <Field label="Hashtag">
+          <Field label="Hashtag (separati da spazio)">
             <input
               type="text"
               className="v2-input"
@@ -1001,38 +1092,56 @@ function PostDrawer({
               value={hashtags}
               onChange={(e) => setHashtags(e.target.value)}
             />
-          </Field>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <Field label="Schedula per">
-              <input
-                type="datetime-local"
-                className="v2-input"
-                value={scheduledAt}
-                onChange={(e) => setScheduledAt(e.target.value)}
-              />
-            </Field>
-            <Field label="Canali">
-              <select
-                className="v2-input"
-                value={lane}
-                onChange={(e) =>
-                  setLane(e.target.value as SocialPost["scheduled_lane"])
-                }
+            {hashtagListArr.length > 0 && (
+              <div
+                style={{
+                  marginTop: 6,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 4,
+                }}
               >
-                <option value="both">LinkedIn + X</option>
-                <option value="linkedin">Solo LinkedIn</option>
-                <option value="x">Solo X</option>
-              </select>
-            </Field>
-          </div>
+                {hashtagListArr.map((h) => (
+                  <span
+                    key={h}
+                    style={{
+                      fontSize: 11,
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                      background: "hsl(var(--v2-accent) / 0.1)",
+                      color: "hsl(var(--v2-accent))",
+                      fontWeight: 600,
+                    }}
+                  >
+                    #{h}
+                  </span>
+                ))}
+              </div>
+            )}
+          </Field>
+        </div>
+      )}
 
-          {imageUrl && (
-            <Field label="Immagine template">
+      {tab === "immagine" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {imageUrl ? (
+            <>
+              <div
+                className="v2-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "hsl(var(--v2-text-mute))",
+                  fontWeight: 600,
+                }}
+              >
+                Template: {post.image_template}
+              </div>
               <div
                 style={{
                   border: "1px solid hsl(var(--v2-border))",
-                  borderRadius: 10,
+                  borderRadius: 12,
                   overflow: "hidden",
                   background: "hsl(var(--v2-bg))",
                 }}
@@ -1044,18 +1153,24 @@ function PostDrawer({
                 />
               </div>
               <div
+                className="v2-mono"
                 style={{
-                  display: "flex",
-                  gap: 8,
-                  marginTop: 8,
-                  flexWrap: "wrap",
+                  fontSize: 10,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "hsl(var(--v2-text-mute))",
+                  fontWeight: 600,
+                  marginTop: 4,
                 }}
               >
+                Scarica nei 3 formati
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <a
                   href={`/api/admin/social/image/${post.id}?format=square`}
                   download={`post-${post.id}-square.png`}
                   className="v2-btn v2-btn--ghost"
-                  style={{ fontSize: 11 }}
+                  style={{ fontSize: 12 }}
                 >
                   <Download className="w-3.5 h-3.5" /> Square 1080
                 </a>
@@ -1063,174 +1178,329 @@ function PostDrawer({
                   href={`/api/admin/social/image/${post.id}?format=feed`}
                   download={`post-${post.id}-feed.png`}
                   className="v2-btn v2-btn--ghost"
-                  style={{ fontSize: 11 }}
+                  style={{ fontSize: 12 }}
                 >
-                  <Download className="w-3.5 h-3.5" /> Feed 1200×627
+                  <Download className="w-3.5 h-3.5" /> LI Feed 1200×627
                 </a>
                 <a
                   href={`/api/admin/social/image/${post.id}?format=landscape`}
                   download={`post-${post.id}-landscape.png`}
                   className="v2-btn v2-btn--ghost"
-                  style={{ fontSize: 11 }}
+                  style={{ fontSize: 12 }}
                 >
                   <Download className="w-3.5 h-3.5" /> X 1600×900
                 </a>
               </div>
-            </Field>
+            </>
+          ) : (
+            <div
+              className="v2-card"
+              style={{
+                padding: 20,
+                textAlign: "center",
+                color: "hsl(var(--v2-text-mute))",
+                fontSize: 13,
+              }}
+            >
+              Nessun template immagine assegnato a questo post.
+            </div>
           )}
+        </div>
+      )}
 
+      {tab === "schedula" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <Field label="Data e ora pubblicazione">
+            <input
+              type="datetime-local"
+              className="v2-input"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+            />
+          </Field>
+          <Field label="Canali di pubblicazione">
+            <select
+              className="v2-input"
+              value={lane}
+              onChange={(e) =>
+                setLane(e.target.value as SocialPost["scheduled_lane"])
+              }
+            >
+              <option value="both">LinkedIn + X</option>
+              <option value="linkedin">Solo LinkedIn</option>
+              <option value="x">Solo X</option>
+            </select>
+          </Field>
+          <Field label="Note interne">
+            <textarea
+              className="v2-input"
+              rows={4}
+              placeholder="Promemoria per te stesso…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              style={{ fontFamily: "inherit", lineHeight: 1.5 }}
+            />
+          </Field>
           <div
             style={{
-              display: "flex",
-              gap: 8,
-              flexWrap: "wrap",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 10,
               borderTop: "1px solid hsl(var(--v2-border))",
               paddingTop: 14,
+              fontSize: 11,
+              color: "hsl(var(--v2-text-mute))",
+              fontFamily: "var(--font-mono), monospace",
             }}
           >
-            <button
-              type="button"
-              className="v2-btn v2-btn--primary"
-              onClick={() => save()}
-              disabled={isSaving}
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              Salva
-            </button>
-            {post.status !== "schedulato" && post.status !== "pubblicato" && (
-              <button
-                type="button"
-                className="v2-btn v2-btn--ghost"
-                onClick={scheduleNow}
-                disabled={!scheduledAt || isSaving}
-              >
-                <Calendar className="w-4 h-4" /> Schedula
-              </button>
+            <div>
+              <div style={{ textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 4 }}>
+                Stato
+              </div>
+              <span style={statusChipStyle(post.status)}>{post.status}</span>
+            </div>
+            <div>
+              <div style={{ textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 4 }}>
+                Creato
+              </div>
+              <div>{new Date(post.created_at).toLocaleDateString("it-IT")}</div>
+            </div>
+            {post.published_linkedin_at && (
+              <div>
+                <div style={{ textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 4 }}>
+                  Pubblicato LI
+                </div>
+                <div>{new Date(post.published_linkedin_at).toLocaleString("it-IT")}</div>
+              </div>
             )}
-            {post.status === "bozza" && (
-              <button
-                type="button"
-                className="v2-btn v2-btn--ghost"
-                onClick={approve}
-                disabled={isSaving}
-              >
-                <Check className="w-4 h-4" /> Approva
-              </button>
+            {post.published_x_at && (
+              <div>
+                <div style={{ textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 4 }}>
+                  Pubblicato X
+                </div>
+                <div>{new Date(post.published_x_at).toLocaleString("it-IT")}</div>
+              </div>
             )}
-            {post.status !== "pubblicato" && (
-              <>
-                <button
-                  type="button"
-                  className="v2-btn v2-btn--ghost"
-                  onClick={() => markDone("linkedin")}
-                >
-                  <Linkedin className="w-4 h-4" /> Pubblicato LI
-                </button>
-                <button
-                  type="button"
-                  className="v2-btn v2-btn--ghost"
-                  onClick={() => markDone("x")}
-                >
-                  𝕏 Pubblicato X
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              className="v2-btn v2-btn--ghost"
-              onClick={del}
-              style={{ marginLeft: "auto", color: "hsl(var(--v2-danger))" }}
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
           </div>
         </div>
+      )}
+    </Drawer>
+  );
+}
 
-        {/* Preview col destra */}
-        <div
+// ─── Piccoli atomi usati solo dentro PostDrawer ───
+
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        padding: "10px 14px",
+        background: "transparent",
+        color: active ? "hsl(var(--v2-accent))" : "hsl(var(--v2-text-mute))",
+        border: "none",
+        borderBottom: active
+          ? "2px solid hsl(var(--v2-accent))"
+          : "2px solid transparent",
+        cursor: "pointer",
+        fontSize: 13,
+        fontWeight: 600,
+        letterSpacing: "-0.005em",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        whiteSpace: "nowrap",
+        transition: "color 120ms ease",
+        marginBottom: -1,
+      }}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function CharFooter({
+  count,
+  onCopy,
+}: {
+  count: number;
+  onCopy: () => void;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginTop: 6,
+        fontSize: 11,
+        color: "hsl(var(--v2-text-mute))",
+        fontFamily: "var(--font-mono), monospace",
+      }}
+    >
+      <span>{count} caratteri</span>
+      <button
+        type="button"
+        onClick={onCopy}
+        style={{
+          fontSize: 11,
+          color: "hsl(var(--v2-accent))",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+          background: "transparent",
+          border: "1px solid hsl(var(--v2-accent) / 0.2)",
+          padding: "3px 8px",
+          borderRadius: 6,
+          cursor: "pointer",
+          fontWeight: 600,
+        }}
+      >
+        <Copy className="w-3 h-3" /> Copia con hashtag
+      </button>
+    </div>
+  );
+}
+
+function PreviewTab({
+  copyLinkedin,
+  copyX,
+  hashtags,
+  imageUrl,
+  activePreview,
+  setActivePreview,
+  onCopyLinkedIn,
+  onCopyX,
+  post,
+}: {
+  copyLinkedin: string;
+  copyX: string;
+  hashtags: string[];
+  imageUrl: string | null;
+  activePreview: "linkedin" | "x";
+  setActivePreview: (v: "linkedin" | "x") => void;
+  onCopyLinkedIn: () => void;
+  onCopyX: () => void;
+  post: SocialPost;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {/* Toggle LinkedIn / X */}
+      <div
+        style={{
+          display: "flex",
+          gap: 4,
+          padding: 4,
+          background: "hsl(var(--v2-card))",
+          border: "1px solid hsl(var(--v2-border))",
+          borderRadius: 10,
+          alignSelf: "flex-start",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => setActivePreview("linkedin")}
           style={{
-            position: "sticky",
-            top: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
+            padding: "6px 14px",
+            background:
+              activePreview === "linkedin"
+                ? "hsl(var(--v2-accent) / 0.14)"
+                : "transparent",
+            color:
+              activePreview === "linkedin"
+                ? "hsl(var(--v2-accent))"
+                : "hsl(var(--v2-text-dim))",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 600,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          <div style={{ display: "flex", gap: 6 }}>
-            <button
-              type="button"
-              className="v2-chip"
-              onClick={() => setActivePreview("linkedin")}
-              style={{
-                padding: "6px 12px",
-                background:
-                  activePreview === "linkedin"
-                    ? "hsl(var(--v2-accent) / 0.14)"
-                    : "hsl(var(--v2-card))",
-                color:
-                  activePreview === "linkedin"
-                    ? "hsl(var(--v2-accent))"
-                    : "hsl(var(--v2-text-dim))",
-                border: "1px solid hsl(var(--v2-border))",
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 600,
-                borderRadius: 6,
-              }}
-            >
-              <Linkedin className="w-3.5 h-3.5" /> LinkedIn
-            </button>
-            <button
-              type="button"
-              className="v2-chip"
-              onClick={() => setActivePreview("x")}
-              style={{
-                padding: "6px 12px",
-                background:
-                  activePreview === "x"
-                    ? "hsl(var(--v2-accent) / 0.14)"
-                    : "hsl(var(--v2-card))",
-                color:
-                  activePreview === "x"
-                    ? "hsl(var(--v2-accent))"
-                    : "hsl(var(--v2-text-dim))",
-                border: "1px solid hsl(var(--v2-border))",
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 600,
-                borderRadius: 6,
-              }}
-            >
-              𝕏 X
-            </button>
-            {post.image_template && (
-              <span
-                style={{
-                  marginLeft: "auto",
-                  fontSize: 10,
-                  color: "hsl(var(--v2-text-mute))",
-                  fontFamily: "var(--font-mono), monospace",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <ImageIcon className="w-3 h-3" /> {post.image_template}
-              </span>
-            )}
-          </div>
-          {activePreview === "linkedin" ? (
-            <LinkedInPreview
-              copy={copyLinkedin}
-              hashtags={hashtagListArr}
-              imageUrl={imageUrl}
-            />
-          ) : (
-            <XPreview copy={copyX} hashtags={hashtagListArr} imageUrl={imageUrl} />
-          )}
-        </div>
+          <Linkedin className="w-3.5 h-3.5" /> LinkedIn
+        </button>
+        <button
+          type="button"
+          onClick={() => setActivePreview("x")}
+          style={{
+            padding: "6px 14px",
+            background:
+              activePreview === "x"
+                ? "hsl(var(--v2-accent) / 0.14)"
+                : "transparent",
+            color:
+              activePreview === "x"
+                ? "hsl(var(--v2-accent))"
+                : "hsl(var(--v2-text-dim))",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 600,
+          }}
+        >
+          𝕏 X
+        </button>
       </div>
-    </Drawer>
+
+      {activePreview === "linkedin" ? (
+        <LinkedInPreview
+          copy={copyLinkedin}
+          hashtags={hashtags}
+          imageUrl={imageUrl}
+        />
+      ) : (
+        <XPreview copy={copyX} hashtags={hashtags} imageUrl={imageUrl} />
+      )}
+
+      {/* Azioni quick sotto la preview */}
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          marginTop: 4,
+        }}
+      >
+        <button
+          type="button"
+          className="v2-btn v2-btn--primary"
+          onClick={activePreview === "linkedin" ? onCopyLinkedIn : onCopyX}
+          style={{ flex: "1 1 180px" }}
+        >
+          <Copy className="w-4 h-4" /> Copia testo{" "}
+          {activePreview === "linkedin" ? "LinkedIn" : "X"}
+        </button>
+        {imageUrl && (
+          <a
+            href={`/api/admin/social/image/${post.id}?format=${
+              activePreview === "linkedin" ? "feed" : "landscape"
+            }`}
+            download={`post-${post.id}-${
+              activePreview === "linkedin" ? "feed" : "landscape"
+            }.png`}
+            className="v2-btn v2-btn--ghost"
+          >
+            <Download className="w-4 h-4" /> Scarica immagine
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -1241,15 +1511,21 @@ function PostDrawer({
 function Drawer({
   title,
   subtitle,
+  badge,
+  tabs,
   children,
   onClose,
   width = 520,
+  footer,
 }: {
   title: string;
   subtitle?: string;
+  badge?: React.ReactNode;
+  tabs?: React.ReactNode;
   children: React.ReactNode;
   onClose: () => void;
   width?: number;
+  footer?: React.ReactNode;
 }) {
   return (
     <div
@@ -1279,67 +1555,108 @@ function Drawer({
           background: "hsl(var(--v2-bg))",
           borderLeft: "1px solid hsl(var(--v2-border))",
           boxShadow: "-24px 0 48px hsl(0 0% 0% / 0.4)",
-          overflowY: "auto",
           display: "flex",
           flexDirection: "column",
         }}
       >
+        {/* Header sticky */}
         <div
           style={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-            padding: "18px 22px",
+            padding: "16px 22px 0",
             borderBottom: "1px solid hsl(var(--v2-border))",
-            gap: 12,
-            position: "sticky",
-            top: 0,
             background: "hsl(var(--v2-bg))",
-            zIndex: 2,
+            flexShrink: 0,
           }}
         >
-          <div>
-            <h3
-              style={{
-                fontSize: 16,
-                fontWeight: 700,
-                color: "hsl(var(--v2-text))",
-              }}
-            >
-              {title}
-            </h3>
-            {subtitle && (
-              <div
-                style={{
-                  fontSize: 12,
-                  color: "hsl(var(--v2-text-mute))",
-                  marginTop: 4,
-                  maxWidth: 500,
-                }}
-              >
-                {subtitle}
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
+          <div
             style={{
-              width: 30,
-              height: 30,
-              borderRadius: 7,
-              display: "grid",
-              placeItems: "center",
-              background: "transparent",
-              color: "hsl(var(--v2-text-mute))",
-              border: "1px solid hsl(var(--v2-border))",
-              cursor: "pointer",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 12,
             }}
           >
-            <X className="w-4 h-4" />
-          </button>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <h3
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "hsl(var(--v2-text))",
+                    minWidth: 0,
+                  }}
+                >
+                  {title}
+                </h3>
+                {badge}
+              </div>
+              {subtitle && (
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "hsl(var(--v2-text-mute))",
+                    lineHeight: 1.45,
+                    maxWidth: 640,
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {subtitle}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                display: "grid",
+                placeItems: "center",
+                background: "transparent",
+                color: "hsl(var(--v2-text-mute))",
+                border: "1px solid hsl(var(--v2-border))",
+                cursor: "pointer",
+                flexShrink: 0,
+              }}
+              aria-label="Chiudi"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          {tabs}
         </div>
-        <div style={{ padding: 22 }}>{children}</div>
+
+        {/* Body scrollabile */}
+        <div
+          style={{
+            flex: 1,
+            minHeight: 0,
+            overflowY: "auto",
+            padding: 22,
+          }}
+        >
+          {children}
+        </div>
+
+        {/* Footer sticky */}
+        {footer && (
+          <div
+            style={{
+              flexShrink: 0,
+              padding: "12px 18px",
+              borderTop: "1px solid hsl(var(--v2-border))",
+              background: "hsl(var(--v2-bg))",
+              boxShadow: "0 -12px 24px hsl(0 0% 0% / 0.3)",
+            }}
+          >
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
