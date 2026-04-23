@@ -25,8 +25,17 @@ export default async function InvitoNetworkPage({
   }
 
   return (
-    <main className="relative min-h-screen">
-      <SurveyPage token={codice} />
-    </main>
+    <>
+      {/* Evita flash verde del body mesh-gradient durante il primo paint */}
+      <style>{`
+        body {
+          background: hsl(210 18% 6%) !important;
+          background-image: none !important;
+        }
+      `}</style>
+      <main className="relative min-h-screen">
+        <SurveyPage token={codice} />
+      </main>
+    </>
   );
 }
