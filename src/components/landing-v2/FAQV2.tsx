@@ -19,10 +19,10 @@ const FAQS: QA[] = [
   },
   {
     q: "Come faccio a entrare?",
-    a: "Compili il form con ragione sociale, P.IVA, referente e WhatsApp. Se il profilo rispetta i requisiti ricevi un invito editoriale con il tuo numero N/100 e un survey di 23 domande. Completato il survey attivi l'accesso al cockpit con OTP via WhatsApp.",
+    a: "Compili il form con ragione sociale, P.IVA, referente e WhatsApp. Se il profilo rispetta i requisiti ricevi un invito editoriale con il tuo numero N/100 e un survey di 23 domande. Completato il survey attivi l'accesso all'area riservata con OTP via WhatsApp.",
   },
   {
-    q: "Cosa include il cockpit riservato?",
+    q: "Cosa include l'area riservata?",
     a: "Home con ticker PUN/PSV/TTF live, archivio delibere ARERA con riassunti AI in bullet operativi, scadenze regolatorie, preview del price engine (beta Q2 2026) e archivio podcast con trascrizioni riservate.",
   },
   {

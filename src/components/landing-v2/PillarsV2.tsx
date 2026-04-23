@@ -136,7 +136,7 @@ const PILLARS = [
   {
     Icon: Radar,
     label: "I.",
-    title: "Cockpit regolatorio AI",
+    title: "Radar regolatorio AI",
     desc: "433 delibere ARERA + 61 Testi Integrati indicizzati. Un agente AI analizza il PDF e produce summary in 4 bullet operativi con scadenze estratte e badge automatico sui cambi tariffari.",
     mini: <DelibereMini />,
   },

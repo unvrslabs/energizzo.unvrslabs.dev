@@ -16,8 +16,8 @@ const STEPS = [
   {
     num: "III.",
     Icon: KeyRound,
-    title: "Accesso cockpit",
-    desc: "Al completamento del survey attivi l'account: OTP via WhatsApp, entri nel cockpit e hai accesso a delibere AI, podcast e benchmark.",
+    title: "Accesso alla piattaforma",
+    desc: "Al completamento del survey attivi l'account: OTP via WhatsApp, entri nell'area riservata e hai accesso a delibere AI, podcast e benchmark.",
   },
 ];
 

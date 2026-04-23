@@ -7,7 +7,7 @@ export function NetworkLoginForm({ next }: { next?: string }) {
     <OtpLoginForm
       apiBase="/api/network/auth"
       badgeLabel="Network · Area riservata"
-      title="Accesso al cockpit reseller"
+      title="Accesso all'area riservata"
       subtitle="Solo per i membri del network Il Dispaccio. Ti inviamo un codice di accesso a 6 cifre sul tuo WhatsApp."
       phoneFooter="Network privato · solo numeri autorizzati"
       defaultRedirect="/network"

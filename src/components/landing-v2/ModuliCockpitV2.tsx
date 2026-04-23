@@ -93,12 +93,12 @@ export function ModuliCockpitV2() {
     <section id="moduli" className="lv2-section">
       <div className="lv2-container">
         <div className="max-w-3xl mb-14">
-          <div className="lv2-kicker mb-5">// Nel cockpit trovi</div>
+          <div className="lv2-kicker mb-5">// Nell&apos;area riservata trovi</div>
           <h2 className="lv2-h2 mb-4">
             6 moduli operativi, <em>un</em> unico login.
           </h2>
           <p className="lv2-lede">
-            Ogni area del cockpit è pensata per un momento del tuo lavoro:
+            Ogni modulo è pensato per un momento del tuo lavoro:
             leggere la normativa, pianificare le scadenze, simulare le bollette,
             monitorare il mercato.
           </p>

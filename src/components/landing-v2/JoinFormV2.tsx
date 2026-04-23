@@ -61,7 +61,7 @@ export function JoinFormV2() {
 
               <ul className="space-y-3 mb-8">
                 {[
-                  "Cockpit regolatorio con delibere AI",
+                  "Radar regolatorio con delibere AI",
                   "Podcast &laquo;Il Reseller&raquo; + knowledge base",
                   "Report indipendente annuale + benchmark privato",
                   "Community CEO e COO verticale",

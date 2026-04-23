@@ -9,7 +9,7 @@ const STATS = [
     value: "23",
     suffix: null as string | null,
     label: "domande · 2 min",
-    hint: "Il survey editoriale che attiva l'accesso al cockpit",
+    hint: "Il survey editoriale che attiva l'accesso all'area riservata",
   },
   {
     value: "10",

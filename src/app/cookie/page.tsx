@@ -33,8 +33,8 @@ export default function CookiePage() {
         </p>
         <ul>
           <li>
-            <code>ildispaccio_network</code> — cookie di sessione per il cockpit
-            network riservato. Durata: sessione / max 30 giorni.
+            <code>ildispaccio_network</code> — cookie di sessione per l&apos;area
+            riservata network. Durata: sessione / max 30 giorni.
           </li>
           <li>
             <code>ildispaccio_admin</code> — cookie di sessione per l&apos;area

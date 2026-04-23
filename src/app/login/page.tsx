@@ -34,7 +34,7 @@ export default async function AdminLoginPage({
 
           <span className="lv2-login-topbar-meta hidden sm:inline-flex items-center gap-2">
             <Shield className="w-3 h-3" style={{ color: "hsl(var(--lv2-accent))" }} />
-            Admin cockpit
+            Admin · Area riservata
           </span>
         </header>
 
@@ -42,7 +42,7 @@ export default async function AdminLoginPage({
           <OtpLoginForm
             apiBase="/api/admin/auth"
             badgeLabel="Admin · Team interno"
-            title="Accesso al cockpit"
+            title="Accesso all'area riservata"
             subtitle="Solo il team UNVRS autorizzato. Ti inviamo un codice di accesso a 6 cifre sul tuo numero WhatsApp."
             phoneFooter="Solo i numeri admin autorizzati possono accedere"
             defaultRedirect="/dashboard"

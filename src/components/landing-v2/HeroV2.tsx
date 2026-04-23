@@ -21,7 +21,7 @@ function CockpitPreview() {
               color: "hsl(var(--lv2-text-mute))",
             }}
           >
-            // cockpit reseller · live
+            // area riservata · live
           </span>
           <span
             className="lv2-mono"
@@ -107,7 +107,7 @@ export function HeroV2() {
             <p className="lv2-lede mb-3">
               Delibere ARERA decifrate in bullet point, benchmark tariffario
               live, podcast editoriale &ldquo;Il Reseller&rdquo;, report
-              indipendente annuale e cockpit riservato.
+              indipendente annuale e area riservata online.
             </p>
             <p className="lv2-lede mb-9">
               Accesso gratuito su invito. 100 posti disponibili per il primo
@@ -120,7 +120,7 @@ export function HeroV2() {
                 <ArrowRight className="w-4 h-4" />
               </a>
               <Link href="/network/login" className="lv2-btn-ghost">
-                Accedi al cockpit
+                Accedi all&apos;area riservata
               </Link>
             </div>
 

@@ -90,7 +90,7 @@ export function FooterV2() {
                 className="text-sm hover:text-white transition-colors"
                 style={{ color: "hsl(var(--lv2-text-dim))" }}
               >
-                Accedi al cockpit
+                Accedi all&apos;area riservata
               </Link>
               <a
                 href="/#richiedi"
