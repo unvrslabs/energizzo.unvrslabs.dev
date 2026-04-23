@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, ExternalLink, Paperclip } from "lucide-react";
+import { Building2, Paperclip } from "lucide-react";
 import { CATEGORIA_CONFIG, STATUS_CONFIG, type Categoria } from "@/lib/status-config";
 import type { Lead } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -20,12 +20,12 @@ export function LeadsTableV2({
     );
   }
 
-  const GRID = "minmax(260px, 2fr) 140px 150px 110px 90px 80px 160px 70px";
+  const GRID = "minmax(260px, 2fr) 140px 150px 110px 90px 180px";
 
   return (
     <div className="v2-card overflow-hidden">
       <div className="overflow-x-auto">
-        <div style={{ minWidth: "1260px" }}>
+        <div style={{ minWidth: "1100px" }}>
           {/* Header */}
           <div
             className="grid gap-3 px-4 py-3 v2-mono text-[10px] font-bold uppercase tracking-[0.14em]"
@@ -40,9 +40,7 @@ export function LeadsTableV2({
             <span>Categoria</span>
             <span>Network</span>
             <span>Tipo</span>
-            <span>Prov.</span>
             <span>Comune</span>
-            <span className="text-right">Apri</span>
           </div>
 
           {/* Rows */}
@@ -93,26 +91,9 @@ export function LeadsTableV2({
                 {l.tipo_servizio === "Dual (Ele+Gas)" ? "Dual" : l.tipo_servizio.replace("Solo ", "")}
               </span>
 
-              <span className="v2-mono text-[11px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                {l.provincia ?? "—"}
-              </span>
-
               <span className="text-[12px] truncate" style={{ color: "hsl(var(--v2-text-dim))" }}>
-                {l.comune ?? "—"}
+                {l.comune ?? "—"}{l.provincia ? ` (${l.provincia})` : ""}
               </span>
-
-              <button
-                type="button"
-                className="v2-btn v2-btn--ghost"
-                style={{ padding: "4px 8px" }}
-                aria-label="Apri"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelect(l.id);
-                }}
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </button>
             </li>
           );
         })}
