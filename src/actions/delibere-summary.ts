@@ -85,6 +85,13 @@ export type SummaryResult = {
   source: "pdf" | "url";
 };
 
+// In-process lock per evitare doppia call Claude sulla stessa delibera
+// (utente che clicca 2 volte, o 2 utenti simultanei). Protegge da cost-leak.
+// Per setup multi-istanza servirà lock DB-based.
+const pendingDelibereIds = new Set<number>();
+
+const PDF_FETCH_TIMEOUT_MS = 60_000;
+
 /**
  * Generate AI summary for a delibera by id.
  * Strategy: download PDF from documento_url (first), pass to Claude as document.
@@ -96,6 +103,10 @@ export async function generateDeliberaSummary(
 ): Promise<SummaryResult & { cached: boolean }> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
+
+  if (pendingDelibereIds.has(deliberaId)) {
+    throw new Error("Sommario AI già in generazione. Attendi qualche secondo e ricarica la pagina.");
+  }
 
   const supabase = await createClient();
   const { data: row, error } = await supabase
@@ -125,6 +136,36 @@ export async function generateDeliberaSummary(
     };
   }
 
+  pendingDelibereIds.add(deliberaId);
+  try {
+    return await generateImpl(supabase, row, deliberaId, apiKey);
+  } finally {
+    pendingDelibereIds.delete(deliberaId);
+  }
+}
+
+type DeliberaRow = {
+  id: number;
+  numero: string | null;
+  titolo: string | null;
+  descrizione: string | null;
+  tipo: string | null;
+  settore: string | null;
+  documento_url: string | null;
+  url_riferimento: string | null;
+  ai_summary: string | null;
+  ai_bullets: unknown;
+  ai_sectors: unknown;
+  ai_source: string | null;
+  ai_generated_at: string | null;
+};
+
+async function generateImpl(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  row: DeliberaRow,
+  deliberaId: number,
+  apiKey: string,
+): Promise<SummaryResult & { cached: boolean }> {
   const anthropic = new Anthropic({ apiKey });
 
   const header =
@@ -166,7 +207,7 @@ export async function generateDeliberaSummary(
 
   const resp = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: 2048,
     system: [
       {
         type: "text",
@@ -177,12 +218,23 @@ export async function generateDeliberaSummary(
     messages: [{ role: "user", content }],
   });
 
+  if (resp.stop_reason === "max_tokens") {
+    throw new Error("summary: risposta Claude troncata (max_tokens). Contenuto PDF troppo lungo.");
+  }
+
   const textBlock = resp.content.find((c) => c.type === "text");
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("summary: no text block from Claude");
   }
 
-  const parsed = extractJson(textBlock.text);
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = extractJson(textBlock.text);
+  } catch (err) {
+    throw new Error(
+      `summary: JSON Claude non parsabile. Estratto: ${textBlock.text.slice(0, 200)} (${err instanceof Error ? err.message : err})`,
+    );
+  }
   const result: SummaryResult = {
     summary: String(parsed.summary ?? "").trim(),
     bullets: Array.isArray(parsed.bullets)
@@ -201,7 +253,7 @@ export async function generateDeliberaSummary(
     throw new Error("summary: empty summary/bullets from Claude");
   }
 
-  await supabase
+  const { error: updErr } = await supabase
     .from("delibere_cache")
     .update({
       ai_summary: result.summary,
@@ -216,13 +268,15 @@ export async function generateDeliberaSummary(
       ai_error: null,
     })
     .eq("id", deliberaId);
+  if (updErr) {
+    throw new Error(`summary: persist fallito: ${updErr.message}`);
+  }
 
-  // Invalida cache SSR affinché gli altri membri vedano il summary al prossimo request.
   try {
     revalidatePath("/network/delibere");
     revalidatePath("/network");
-  } catch {
-    // ignore - revalidatePath può fallire in contesti particolari
+  } catch (e) {
+    console.error("revalidatePath after summary failed:", e);
   }
 
   return { ...result, cached: false };
@@ -240,17 +294,24 @@ export async function recordSummaryError(
 }
 
 async function fetchPdfAsBase64(url: string): Promise<string> {
-  const res = await fetch(url, {
-    cache: "no-store",
-    headers: { "User-Agent": PDF_FETCH_UA },
-  });
-  if (!res.ok) throw new Error(`PDF fetch ${res.status}`);
-  const buf = await res.arrayBuffer();
-  const maxBytes = 30 * 1024 * 1024;
-  if (buf.byteLength > maxBytes) {
-    throw new Error(`PDF too large: ${buf.byteLength} bytes`);
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), PDF_FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { "User-Agent": PDF_FETCH_UA },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`PDF fetch ${res.status}`);
+    const buf = await res.arrayBuffer();
+    const maxBytes = 30 * 1024 * 1024;
+    if (buf.byteLength > maxBytes) {
+      throw new Error(`PDF too large: ${buf.byteLength} bytes`);
+    }
+    return Buffer.from(buf).toString("base64");
+  } finally {
+    clearTimeout(timeout);
   }
-  return Buffer.from(buf).toString("base64");
 }
 
 function extractJson(text: string): Record<string, unknown> {

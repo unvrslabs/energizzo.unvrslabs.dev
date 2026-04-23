@@ -1,15 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { render } from "@react-email/render";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminMember } from "@/lib/admin/session";
 import SurveyInviteEmail from "@/emails/SurveyInviteEmail";
 import { getSurveyUrl } from "@/lib/public-urls";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(req: NextRequest) {
+  const admin = await getAdminMember();
+  if (!admin) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = req.nextUrl;
   const leadId = searchParams.get("lead_id");
   const format = searchParams.get("format") || "html";
-  if (!leadId) {
-    return NextResponse.json({ error: "lead_id mancante" }, { status: 400 });
+  if (!leadId || !UUID_REGEX.test(leadId)) {
+    return NextResponse.json({ error: "lead_id mancante o non valido" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -17,9 +25,12 @@ export async function GET(req: NextRequest) {
     .from("leads")
     .select("id, ragione_sociale, survey_token")
     .eq("id", leadId)
-    .single();
-  if (error || !lead) {
-    return NextResponse.json({ error: error?.message ?? "Lead non trovato" }, { status: 404 });
+    .maybeSingle();
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  if (!lead) {
+    return NextResponse.json({ error: "Lead non trovato" }, { status: 404 });
   }
 
   const props = {

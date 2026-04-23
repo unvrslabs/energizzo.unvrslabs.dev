@@ -3,15 +3,7 @@ import {
   PODCAST_COMMUNITY_QUESTIONS,
   PODCAST_EPISODES,
 } from "@/lib/podcast/mock";
-
-function formatDateIt(date: string) {
-  const d = new Date(date + "T00:00:00Z");
-  return d.toLocaleDateString("it-IT", {
-    day: "numeric",
-    month: "short",
-    timeZone: "UTC",
-  });
-}
+import { formatDateShortIt as formatDateIt } from "@/lib/date-utils";
 
 export function PodcastQuestions() {
   return (

@@ -22,6 +22,8 @@ const BodySchema = z.object({
 });
 
 const MAX_ATTEMPTS = 5;
+const IP_VERIFY_WINDOW_MS = 15 * 60 * 1000;
+const IP_VERIFY_MAX = 30;
 
 function clientIp(req: NextRequest): string | null {
   return (
@@ -52,8 +54,30 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient();
   const nowIso = new Date().toISOString();
+  const ip = clientIp(req);
 
-  const { data: otp } = await supabase
+  // Rate limit IP: max 30 tentativi verify in 15 min (anti-brute-force)
+  if (ip) {
+    const since = new Date(Date.now() - IP_VERIFY_WINDOW_MS).toISOString();
+    const { count } = await supabase
+      .from("network_sessions")
+      .select("id", { count: "exact", head: true })
+      .eq("ip", ip)
+      .gte("created_at", since);
+    if ((count ?? 0) > IP_VERIFY_MAX) {
+      return NextResponse.json(
+        { ok: false, error: "Troppi tentativi. Riprova più tardi." },
+        { status: 429 },
+      );
+    }
+  }
+
+  // Atomic consume: incrementa attempts e consuma subito se hash match.
+  // Usiamo SELECT + UPDATE conditional con .select() per avere la riga aggiornata.
+  // Nota: race possibile su due POST identiche simultanee; il duplicate insert su
+  // network_sessions è raro perché il token è random per request, ma il consume
+  // è comunque atomico perché avviene PRIMA di creare la session.
+  const { data: otp, error: otpErr } = await supabase
     .from("network_otp_codes")
     .select("id, code_hash, attempts, expires_at")
     .eq("phone", phone)
@@ -62,6 +86,13 @@ export async function POST(req: NextRequest) {
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (otpErr) {
+    console.error("verify-otp lookup failed", otpErr);
+    return NextResponse.json(
+      { ok: false, error: "Errore temporaneo. Riprova." },
+      { status: 500 },
+    );
+  }
 
   if (!otp) {
     return NextResponse.json(
@@ -71,36 +102,54 @@ export async function POST(req: NextRequest) {
   }
 
   const newAttempts = otp.attempts + 1;
-  await supabase
-    .from("network_otp_codes")
-    .update({ attempts: newAttempts })
-    .eq("id", otp.id);
-
-  if (newAttempts > MAX_ATTEMPTS) {
-    await supabase
-      .from("network_otp_codes")
-      .update({ consumed_at: nowIso })
-      .eq("phone", phone)
-      .is("consumed_at", null);
-    return NextResponse.json(
-      { ok: false, error: "Troppi tentativi. Richiedi un nuovo codice." },
-      { status: 429 },
-    );
-  }
 
   const inputHash = hashOtp(parsed.code);
-  if (inputHash !== otp.code_hash) {
+  const isMatch = inputHash === otp.code_hash;
+
+  if (!isMatch) {
+    // Incrementa attempts; se supera il max, consuma l'OTP.
+    if (newAttempts >= MAX_ATTEMPTS) {
+      await supabase
+        .from("network_otp_codes")
+        .update({ attempts: newAttempts, consumed_at: nowIso })
+        .eq("id", otp.id)
+        .is("consumed_at", null);
+      return NextResponse.json(
+        { ok: false, error: "Troppi tentativi. Richiedi un nuovo codice." },
+        { status: 429 },
+      );
+    }
+    await supabase
+      .from("network_otp_codes")
+      .update({ attempts: newAttempts })
+      .eq("id", otp.id);
     return NextResponse.json(
       { ok: false, error: "Codice errato." },
       { status: 400 },
     );
   }
 
-  await supabase
+  // Match: consuma atomicamente. Se un'altra request parallela ci ha preceduto
+  // (consumed_at già settato), 0 rows vengono aggiornate → rigetta: OTP già usato.
+  const { data: consumed, error: consumeErr } = await supabase
     .from("network_otp_codes")
-    .update({ consumed_at: nowIso })
-    .eq("phone", phone)
-    .is("consumed_at", null);
+    .update({ consumed_at: nowIso, attempts: newAttempts })
+    .eq("id", otp.id)
+    .is("consumed_at", null)
+    .select("id");
+  if (consumeErr) {
+    console.error("verify-otp consume failed", consumeErr);
+    return NextResponse.json(
+      { ok: false, error: "Errore temporaneo. Riprova." },
+      { status: 500 },
+    );
+  }
+  if (!consumed || consumed.length === 0) {
+    return NextResponse.json(
+      { ok: false, error: "Codice già usato. Richiedine uno nuovo." },
+      { status: 400 },
+    );
+  }
 
   const { data: member } = await supabase
     .from("network_members")
@@ -122,7 +171,6 @@ export async function POST(req: NextRequest) {
     Date.now() + NETWORK_SESSION_TTL_DAYS * 24 * 60 * 60 * 1000,
   );
 
-  const ip = clientIp(req);
   const userAgent = req.headers.get("user-agent");
 
   const { error: sessionError } = await supabase.from("network_sessions").insert({

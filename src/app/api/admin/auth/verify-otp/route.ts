@@ -22,6 +22,8 @@ const BodySchema = z.object({
 });
 
 const MAX_ATTEMPTS = 5;
+const IP_VERIFY_WINDOW_MS = 15 * 60 * 1000;
+const IP_VERIFY_MAX = 30;
 
 function clientIp(req: NextRequest): string | null {
   return (
@@ -52,8 +54,24 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient();
   const nowIso = new Date().toISOString();
+  const ip = clientIp(req);
 
-  const { data: otp } = await supabase
+  if (ip) {
+    const since = new Date(Date.now() - IP_VERIFY_WINDOW_MS).toISOString();
+    const { count } = await supabase
+      .from("admin_sessions")
+      .select("id", { count: "exact", head: true })
+      .eq("ip", ip)
+      .gte("created_at", since);
+    if ((count ?? 0) > IP_VERIFY_MAX) {
+      return NextResponse.json(
+        { ok: false, error: "Troppi tentativi. Riprova più tardi." },
+        { status: 429 },
+      );
+    }
+  }
+
+  const { data: otp, error: otpErr } = await supabase
     .from("admin_otp_codes")
     .select("id, code_hash, attempts, expires_at")
     .eq("phone", phone)
@@ -62,6 +80,13 @@ export async function POST(req: NextRequest) {
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+  if (otpErr) {
+    console.error("admin verify-otp lookup failed", otpErr);
+    return NextResponse.json(
+      { ok: false, error: "Errore temporaneo. Riprova." },
+      { status: 500 },
+    );
+  }
 
   if (!otp) {
     return NextResponse.json(
@@ -71,36 +96,51 @@ export async function POST(req: NextRequest) {
   }
 
   const newAttempts = otp.attempts + 1;
-  await supabase
-    .from("admin_otp_codes")
-    .update({ attempts: newAttempts })
-    .eq("id", otp.id);
+  const inputHash = hashOtp(parsed.code);
+  const isMatch = inputHash === otp.code_hash;
 
-  if (newAttempts > MAX_ATTEMPTS) {
+  if (!isMatch) {
+    if (newAttempts >= MAX_ATTEMPTS) {
+      await supabase
+        .from("admin_otp_codes")
+        .update({ attempts: newAttempts, consumed_at: nowIso })
+        .eq("id", otp.id)
+        .is("consumed_at", null);
+      return NextResponse.json(
+        { ok: false, error: "Troppi tentativi. Richiedi un nuovo codice." },
+        { status: 429 },
+      );
+    }
     await supabase
       .from("admin_otp_codes")
-      .update({ consumed_at: nowIso })
-      .eq("phone", phone)
-      .is("consumed_at", null);
-    return NextResponse.json(
-      { ok: false, error: "Troppi tentativi. Richiedi un nuovo codice." },
-      { status: 429 },
-    );
-  }
-
-  const inputHash = hashOtp(parsed.code);
-  if (inputHash !== otp.code_hash) {
+      .update({ attempts: newAttempts })
+      .eq("id", otp.id);
     return NextResponse.json(
       { ok: false, error: "Codice errato." },
       { status: 400 },
     );
   }
 
-  await supabase
+  // Atomic consume: scarta se già consumato da request parallela
+  const { data: consumed, error: consumeErr } = await supabase
     .from("admin_otp_codes")
-    .update({ consumed_at: nowIso })
-    .eq("phone", phone)
-    .is("consumed_at", null);
+    .update({ consumed_at: nowIso, attempts: newAttempts })
+    .eq("id", otp.id)
+    .is("consumed_at", null)
+    .select("id");
+  if (consumeErr) {
+    console.error("admin verify-otp consume failed", consumeErr);
+    return NextResponse.json(
+      { ok: false, error: "Errore temporaneo. Riprova." },
+      { status: 500 },
+    );
+  }
+  if (!consumed || consumed.length === 0) {
+    return NextResponse.json(
+      { ok: false, error: "Codice già usato. Richiedine uno nuovo." },
+      { status: 400 },
+    );
+  }
 
   const { data: admin } = await supabase
     .from("admin_members")
@@ -122,7 +162,6 @@ export async function POST(req: NextRequest) {
     Date.now() + ADMIN_SESSION_TTL_DAYS * 24 * 60 * 60 * 1000,
   );
 
-  const ip = clientIp(req);
   const userAgent = req.headers.get("user-agent");
 
   const { error: sessionError } = await supabase.from("admin_sessions").insert({
@@ -146,6 +185,19 @@ export async function POST(req: NextRequest) {
     .update({ last_login_at: nowIso })
     .eq("id", admin.id);
 
+  // Guardia anti-configurazione: l'admin cookie NON deve essere wildcard domain
+  // (rischio leak su ildispaccio.energy pubblico)
+  const adminCookieDomain = process.env.ADMIN_SESSION_COOKIE_DOMAIN;
+  if (adminCookieDomain && adminCookieDomain.startsWith(".")) {
+    console.error(
+      `ADMIN_SESSION_COOKIE_DOMAIN inizia con punto (${adminCookieDomain}) - rifiutato`,
+    );
+    return NextResponse.json(
+      { ok: false, error: "Configurazione cookie admin errata." },
+      { status: 500 },
+    );
+  }
+
   const cookieStore = await cookies();
   cookieStore.set({
     name: ADMIN_COOKIE_NAME,
@@ -155,7 +207,7 @@ export async function POST(req: NextRequest) {
     sameSite: "lax",
     path: "/",
     maxAge: ADMIN_SESSION_TTL_DAYS * 24 * 60 * 60,
-    domain: process.env.ADMIN_SESSION_COOKIE_DOMAIN || undefined,
+    domain: adminCookieDomain || undefined,
   });
 
   return NextResponse.json({ ok: true, redirect: "/dashboard" });

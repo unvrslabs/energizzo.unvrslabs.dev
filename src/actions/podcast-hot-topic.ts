@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 import { HOT_TOPIC_INTENSITIES } from "@/lib/podcast-config";
 
 const intensityEnum = z.enum(HOT_TOPIC_INTENSITIES as unknown as [string, ...string[]]);
@@ -15,6 +16,8 @@ const CreateSchema = z.object({
 });
 
 export async function createHotTopic(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = CreateSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase.from("podcast_hot_topics").insert(parsed);
@@ -35,6 +38,8 @@ const UpdateSchema = z.object({
 });
 
 export async function updateHotTopic(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = UpdateSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase

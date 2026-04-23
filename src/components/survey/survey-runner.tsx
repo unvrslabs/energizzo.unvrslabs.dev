@@ -110,13 +110,23 @@ export function SurveyRunner({
       const whatsapp = currentAnswers["Q25_whatsapp"];
       if (typeof whatsapp === "string" && whatsapp.trim()) {
         try {
-          await fetch("/api/network/activate-invite", {
+          const res = await fetch("/api/network/activate-invite", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, whatsapp: whatsapp.trim() }),
           });
+          if (!res.ok) {
+            const data = await res.json().catch(() => null);
+            const msg =
+              data?.error ??
+              "Attivazione accesso non riuscita. Contatta l'admin per essere aggiunto al network.";
+            setError(msg);
+          }
         } catch (err) {
           console.error("activate-invite failed", err);
+          setError(
+            "Attivazione accesso non riuscita (connessione). Contatta l'admin.",
+          );
         }
       }
       setSaving(false);

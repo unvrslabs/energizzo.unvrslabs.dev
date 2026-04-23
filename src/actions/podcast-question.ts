@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 import { QUESTION_THEMES, QUESTION_PHASES } from "@/lib/podcast-config";
 
 const themeEnum = z.enum(QUESTION_THEMES as unknown as [string, ...string[]]);
@@ -15,6 +16,8 @@ const CreateSchema = z.object({
 });
 
 export async function createQuestion(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = CreateSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase.from("podcast_questions").insert(parsed);
@@ -34,6 +37,8 @@ const UpdateSchema = z.object({
 });
 
 export async function updateQuestion(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = UpdateSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -51,6 +56,8 @@ const AttachSchema = z.object({
 });
 
 export async function attachQuestionsToGuest(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = AttachSchema.parse(input);
   const supabase = await createClient();
   const { data: existing } = await supabase
@@ -79,6 +86,8 @@ const DetachSchema = z.object({
 });
 
 export async function detachQuestion(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = DetachSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -98,6 +107,8 @@ const ToggleAskedSchema = z.object({
 });
 
 export async function toggleAsked(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = ToggleAskedSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase

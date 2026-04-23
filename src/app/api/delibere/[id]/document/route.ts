@@ -2,7 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getAdminMember } from "@/lib/admin/session";
 import { getNetworkMember } from "@/lib/network/session";
 import { createClient } from "@/lib/supabase/server";
-import { resolveDeliberaPdfUrl, PDF_FETCH_UA } from "@/lib/delibere/resolve-pdf";
+import {
+  resolveDeliberaPdfUrl,
+  PDF_FETCH_UA,
+  isAllowedPdfUrl,
+} from "@/lib/delibere/resolve-pdf";
+
+const FETCH_TIMEOUT_MS = 45_000;
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -36,7 +42,11 @@ export async function GET(
     .select("numero, url_riferimento, documento_url")
     .eq("id", deliberaId)
     .maybeSingle();
-  if (error || !data) {
+  if (error) {
+    console.error(`delibera document lookup failed ${deliberaId}:`, error);
+    return NextResponse.json({ ok: false, error: "db error" }, { status: 500 });
+  }
+  if (!data) {
     return NextResponse.json({ ok: false, error: "not found" }, { status: 404 });
   }
 
@@ -47,17 +57,32 @@ export async function GET(
   });
 
   if (!pdfUrl) {
-    // Fallback: redirect alla pagina di riferimento (ARERA) dove l'utente può scaricare manualmente
-    if (data.url_riferimento) {
+    // Fallback: redirect solo se url_riferimento è su dominio whitelistato (anti-open-redirect)
+    if (data.url_riferimento && isAllowedPdfUrl(data.url_riferimento)) {
       return NextResponse.redirect(data.url_riferimento, 302);
     }
     return NextResponse.json({ ok: false, error: "PDF not resolvable" }, { status: 404 });
   }
 
-  const upstream = await fetch(pdfUrl, {
-    headers: { "User-Agent": PDF_FETCH_UA, Accept: "application/pdf" },
-    cache: "no-store",
-  });
+  if (!isAllowedPdfUrl(pdfUrl)) {
+    return NextResponse.json({ ok: false, error: "PDF url not allowed" }, { status: 403 });
+  }
+
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  let upstream: Response;
+  try {
+    upstream = await fetch(pdfUrl, {
+      headers: { "User-Agent": PDF_FETCH_UA, Accept: "application/pdf" },
+      cache: "no-store",
+      signal: ctrl.signal,
+    });
+  } catch (e) {
+    console.error("delibera pdf upstream failed", e);
+    return NextResponse.json({ ok: false, error: "upstream unreachable" }, { status: 502 });
+  } finally {
+    clearTimeout(to);
+  }
   if (!upstream.ok || !upstream.body) {
     return NextResponse.json(
       { ok: false, error: `upstream ${upstream.status}` },

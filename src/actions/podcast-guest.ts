@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 import { GUEST_STATUSES, GUEST_CATEGORIES } from "@/lib/podcast-config";
 
 const guestStatusEnum = z.enum(GUEST_STATUSES as unknown as [string, ...string[]]);
@@ -16,6 +17,8 @@ const CreateFromLeadSchema = z.object({
 });
 
 export async function createGuestFromLead(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = CreateFromLeadSchema.parse(input);
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -28,8 +31,9 @@ export async function createGuestFromLead(input: unknown) {
       status: "target",
     })
     .select("id")
-    .single();
+    .maybeSingle();
   if (error) return { ok: false as const, error: error.message };
+  if (!data) return { ok: false as const, error: "Insert fallito: nessuna riga ritornata" };
   revalidatePath("/dashboard/podcast/ospiti");
   return { ok: true as const, id: data.id };
 }
@@ -46,6 +50,8 @@ const CreateExternalSchema = z.object({
 });
 
 export async function createExternalGuest(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = CreateExternalSchema.parse(input);
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -62,8 +68,9 @@ export async function createExternalGuest(input: unknown) {
       status: "target",
     })
     .select("id")
-    .single();
+    .maybeSingle();
   if (error) return { ok: false as const, error: error.message };
+  if (!data) return { ok: false as const, error: "Insert fallito: nessuna riga ritornata" };
   revalidatePath("/dashboard/podcast/ospiti");
   return { ok: true as const, id: data.id };
 }
@@ -74,6 +81,8 @@ const UpdateStatusSchema = z.object({
 });
 
 export async function updateGuestStatus(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = UpdateStatusSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -106,6 +115,8 @@ const UpdateGuestSchema = z.object({
 });
 
 export async function updateGuest(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = UpdateGuestSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -121,6 +132,8 @@ export async function updateGuest(input: unknown) {
 const DeleteSchema = z.object({ id: z.string().uuid() });
 
 export async function deleteGuest(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = DeleteSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase.from("podcast_guests").delete().eq("id", parsed.id);

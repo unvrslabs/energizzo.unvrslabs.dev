@@ -2,16 +2,7 @@ import { Headphones, PlayCircle, Youtube } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PodcastEpisode, PodcastGuest } from "@/lib/podcast/mock";
 import { TOPIC_COLOR, TOPIC_LABEL } from "@/lib/podcast/mock";
-
-function formatDateIt(date: string) {
-  const d = new Date(date + "T00:00:00Z");
-  return d.toLocaleDateString("it-IT", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
+import { formatDateIt } from "@/lib/date-utils";
 
 export function PodcastHero({
   episode,

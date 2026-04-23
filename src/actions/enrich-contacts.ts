@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 
 const Input = z.object({ lead_id: z.string().uuid(), piva: z.string().min(8) });
 
@@ -53,6 +54,8 @@ type ContactRow = {
 };
 
 export async function enrichContacts(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = Input.parse(input);
   const token = process.env.OPENAPI_COMPANY_TOKEN || process.env.OPENAPI_TOKEN;
   if (!token) {
@@ -60,12 +63,18 @@ export async function enrichContacts(input: unknown) {
   }
 
   const supabase = await createClient();
-  const { data: lead } = await supabase
+  const { data: lead, error: leadErr } = await supabase
     .from("leads")
     .select("ragione_sociale")
     .eq("id", parsed.lead_id)
-    .single();
-  const company = lead?.ragione_sociale ?? "";
+    .maybeSingle();
+  if (leadErr) {
+    return { ok: false as const, error: `Errore lettura lead: ${leadErr.message}` };
+  }
+  if (!lead) {
+    return { ok: false as const, error: "Lead non trovato." };
+  }
+  const company = lead.ragione_sociale ?? "";
 
   try {
     const resp = await fetch(
@@ -74,10 +83,11 @@ export async function enrichContacts(input: unknown) {
     );
     if (!resp.ok) {
       const body = await resp.text();
-      await supabase
+      const { error: updErr } = await supabase
         .from("leads")
         .update({ contacts_error: `HTTP ${resp.status}: ${body.slice(0, 200)}` })
         .eq("id", parsed.lead_id);
+      if (updErr) console.error("enrich-contacts: failed to record OpenAPI error", updErr);
       return { ok: false as const, error: `OpenAPI HTTP ${resp.status}` };
     }
     const json = await resp.json();
@@ -137,10 +147,22 @@ export async function enrichContacts(input: unknown) {
       }
     }
 
-    await supabase.from("lead_contacts").delete().eq("lead_id", parsed.lead_id);
-    if (contacts.length > 0) {
-      const { error } = await supabase.from("lead_contacts").insert(contacts);
-      if (error) return { ok: false as const, error: error.message };
+    // Delete + insert non sono atomiche: se l'insert fallisce dopo il delete,
+    // i vecchi contatti sono persi. Se non ci sono nuovi contatti validi, saltiamo
+    // del tutto l'operazione per evitare wipe accidentale.
+    if (contacts.length === 0) {
+      return { ok: false as const, error: "Nessun contatto estratto dall'API. Contatti esistenti preservati." };
+    }
+    const { error: delErr } = await supabase
+      .from("lead_contacts")
+      .delete()
+      .eq("lead_id", parsed.lead_id);
+    if (delErr) {
+      return { ok: false as const, error: `Delete vecchi contatti fallito: ${delErr.message}` };
+    }
+    const { error: insErr } = await supabase.from("lead_contacts").insert(contacts);
+    if (insErr) {
+      return { ok: false as const, error: insErr.message };
     }
 
     await supabase
@@ -152,7 +174,11 @@ export async function enrichContacts(input: unknown) {
     return { ok: true as const, count: contacts.length };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "errore sconosciuto";
-    await supabase.from("leads").update({ contacts_error: msg }).eq("id", parsed.lead_id);
+    const { error: updErr } = await supabase
+      .from("leads")
+      .update({ contacts_error: msg })
+      .eq("id", parsed.lead_id);
+    if (updErr) console.error("enrich-contacts: failed to record error", updErr);
     return { ok: false as const, error: msg };
   }
 }

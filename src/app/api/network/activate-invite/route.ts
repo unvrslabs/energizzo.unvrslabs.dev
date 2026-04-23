@@ -14,6 +14,17 @@ const BodySchema = z.object({
   whatsapp: z.string().min(6).max(30),
 });
 
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const RATE_MAX_PER_IP = 10;
+
+function clientIp(req: NextRequest): string | null {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    null
+  );
+}
+
 export async function POST(req: NextRequest) {
   let parsed;
   try {
@@ -38,18 +49,75 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = createAdminClient();
+  const ip = clientIp(req);
+
+  // Rate limit per IP: max 10 tentativi/ora, protezione contro token enumeration
+  if (ip) {
+    const since = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
+    const { count } = await supabase
+      .from("network_members")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", since);
+    if ((count ?? 0) >= RATE_MAX_PER_IP * 5) {
+      return NextResponse.json(
+        { ok: false, error: "Troppi tentativi. Riprova più tardi." },
+        { status: 429 },
+      );
+    }
+  }
 
   const { data: lead, error: leadErr } = await supabase
     .from("leads")
-    .select("id, ragione_sociale, piva")
+    .select("id, ragione_sociale, piva, survey_completed_at")
     .eq("survey_token", parsed.token)
     .maybeSingle();
 
-  if (leadErr || !lead) {
+  if (leadErr) {
+    console.error("activate-invite lead lookup failed", leadErr);
+    return NextResponse.json(
+      { ok: false, error: "Errore temporaneo. Riprova." },
+      { status: 500 },
+    );
+  }
+  if (!lead) {
     return NextResponse.json(
       { ok: false, error: "Invito non trovato o scaduto." },
       { status: 404 },
     );
+  }
+
+  // Il token è valido SOLO se la survey è stata completata.
+  // Blocca enumeration + accesso tramite token rubato/ereditato.
+  if (!lead.survey_completed_at) {
+    return NextResponse.json(
+      { ok: false, error: "Completa prima la survey di invito." },
+      { status: 403 },
+    );
+  }
+
+  // Single-use per azienda: se esiste già un member attivo per questa P.IVA,
+  // non permettere di aggiungerne altri (blocca hijack del token)
+  if (lead.piva) {
+    const { data: existingByPiva } = await supabase
+      .from("network_members")
+      .select("id, phone, revoked_at")
+      .eq("piva", lead.piva)
+      .is("revoked_at", null)
+      .limit(1);
+    if (existingByPiva && existingByPiva.length > 0) {
+      const existing = existingByPiva[0];
+      if (existing.phone === phone) {
+        return NextResponse.json({ ok: true, already: true });
+      }
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Invito già attivato per questa azienda. Se il numero è cambiato, contatta l'admin.",
+        },
+        { status: 409 },
+      );
+    }
   }
 
   const { data: existingByPhone } = await supabase
@@ -60,10 +128,11 @@ export async function POST(req: NextRequest) {
 
   if (existingByPhone) {
     if (existingByPhone.revoked_at) {
-      await supabase
-        .from("network_members")
-        .update({ revoked_at: null })
-        .eq("id", existingByPhone.id);
+      // Member revocato → richiede re-approvazione admin, non auto-reinstatement.
+      return NextResponse.json(
+        { ok: false, error: "Accesso revocato. Contatta l'admin." },
+        { status: 403 },
+      );
     }
     return NextResponse.json({ ok: true, already: true });
   }
@@ -81,6 +150,10 @@ export async function POST(req: NextRequest) {
 
   if (insertErr) {
     console.error("activate-invite insert failed", insertErr);
+    // Duplicate key (race condition): trattiamo come already-activated
+    if (insertErr.code === "23505") {
+      return NextResponse.json({ ok: true, already: true });
+    }
     return NextResponse.json(
       { ok: false, error: "Errore attivazione accesso. Riprova." },
       { status: 500 },

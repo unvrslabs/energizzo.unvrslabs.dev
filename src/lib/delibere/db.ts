@@ -68,14 +68,20 @@ export async function getDeliberaById(id: number): Promise<DbDelibera | null> {
 
 export async function countDelibere(): Promise<{ total: number; withSummary: number }> {
   const supabase = await createClient();
-  const [{ count: total }, { count: withSummary }] = await Promise.all([
+  const [totalRes, summaryRes] = await Promise.all([
     supabase.from("delibere_cache").select("*", { count: "exact", head: true }),
     supabase
       .from("delibere_cache")
       .select("*", { count: "exact", head: true })
       .not("ai_generated_at", "is", null),
   ]);
-  return { total: total ?? 0, withSummary: withSummary ?? 0 };
+  if (totalRes.error) {
+    throw new Error(`countDelibere total: ${totalRes.error.message}`);
+  }
+  if (summaryRes.error) {
+    throw new Error(`countDelibere withSummary: ${summaryRes.error.message}`);
+  }
+  return { total: totalRes.count ?? 0, withSummary: summaryRes.count ?? 0 };
 }
 
 export async function listDelibereMissingSummary(limit = 30): Promise<DbDelibera[]> {

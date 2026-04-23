@@ -32,7 +32,12 @@ export async function POST(
     return NextResponse.json({ ok: true, result, cached: result.cached });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "summarize failed";
-    try { await recordTiSummaryError(tiId, msg); } catch {}
+    console.error(`ti summarize ${tiId} failed:`, err);
+    try {
+      await recordTiSummaryError(tiId, msg);
+    } catch (recordErr) {
+      console.error(`recordTiSummaryError ${tiId} also failed:`, recordErr);
+    }
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }

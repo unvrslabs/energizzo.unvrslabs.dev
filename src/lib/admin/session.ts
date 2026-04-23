@@ -29,7 +29,11 @@ export async function getAdminMember(): Promise<AdminMember | null> {
     .eq("token_hash", tokenHash)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) {
+    console.error("admin session lookup failed", error);
+    return null;
+  }
+  if (!data) return null;
   if (data.revoked_at) return null;
   if (new Date(data.expires_at).getTime() < Date.now()) return null;
 
@@ -43,4 +47,17 @@ export async function getAdminMember(): Promise<AdminMember | null> {
     role: member.role,
     last_login_at: member.last_login_at,
   };
+}
+
+/**
+ * Guard per server actions admin. Usa in cima a ogni action che richiede autenticazione:
+ *   const auth = await requireAdmin();
+ *   if (!auth.ok) return auth;
+ */
+export async function requireAdmin(): Promise<
+  { ok: true; member: AdminMember } | { ok: false; error: string }
+> {
+  const member = await getAdminMember();
+  if (!member) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
+  return { ok: true, member };
 }

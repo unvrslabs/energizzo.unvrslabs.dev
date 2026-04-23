@@ -40,11 +40,19 @@ export type TiSummaryResult = {
   cached: boolean;
 };
 
+const pendingTiIds = new Set<number>();
+const PDF_FETCH_TIMEOUT_MS = 60_000;
+const HTML_FETCH_TIMEOUT_MS = 15_000;
+
 export async function generateTestoIntegratoSummary(
   tiId: number,
 ): Promise<TiSummaryResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
+
+  if (pendingTiIds.has(tiId)) {
+    throw new Error("Sommario AI già in generazione. Attendi qualche secondo e ricarica la pagina.");
+  }
 
   const supabase = await createClient();
   const { data: row, error } = await supabase
@@ -66,6 +74,35 @@ export async function generateTestoIntegratoSummary(
     };
   }
 
+  pendingTiIds.add(tiId);
+  try {
+    return await generateTiImpl(supabase, row, tiId, apiKey);
+  } finally {
+    pendingTiIds.delete(tiId);
+  }
+}
+
+type TiRow = {
+  id: number;
+  codice: string;
+  titolo: string;
+  descrizione: string | null;
+  settore: string | null;
+  delibera_riferimento: string | null;
+  documento_url: string | null;
+  url_riferimento: string | null;
+  ai_summary: string | null;
+  ai_bullets: unknown;
+  ai_source: string | null;
+  ai_generated_at: string | null;
+};
+
+async function generateTiImpl(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  row: TiRow,
+  tiId: number,
+  apiKey: string,
+): Promise<TiSummaryResult> {
   const anthropic = new Anthropic({ apiKey });
 
   const header =
@@ -80,10 +117,13 @@ export async function generateTestoIntegratoSummary(
   const content: Anthropic.Messages.ContentBlockParam[] = [];
 
   if (pdfUrl) {
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), PDF_FETCH_TIMEOUT_MS);
     try {
       const res = await fetch(pdfUrl, {
         headers: { "User-Agent": PDF_FETCH_UA, Accept: "application/pdf" },
         cache: "no-store",
+        signal: ctrl.signal,
       });
       if (!res.ok) throw new Error(`PDF ${res.status}`);
       const buf = await res.arrayBuffer();
@@ -99,6 +139,8 @@ export async function generateTestoIntegratoSummary(
       source = "pdf";
     } catch (err) {
       console.error("ti summary PDF fetch failed:", err);
+    } finally {
+      clearTimeout(to);
     }
   }
 
@@ -113,7 +155,7 @@ export async function generateTestoIntegratoSummary(
 
   const resp = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: 2048,
     system: [
       {
         type: "text",
@@ -124,11 +166,22 @@ export async function generateTestoIntegratoSummary(
     messages: [{ role: "user", content }],
   });
 
+  if (resp.stop_reason === "max_tokens") {
+    throw new Error("summary: risposta Claude troncata (max_tokens). Contenuto troppo lungo.");
+  }
+
   const textBlock = resp.content.find((c) => c.type === "text");
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("no text from Claude");
   }
-  const parsed = extractJson(textBlock.text);
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = extractJson(textBlock.text);
+  } catch (err) {
+    throw new Error(
+      `ti summary: JSON non parsabile. Estratto: ${textBlock.text.slice(0, 200)} (${err instanceof Error ? err.message : err})`,
+    );
+  }
 
   const summary = String(parsed.summary ?? "").trim();
   const bullets = Array.isArray(parsed.bullets)
@@ -138,7 +191,7 @@ export async function generateTestoIntegratoSummary(
     throw new Error("empty summary or bullets");
   }
 
-  await supabase
+  const { error: updErr } = await supabase
     .from("testi_integrati_cache")
     .update({
       ai_summary: summary,
@@ -149,10 +202,15 @@ export async function generateTestoIntegratoSummary(
       ai_error: null,
     })
     .eq("id", tiId);
+  if (updErr) {
+    throw new Error(`ti summary: persist fallito: ${updErr.message}`);
+  }
 
   try {
     revalidatePath("/network/testi-integrati");
-  } catch {}
+  } catch (e) {
+    console.error("revalidatePath ti summary failed:", e);
+  }
 
   return { summary, bullets, source, cached: false };
 }
@@ -181,11 +239,15 @@ async function resolveTiPdfUrl(
   documentoUrl: string | null,
 ): Promise<string | null> {
   // 1. Scraping pagina ARERA (url_riferimento) per primo .pdf
-  if (urlRiferimento) {
+  if (urlRiferimento && isAllowedUrl(urlRiferimento)) {
     try {
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), HTML_FETCH_TIMEOUT_MS);
       const res = await fetch(urlRiferimento, {
         headers: { "User-Agent": PDF_FETCH_UA },
+        signal: ctrl.signal,
       });
+      clearTimeout(to);
       if (res.ok) {
         const html = await res.text();
         const m = html.match(/href="([^"]+\.pdf)"/i);
@@ -197,28 +259,63 @@ async function resolveTiPdfUrl(
             const b = new URL(urlRiferimento);
             abs = `${b.protocol}//${b.host}${href}`;
           }
-          const head = await fetch(abs, {
-            method: "HEAD",
-            headers: { "User-Agent": PDF_FETCH_UA },
-          });
-          if (head.ok && (head.headers.get("content-type") ?? "").includes("pdf")) {
-            return abs;
+          if (!isAllowedUrl(abs)) return null;
+          const hCtrl = new AbortController();
+          const hTo = setTimeout(() => hCtrl.abort(), HTML_FETCH_TIMEOUT_MS);
+          try {
+            const head = await fetch(abs, {
+              method: "HEAD",
+              headers: { "User-Agent": PDF_FETCH_UA },
+              signal: hCtrl.signal,
+            });
+            if (head.ok && (head.headers.get("content-type") ?? "").includes("pdf")) {
+              return abs;
+            }
+          } finally {
+            clearTimeout(hTo);
           }
         }
       }
-    } catch {}
+    } catch (e) {
+      console.error("ti pdf scrape failed:", e);
+    }
   }
 
   // 2. Fallback: Energizzo documento_url (funzionerà solo se storage sarà abilitato)
-  if (documentoUrl) {
+  if (documentoUrl && isAllowedUrl(documentoUrl)) {
     try {
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), HTML_FETCH_TIMEOUT_MS);
       const head = await fetch(documentoUrl, {
         method: "HEAD",
         headers: { "User-Agent": PDF_FETCH_UA },
+        signal: ctrl.signal,
       });
+      clearTimeout(to);
       if (head.ok) return documentoUrl;
-    } catch {}
+    } catch (e) {
+      console.error("ti documento head failed:", e);
+    }
   }
 
   return null;
+}
+
+const ALLOWED_PDF_HOSTS = new Set([
+  "www.arera.it",
+  "arera.it",
+  "www.autorita.energia.it",
+  "autorita.energia.it",
+  "energizzo.it",
+  "www.energizzo.it",
+]);
+
+function isAllowedUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+    return ALLOWED_PDF_HOSTS.has(u.hostname.toLowerCase());
+  } catch {
+    return false;
+  }
 }

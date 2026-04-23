@@ -10,18 +10,11 @@
  */
 
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { parse } from "csv-parse/sync";
 import { createClient } from "@supabase/supabase-js";
+import { loadEnvLocal } from "./_env-loader";
 
-// --- load .env.local manually (tsx non carica automaticamente Next env)
-const envPath = resolve(process.cwd(), ".env.local");
-const envRaw = readFileSync(envPath, "utf8");
-for (const line of envRaw.split(/\r?\n/)) {
-  const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
-  if (!m) continue;
-  if (!process.env[m[1]]) process.env[m[1]] = m[2];
-}
+loadEnvLocal();
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;

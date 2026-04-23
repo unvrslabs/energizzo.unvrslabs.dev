@@ -192,16 +192,3 @@ export type PodcastGlossaryTerm = {
   updated_at: string;
 };
 
-export type PodcastSessionNotes = {
-  id: string;
-  guest_id: string;
-  duration_min: number | null;
-  key_insights: string | null;
-  new_terms: string[];
-  new_hot_topics: string[];
-  referrals: string | null;
-  quote_highlight: string | null;
-  energizzo_opportunity: string | null;
-  created_at: string;
-  updated_at: string;
-};

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 import { STATUSES_IN_ORDER } from "@/lib/status-config";
 
 const statusEnum = z.enum(STATUSES_IN_ORDER as [string, ...string[]]);
@@ -13,6 +14,8 @@ const StatusSchema = z.object({
 });
 
 export async function updateLeadStatus(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = StatusSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -30,6 +33,8 @@ const EmailSchema = z.object({
 });
 
 export async function updateLeadEmail(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = EmailSchema.parse(input);
   const supabase = await createClient();
   const value = parsed.email === "" ? null : parsed.email;
@@ -51,6 +56,8 @@ const ContactsSchema = z.object({
 });
 
 export async function updateLeadContacts(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = ContactsSchema.parse(input);
   const supabase = await createClient();
   const patch: Record<string, string | null> = {};

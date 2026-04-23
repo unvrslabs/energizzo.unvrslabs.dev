@@ -35,7 +35,9 @@ export async function POST(
     console.error(`summarize ${deliberaId} failed:`, err);
     try {
       await recordSummaryError(deliberaId, message);
-    } catch {}
+    } catch (recordErr) {
+      console.error(`recordSummaryError ${deliberaId} also failed:`, recordErr);
+    }
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

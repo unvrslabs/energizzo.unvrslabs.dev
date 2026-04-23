@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 import { GLOSSARY_CATEGORIES } from "@/lib/podcast-config";
 
 const catEnum = z.enum(GLOSSARY_CATEGORIES as unknown as [string, ...string[]]);
@@ -14,6 +15,8 @@ const UpsertSchema = z.object({
 });
 
 export async function upsertTerm(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = UpsertSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -34,6 +37,8 @@ const UpdateSchema = z.object({
 });
 
 export async function updateTerm(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = UpdateSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase
@@ -48,6 +53,8 @@ export async function updateTerm(input: unknown) {
 const DeleteSchema = z.object({ id: z.string().uuid() });
 
 export async function deleteTerm(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = DeleteSchema.parse(input);
   const supabase = await createClient();
   const { error } = await supabase.from("podcast_glossary").delete().eq("id", parsed.id);

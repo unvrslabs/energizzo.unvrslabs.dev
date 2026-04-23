@@ -47,10 +47,11 @@ export async function approveNetworkRequest(input: unknown): Promise<ActionResul
     .maybeSingle();
 
   if (existing) {
-    await supabase
+    const { error: updErr } = await supabase
       .from("network_join_requests")
       .update({ status: "approved" })
       .eq("id", request.id);
+    if (updErr) return { ok: false, error: updErr.message };
     revalidatePath("/dashboard/network", "layout");
     return { ok: false, error: "Un membro con questo numero esiste già. Richiesta marcata come approvata." };
   }
@@ -67,10 +68,24 @@ export async function approveNetworkRequest(input: unknown): Promise<ActionResul
     return { ok: false, error: insertErr.message };
   }
 
-  await supabase
+  const { error: updErr } = await supabase
     .from("network_join_requests")
     .update({ status: "approved" })
     .eq("id", request.id);
+  if (updErr) {
+    // Member già creato ma update richiesta fallito: log + retry dall'admin.
+    // In questo stato, la prossima approve trova "Un membro con questo numero esiste già"
+    // e marca la richiesta come approved.
+    console.error(
+      `approveNetworkRequest: member creato (${phone}) ma join_request update fallito:`,
+      updErr,
+    );
+    revalidatePath("/dashboard/network", "layout");
+    return {
+      ok: false,
+      error: "Member creato ma richiesta non aggiornata. Clicca Approve di nuovo per completare.",
+    };
+  }
 
   revalidatePath("/dashboard/network", "layout");
   return { ok: true };

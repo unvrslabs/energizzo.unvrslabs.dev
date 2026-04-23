@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 import { fetchAllDelibere, type EnergizzoDelibera } from "@/lib/delibere/api";
 
 export type SyncResult = {
@@ -15,8 +16,11 @@ export type SyncResult = {
  * Upserts by id. Preserves any existing AI summary fields.
  */
 export async function syncDelibereFromApi(): Promise<SyncResult> {
+  const auth = await requireAdmin();
+  if (!auth.ok) throw new Error(auth.error);
   const supabase = await createClient();
-  const all = await fetchAllDelibere(25);
+  // perPage=500 riduce da 18 a 1 request sequenziale (performance fix)
+  const all = await fetchAllDelibere(500);
 
   const { data: existing, error: selErr } = await supabase
     .from("delibere_cache")

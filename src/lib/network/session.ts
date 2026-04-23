@@ -31,7 +31,11 @@ export async function getNetworkMember(): Promise<NetworkMember | null> {
     .eq("token_hash", tokenHash)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) {
+    console.error("network session lookup failed", error);
+    return null;
+  }
+  if (!data) return null;
   if (data.revoked_at) return null;
   if (new Date(data.expires_at).getTime() < Date.now()) return null;
 
@@ -47,4 +51,15 @@ export async function getNetworkMember(): Promise<NetworkMember | null> {
     approved_at: member.approved_at,
     last_login_at: member.last_login_at,
   };
+}
+
+/**
+ * Guard per API route/server action che richiedono network member autenticato.
+ */
+export async function requireNetwork(): Promise<
+  { ok: true; member: NetworkMember } | { ok: false; error: string }
+> {
+  const member = await getNetworkMember();
+  if (!member) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
+  return { ok: true, member };
 }

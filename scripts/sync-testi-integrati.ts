@@ -3,19 +3,10 @@
  * Usage: cd repo && npx tsx scripts/sync-testi-integrati.ts
  */
 
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
+import { loadEnvLocal } from "./_env-loader";
 
-const envPath = resolve(process.cwd(), ".env.local");
-if (existsSync(envPath)) {
-  const envRaw = readFileSync(envPath, "utf8");
-  for (const line of envRaw.split(/\r?\n/)) {
-    const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
-    if (!m) continue;
-    if (!process.env[m[1]]) process.env[m[1]] = m[2];
-  }
-}
+loadEnvLocal();
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;

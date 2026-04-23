@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/session";
 
 const Schema = z.object({
   id: z.string().min(1),
@@ -11,6 +12,8 @@ const Schema = z.object({
 });
 
 export async function updateTactic(input: unknown) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return { ok: false as const, error: auth.error };
   const parsed = Schema.parse(input);
   const supabase = await createClient();
   const patch: Record<string, string | null> = {};
@@ -18,10 +21,17 @@ export async function updateTactic(input: unknown) {
   if (parsed.notes !== undefined) patch.notes = parsed.notes;
   if (Object.keys(patch).length === 0) return { ok: true as const };
 
-  const { error } = await supabase
+  // UPDATE esplicito (non upsert) per evitare la creazione di record ghost con
+  // colonne NOT NULL mancanti se il client passa un id sconosciuto.
+  const { data, error } = await supabase
     .from("strategy_tactics")
-    .upsert({ id: parsed.id, ...patch }, { onConflict: "id" });
+    .update(patch)
+    .eq("id", parsed.id)
+    .select("id");
   if (error) return { ok: false as const, error: error.message };
+  if (!data || data.length === 0) {
+    return { ok: false as const, error: "Tattica non trovata" };
+  }
   revalidatePath("/dashboard/strategia");
   return { ok: true as const };
 }

@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { createClient } from "@/lib/supabase/server";
+import { getAdminMember } from "@/lib/admin/session";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -202,6 +203,11 @@ async function runTool(
 type Msg = Anthropic.Messages.MessageParam;
 
 export async function POST(req: NextRequest) {
+  const admin = await getAdminMember();
+  if (!admin) {
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -210,8 +216,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const body = await req.json();
-  const { messages } = body as { messages: Msg[] };
+  let body;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ ok: false, error: "body non valido" }, { status: 400 });
+  }
+  const { messages } = (body ?? {}) as { messages?: Msg[] };
   if (!Array.isArray(messages)) {
     return NextResponse.json({ ok: false, error: "messages required" }, { status: 400 });
   }
