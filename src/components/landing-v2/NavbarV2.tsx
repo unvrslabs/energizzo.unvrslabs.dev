@@ -15,7 +15,7 @@ export function NavbarV2() {
       {/* Pill centrale: brand + links + Accedi */}
       <nav className="lv2-nav" aria-label="Navigazione principale">
         <Link href="/" className="lv2-nav-brand" aria-label="Il Dispaccio">
-          <span className="lv2-nav-brand-mark">D</span>
+          <img src="/logo-mark.png" alt="Il Dispaccio" className="lv2-nav-brand-mark" />
           <span>Il Dispaccio</span>
         </Link>
 

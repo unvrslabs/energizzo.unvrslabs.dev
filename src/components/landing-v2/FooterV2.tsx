@@ -7,7 +7,7 @@ export function FooterV2() {
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-3">
             <Link href="/" className="lv2-nav-brand" aria-label="Il Dispaccio">
-              <span className="lv2-nav-brand-mark">D</span>
+              <img src="/logo-mark.png" alt="Il Dispaccio" className="lv2-nav-brand-mark" />
               <span
                 style={{
                   fontSize: 15,

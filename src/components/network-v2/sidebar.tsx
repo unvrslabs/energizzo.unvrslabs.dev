@@ -138,7 +138,7 @@ export function V2Sidebar({
     <aside className="v2-sidebar">
       <div className="v2-sidebar-top">
         <Link href="/network" className="v2-brand">
-          <span className="v2-brand-mark">D</span>
+          <img src="/logo-mark.png" alt="Il Dispaccio" className="v2-brand-mark" />
           <span className="v2-brand-name">Il Dispaccio</span>
         </Link>
         <ThemeToggle />
