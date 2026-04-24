@@ -15,6 +15,8 @@ import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
 import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
+import { LoadForecastMini, RenewableForecastMini } from "@/components/network-v2/entsoe-cards";
+import { getLatestEntsoe } from "@/lib/market/entsoe-db";
 import { getNetworkMember } from "@/lib/network/session";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +57,8 @@ export default async function V2HomePage() {
     gasHistory,
     punLatest,
     punHistory,
+    loadRow,
+    renewRow,
   ] = await Promise.all([
     getNetworkMember(),
     listDelibere({ limit: 200 }),
@@ -63,6 +67,8 @@ export default async function V2HomePage() {
     listGasStorageHistory(60),
     getLatestPun(),
     listPunHistory(14),
+    getLatestEntsoe("load_forecast"),
+    getLatestEntsoe("renewable_forecast"),
   ]);
 
   const punWeekAgo = punLatest
@@ -225,9 +231,11 @@ export default async function V2HomePage() {
           </ul>
         </div>
 
-        {/* Mercato elettrico PUN + Stoccaggio gas AGSI — 6+6 */}
+        {/* Cockpit mercato — 4 card v2-col-6 (2x2 grid) */}
         <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} />
         <GasStorageCard latest={gasLatest} history={gasHistory} />
+        <LoadForecastMini payload={loadRow?.payload as never} />
+        <RenewableForecastMini payload={renewRow?.payload as never} />
 
         {/* Podcast video preview — 12 */}
         <PodcastPreviewCard />

@@ -540,6 +540,121 @@ export function GenerationMixMini({ payload }: { payload: GenMixPayload | null }
   );
 }
 
+export function RenewableForecastMini({
+  payload,
+}: {
+  payload: RenewablePayload | null;
+}) {
+  return (
+    <div className="v2-card v2-col-6 flex flex-col">
+      <div className="v2-card-head flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Wind className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
+          <span className="v2-card-title">Forecast rinnovabili</span>
+        </div>
+        <span
+          className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
+          style={{
+            color: "hsl(var(--v2-accent))",
+            background: "hsl(var(--v2-accent) / 0.08)",
+            border: "1px solid hsl(var(--v2-accent) / 0.28)",
+          }}
+        >
+          ENTSO-E
+        </span>
+      </div>
+      {payload ? (
+        <div className="p-5 flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div
+                className="v2-mono text-[10px] uppercase tracking-[0.16em] mb-1"
+                style={{ color: "hsl(var(--v2-text-mute))" }}
+              >
+                ☀️ Solare
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span
+                  className="v2-mono"
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 700,
+                    color: "hsl(45 100% 60%)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {(payload.solar_peak_mw / 1000).toFixed(1)}
+                </span>
+                <span
+                  className="v2-mono text-[11px]"
+                  style={{ color: "hsl(var(--v2-text-dim))" }}
+                >
+                  GW picco
+                </span>
+              </div>
+              <div
+                className="v2-mono text-[10px]"
+                style={{ color: "hsl(var(--v2-text-mute))" }}
+              >
+                {(payload.solar_total_mwh / 1000).toFixed(0)} GWh giornata
+              </div>
+            </div>
+            <div>
+              <div
+                className="v2-mono text-[10px] uppercase tracking-[0.16em] mb-1"
+                style={{ color: "hsl(var(--v2-text-mute))" }}
+              >
+                💨 Eolico
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span
+                  className="v2-mono"
+                  style={{
+                    fontSize: 28,
+                    fontWeight: 700,
+                    color: "hsl(var(--v2-info))",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {(payload.wind_peak_mw / 1000).toFixed(1)}
+                </span>
+                <span
+                  className="v2-mono text-[11px]"
+                  style={{ color: "hsl(var(--v2-text-dim))" }}
+                >
+                  GW picco
+                </span>
+              </div>
+              <div
+                className="v2-mono text-[10px]"
+                style={{ color: "hsl(var(--v2-text-mute))" }}
+              >
+                {(payload.wind_total_mwh / 1000).toFixed(0)} GWh giornata
+              </div>
+            </div>
+          </div>
+          <div
+            className="v2-mono text-[11px] pt-2"
+            style={{
+              color: "hsl(var(--v2-text-mute))",
+              borderTop: "1px solid hsl(var(--v2-border))",
+            }}
+          >
+            Combinato rinnovabili previsto:{" "}
+            <strong style={{ color: "hsl(var(--v2-accent))" }}>
+              {(payload.combined_total_mwh / 1000).toFixed(0)} GWh
+            </strong>
+          </div>
+        </div>
+      ) : (
+        <div className="p-5 text-[12.5px]" style={{ color: "hsl(var(--v2-text-mute))" }}>
+          Forecast rinnovabili in sincronizzazione.
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function LoadForecastMini({ payload }: { payload: LoadPayload | null }) {
   return (
     <div className="v2-card v2-col-6 flex flex-col">
