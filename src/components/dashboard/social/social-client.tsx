@@ -283,50 +283,13 @@ export function SocialClient({
         )}
       </section>
 
-      {/* Calendario settimanale opzionale: mostra solo se ci sono post con scheduled_at */}
-      {segments.week.length > 0 && (
-        <section style={{ marginBottom: 32 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 14,
-            }}
-          >
-            <Calendar
-              className="w-4 h-4"
-              style={{ color: "hsl(var(--v2-info))" }}
-              strokeWidth={2}
-            />
-            <h2
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: "hsl(var(--v2-text))",
-                textTransform: "uppercase",
-                letterSpacing: "0.14em",
-              }}
-            >
-              Calendario prossimi 7 giorni
-            </h2>
-            <span
-              style={{
-                fontSize: 11,
-                color: "hsl(var(--v2-text-mute))",
-                fontFamily: "var(--font-mono), monospace",
-              }}
-            >
-              {segments.week.length}
-            </span>
-          </div>
-          <WeekCalendar
-            posts={segments.week}
-            onOpen={(p) => setEditing(p)}
-            base={now}
-          />
-        </section>
-      )}
+      {/* Calendario settimanale sempre visibile · navigabile */}
+      <section style={{ marginBottom: 32 }}>
+        <CalendarSection
+          allPosts={posts}
+          onOpen={(p) => setEditing(p)}
+        />
+      </section>
 
       {/* Pubblicati (ultimi 10) */}
       {segments.published.length > 0 && (
@@ -496,6 +459,224 @@ function PostRow({
 // WEEK CALENDAR
 // ═══════════════════════════════════════════════════════════════════
 
+type CalItem = {
+  post: SocialPost;
+  timeLabel: string;
+  kind: "scheduled" | "published" | "draft";
+};
+
+function CalendarSection({
+  allPosts,
+  onOpen,
+}: {
+  allPosts: SocialPost[];
+  onOpen: (p: SocialPost) => void;
+}) {
+  // weekStart state: default = lunedì della settimana corrente per avere 7gg centrati
+  const today = new Date();
+  const initStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - ((today.getDay() + 6) % 7), // lunedì
+  );
+  const [weekStart, setWeekStart] = useState<Date>(initStart);
+
+  const shift = (days: number) => {
+    const next = new Date(weekStart);
+    next.setDate(next.getDate() + days);
+    setWeekStart(next);
+  };
+  const goToday = () => setWeekStart(initStart);
+
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const fmtRange = (d: Date) =>
+    d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+
+  const todayKey = dayKey(new Date().toISOString());
+  const weekStartKey = dayKey(weekStart.toISOString());
+  const isCurrentWeek =
+    weekStartKey === dayKey(initStart.toISOString());
+
+  // Conta post nel range visibile
+  const visibleCount = allPosts.filter((p) => {
+    const startKey = weekStartKey;
+    const endKey = dayKey(weekEnd.toISOString());
+    const candidates = [
+      p.published_linkedin_at,
+      p.published_x_at,
+      p.status !== "pubblicato" ? p.scheduled_at : null,
+    ].filter(Boolean) as string[];
+    if (candidates.length === 0) {
+      if (
+        !p.scheduled_at &&
+        p.status !== "pubblicato" &&
+        todayKey >= startKey &&
+        todayKey <= endKey
+      )
+        return true;
+      return false;
+    }
+    return candidates.some((iso) => {
+      const k = dayKey(iso);
+      return k >= startKey && k <= endKey;
+    });
+  }).length;
+
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginBottom: 14,
+          flexWrap: "wrap",
+        }}
+      >
+        <Calendar
+          className="w-4 h-4"
+          style={{ color: "hsl(var(--v2-info))" }}
+          strokeWidth={2}
+        />
+        <h2
+          style={{
+            fontSize: 14,
+            fontWeight: 700,
+            color: "hsl(var(--v2-text))",
+            textTransform: "uppercase",
+            letterSpacing: "0.14em",
+          }}
+        >
+          Calendario
+        </h2>
+        <span
+          className="v2-mono"
+          style={{
+            fontSize: 11,
+            color: "hsl(var(--v2-text-mute))",
+            letterSpacing: "0.08em",
+          }}
+        >
+          {fmtRange(weekStart)} — {fmtRange(weekEnd)}
+        </span>
+        <span
+          className="v2-mono"
+          style={{
+            fontSize: 10,
+            color: "hsl(var(--v2-text-mute))",
+          }}
+        >
+          · {visibleCount} post
+        </span>
+
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            gap: 4,
+            alignItems: "center",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => shift(-7)}
+            className="v2-btn v2-btn--ghost"
+            style={{ padding: "6px 10px", fontSize: 12 }}
+            aria-label="Settimana precedente"
+            title="Settimana precedente"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={goToday}
+            className="v2-btn v2-btn--ghost"
+            style={{
+              padding: "6px 12px",
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              opacity: isCurrentWeek ? 0.5 : 1,
+            }}
+            disabled={isCurrentWeek}
+          >
+            Oggi
+          </button>
+          <button
+            type="button"
+            onClick={() => shift(7)}
+            className="v2-btn v2-btn--ghost"
+            style={{ padding: "6px 10px", fontSize: 12 }}
+            aria-label="Settimana successiva"
+            title="Settimana successiva"
+          >
+            →
+          </button>
+        </div>
+      </div>
+
+      <WeekCalendar posts={allPosts} base={weekStart} onOpen={onOpen} />
+
+      <div
+        className="v2-mono"
+        style={{
+          marginTop: 10,
+          fontSize: 10,
+          color: "hsl(var(--v2-text-mute))",
+          display: "flex",
+          gap: 14,
+          flexWrap: "wrap",
+        }}
+      >
+        <span>
+          <span
+            style={{
+              display: "inline-block",
+              width: 8,
+              height: 8,
+              borderRadius: 2,
+              background: "hsl(var(--v2-accent))",
+              marginRight: 4,
+              verticalAlign: "middle",
+            }}
+          />
+          Pubblicato
+        </span>
+        <span>
+          <span
+            style={{
+              display: "inline-block",
+              width: 8,
+              height: 8,
+              borderRadius: 2,
+              background: "hsl(var(--v2-info))",
+              marginRight: 4,
+              verticalAlign: "middle",
+            }}
+          />
+          Schedulato
+        </span>
+        <span>
+          <span
+            style={{
+              display: "inline-block",
+              width: 8,
+              height: 8,
+              borderRadius: 2,
+              background: "hsl(var(--v2-warn))",
+              marginRight: 4,
+              verticalAlign: "middle",
+            }}
+          />
+          Bozza senza data
+        </span>
+      </div>
+    </>
+  );
+}
+
 function WeekCalendar({
   posts,
   base,
@@ -505,17 +686,61 @@ function WeekCalendar({
   base: Date;
   onOpen: (p: SocialPost) => void;
 }) {
+  const todayKey = dayKey(new Date().toISOString());
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
     return d;
   });
-  const byDay = new Map<string, SocialPost[]>();
-  for (const p of posts) {
-    if (!p.scheduled_at) continue;
-    const key = dayKey(p.scheduled_at);
+  const byDay = new Map<string, CalItem[]>();
+
+  const pushItem = (key: string, item: CalItem) => {
     const arr = byDay.get(key) ?? [];
-    arr.push(p);
+    if (arr.find((x) => x.post.id === item.post.id)) return;
+    arr.push(item);
     byDay.set(key, arr);
+  };
+
+  const timeOf = (iso: string | null) => {
+    if (!iso) return "";
+    return new Date(iso).toLocaleTimeString("it-IT", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  for (const p of posts) {
+    // Pubblicato LinkedIn
+    if (p.published_linkedin_at) {
+      pushItem(dayKey(p.published_linkedin_at), {
+        post: p,
+        timeLabel: timeOf(p.published_linkedin_at),
+        kind: "published",
+      });
+    }
+    // Pubblicato X (se diverso giorno)
+    if (p.published_x_at) {
+      pushItem(dayKey(p.published_x_at), {
+        post: p,
+        timeLabel: timeOf(p.published_x_at),
+        kind: "published",
+      });
+    }
+    // Scheduled (solo se non già pubblicato)
+    if (p.scheduled_at && p.status !== "pubblicato") {
+      pushItem(dayKey(p.scheduled_at), {
+        post: p,
+        timeLabel: timeOf(p.scheduled_at),
+        kind: "scheduled",
+      });
+    }
+    // Draft senza data → mostrati su "oggi" come card "senza orario"
+    if (!p.scheduled_at && !p.published_linkedin_at && !p.published_x_at && p.status !== "pubblicato") {
+      pushItem(todayKey, {
+        post: p,
+        timeLabel: "—",
+        kind: "draft",
+      });
+    }
   }
 
   return (
@@ -526,10 +751,13 @@ function WeekCalendar({
         gap: 8,
       }}
     >
-      {days.map((d, i) => {
-        const key = d.toISOString().slice(0, 10);
-        const items = byDay.get(key) ?? [];
-        const isToday = i === 0;
+      {days.map((d) => {
+        const key = dayKey(d.toISOString());
+        const items = (byDay.get(key) ?? []).sort((a, b) =>
+          a.timeLabel.localeCompare(b.timeLabel),
+        );
+        const isToday = key === todayKey;
+        const isPast = key < todayKey;
         return (
           <div
             key={key}
@@ -588,20 +816,34 @@ function WeekCalendar({
                   —
                 </span>
               ) : (
-                items.map((p) => {
-                  const meta = tipoMeta(p.tipo);
-                  const time = new Date(p.scheduled_at!).toLocaleTimeString(
-                    "it-IT",
-                    { hour: "2-digit", minute: "2-digit" },
-                  );
+                items.map((it) => {
+                  const meta = tipoMeta(it.post.tipo);
+                  const color =
+                    it.kind === "published"
+                      ? "hsl(var(--v2-accent))"
+                      : it.kind === "scheduled"
+                        ? "hsl(var(--v2-info))"
+                        : "hsl(var(--v2-warn))";
+                  const bg =
+                    it.kind === "published"
+                      ? "hsl(var(--v2-accent) / 0.08)"
+                      : it.kind === "scheduled"
+                        ? "hsl(var(--v2-info) / 0.08)"
+                        : "hsl(var(--v2-warn) / 0.06)";
+                  const borderCol =
+                    it.kind === "published"
+                      ? "hsl(var(--v2-accent) / 0.25)"
+                      : it.kind === "scheduled"
+                        ? "hsl(var(--v2-info) / 0.25)"
+                        : "hsl(var(--v2-warn) / 0.22)";
                   return (
                     <button
-                      key={p.id}
+                      key={`${it.post.id}-${it.kind}-${it.timeLabel}`}
                       type="button"
-                      onClick={() => onOpen(p)}
+                      onClick={() => onOpen(it.post)}
                       style={{
-                        background: "hsl(var(--v2-accent) / 0.08)",
-                        border: "1px solid hsl(var(--v2-accent) / 0.2)",
+                        background: bg,
+                        border: `1px solid ${borderCol}`,
                         borderRadius: 6,
                         padding: "6px 8px",
                         textAlign: "left",
@@ -612,19 +854,39 @@ function WeekCalendar({
                         gap: 2,
                         cursor: "pointer",
                       }}
+                      title={
+                        it.kind === "published"
+                          ? "Pubblicato"
+                          : it.kind === "scheduled"
+                            ? "Schedulato"
+                            : "Bozza senza data"
+                      }
                     >
                       <span
                         style={{
-                          fontFamily: "var(--font-mono), monospace",
-                          color: "hsl(var(--v2-accent))",
-                          fontSize: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 4,
                         }}
                       >
-                        {time}
+                        <span
+                          style={{
+                            fontFamily: "var(--font-mono), monospace",
+                            color,
+                            fontSize: 10,
+                            fontWeight: 700,
+                          }}
+                        >
+                          {it.timeLabel}
+                        </span>
+                        {it.kind === "published" && (
+                          <span style={{ fontSize: 9, color }}>✓</span>
+                        )}
                       </span>
                       <span>
                         {meta.emoji}{" "}
-                        {(p.hook || p.copy_linkedin)
+                        {(it.post.hook || it.post.copy_linkedin)
                           .slice(0, 40)
                           .replace(/\n/g, " ")}
                         …
