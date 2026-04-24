@@ -1,7 +1,5 @@
 "use client";
 
-import { Linkedin } from "lucide-react";
-
 export function LinkedInPreview({
   copy,
   hashtags,
@@ -20,45 +18,6 @@ export function LinkedInPreview({
         overflow: "hidden",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "12px 16px",
-          borderBottom: "1px solid hsl(var(--v2-border))",
-        }}
-      >
-        <img
-          src="/logo-mark.png"
-          alt=""
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 8,
-            objectFit: "cover",
-          }}
-        />
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: "hsl(var(--v2-text))",
-            }}
-          >
-            Il Dispaccio
-          </div>
-          <div style={{ fontSize: 11, color: "hsl(var(--v2-text-mute))" }}>
-            Network reseller energia · ora · 🌍
-          </div>
-        </div>
-        <Linkedin
-          className="ml-auto w-4 h-4"
-          style={{ color: "#0a66c2" }}
-          strokeWidth={2}
-        />
-      </div>
       <div
         style={{
           padding: "14px 16px",
@@ -133,74 +92,54 @@ export function XPreview({
           key={i}
           style={{
             display: "flex",
-            gap: 12,
+            flexDirection: "column",
+            gap: 6,
             padding: 16,
             borderBottom:
               i < threads.length - 1 ? "1px solid hsl(var(--v2-border))" : "none",
           }}
         >
-          <img
-            src="/logo-mark.png"
-            alt=""
+          {isThread && (
+            <div
+              className="v2-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "hsl(var(--v2-accent))",
+                fontWeight: 700,
+              }}
+            >
+              {i + 1}/{threads.length}
+            </div>
+          )}
+          <div
             style={{
-              width: 40,
-              height: 40,
-              borderRadius: "50%",
-              objectFit: "cover",
-              flexShrink: 0,
+              fontSize: 14,
+              lineHeight: 1.45,
+              color: "hsl(var(--v2-text))",
+              whiteSpace: "pre-wrap",
             }}
-          />
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-            <div
-              style={{
-                fontSize: 13,
-                color: "hsl(var(--v2-text))",
-              }}
-            >
-              <span style={{ fontWeight: 700 }}>Il Dispaccio</span>{" "}
-              <span style={{ color: "hsl(var(--v2-text-mute))" }}>
-                @il_dispaccio · ora
-              </span>
-              {isThread ? (
-                <span
-                  style={{
-                    marginLeft: 8,
-                    fontSize: 11,
-                    color: "hsl(var(--v2-accent))",
-                  }}
-                >
-                  {i + 1}/{threads.length}
-                </span>
-              ) : null}
-            </div>
-            <div
-              style={{
-                fontSize: 14,
-                lineHeight: 1.45,
-                color: "hsl(var(--v2-text))",
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {tweet}
-            </div>
-            {i === 0 && hashtags.length > 0 ? (
-              <div style={{ color: "#1d9bf0", fontSize: 14 }}>
-                {hashtags.map((t) => `#${t.replace(/^#/, "")}`).join(" ")}
-              </div>
-            ) : null}
-            {i === 0 && imageUrl ? (
-              <img
-                src={imageUrl}
-                alt="preview"
-                style={{
-                  width: "100%",
-                  borderRadius: 10,
-                  marginTop: 6,
-                  border: "1px solid hsl(var(--v2-border))",
-                }}
-              />
-            ) : null}
+          >
+            {tweet}
           </div>
+          {i === 0 && hashtags.length > 0 ? (
+            <div style={{ color: "#1d9bf0", fontSize: 14 }}>
+              {hashtags.map((t) => `#${t.replace(/^#/, "")}`).join(" ")}
+            </div>
+          ) : null}
+          {i === 0 && imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="preview"
+              style={{
+                width: "100%",
+                borderRadius: 10,
+                marginTop: 6,
+                border: "1px solid hsl(var(--v2-border))",
+              }}
+            />
+          ) : null}
         </div>
       ))}
     </div>
