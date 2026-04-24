@@ -69,18 +69,33 @@ function dayKey(iso: string) {
     .slice(0, 10);
 }
 
-function statusChipStyle(status: SocialPost["status"]): React.CSSProperties {
-  const map: Record<SocialPost["status"], { bg: string; fg: string }> = {
-    bozza: { bg: "hsl(215 20% 22%)", fg: "hsl(var(--v2-text-dim))" },
-    approvato: { bg: "hsl(158 30% 18%)", fg: "hsl(var(--v2-accent))" },
-    schedulato: { bg: "hsl(200 50% 18%)", fg: "hsl(var(--v2-info))" },
-    pubblicato: { bg: "hsl(158 50% 15%)", fg: "hsl(var(--v2-accent))" },
-    skip: { bg: "hsl(0 20% 18%)", fg: "hsl(var(--v2-text-mute))" },
+function statusLabel(status: SocialPost["status"]): string {
+  const map: Record<SocialPost["status"], string> = {
+    bozza: "da pubblicare",
+    approvato: "da pubblicare",
+    schedulato: "da pubblicare",
+    pubblicato: "pubblicato",
+    skip: "skip",
   };
-  const s = map[status];
+  return map[status];
+}
+
+function statusChipStyle(status: SocialPost["status"]): React.CSSProperties {
+  const isPub = status === "pubblicato";
+  const isSkip = status === "skip";
+  const bg = isPub
+    ? "hsl(158 50% 15%)"
+    : isSkip
+      ? "hsl(0 20% 18%)"
+      : "hsl(var(--v2-accent) / 0.14)";
+  const fg = isPub
+    ? "hsl(var(--v2-accent))"
+    : isSkip
+      ? "hsl(var(--v2-text-mute))"
+      : "hsl(var(--v2-accent))";
   return {
-    background: s.bg,
-    color: s.fg,
+    background: bg,
+    color: fg,
     fontSize: 10,
     padding: "2px 8px",
     borderRadius: 6,
@@ -126,7 +141,7 @@ export function SocialClient({
   const segments = useMemo(() => {
     const today: SocialPost[] = [];
     const week: SocialPost[] = [];
-    const draft: SocialPost[] = [];
+    const pending: SocialPost[] = []; // tutti i non-pubblicati
     const published: SocialPost[] = [];
 
     for (const p of posts) {
@@ -134,24 +149,23 @@ export function SocialClient({
         published.push(p);
         continue;
       }
-      if (!p.scheduled_at) {
-        draft.push(p);
-        continue;
-      }
-      const sched = new Date(p.scheduled_at);
-      if (dayKey(p.scheduled_at) === todayKey && sched < todayEnd) {
-        today.push(p);
-        week.push(p);
-      } else if (sched >= todayEnd && sched < weekEnd) {
-        week.push(p);
-      } else if (sched >= weekEnd) {
-        week.push(p);
-      } else {
-        // scheduled nel passato non pubblicato → in draft
-        draft.push(p);
+      if (p.status === "skip") continue;
+
+      pending.push(p);
+
+      if (p.scheduled_at) {
+        const sched = new Date(p.scheduled_at);
+        if (dayKey(p.scheduled_at) === todayKey && sched < todayEnd) {
+          today.push(p);
+          week.push(p);
+        } else if (sched >= todayEnd && sched < weekEnd) {
+          week.push(p);
+        } else if (sched >= weekEnd) {
+          week.push(p);
+        }
       }
     }
-    return { today, week, draft, published };
+    return { today, week, pending, published };
   }, [posts, todayKey]);
 
   return (
@@ -235,7 +249,7 @@ export function SocialClient({
               letterSpacing: "0.14em",
             }}
           >
-            Oggi · da pubblicare
+            Da pubblicare
           </h2>
           <span
             style={{
@@ -244,10 +258,10 @@ export function SocialClient({
               fontFamily: "var(--font-mono), monospace",
             }}
           >
-            {segments.today.length}
+            {segments.pending.length}
           </span>
         </div>
-        {segments.today.length === 0 ? (
+        {segments.pending.length === 0 ? (
           <div
             className="v2-card"
             style={{
@@ -257,117 +271,62 @@ export function SocialClient({
               fontSize: 13,
             }}
           >
-            Nessun post schedulato per oggi. Genera qualcosa con il pulsante
-            <strong> Nuovo post</strong>.
+            Nessun post pronto. Genera qualcosa con il pulsante
+            <strong> Nuovo post</strong> o chiedi all'agente AI.
           </div>
         ) : (
           <div style={{ display: "grid", gap: 12 }}>
-            {segments.today.map((p) => (
+            {segments.pending.map((p) => (
               <PostRow key={p.id} post={p} onOpen={() => setEditing(p)} big />
             ))}
           </div>
         )}
       </section>
 
-      {/* Prossimi 7 giorni */}
-      <section style={{ marginBottom: 32 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 14,
-          }}
-        >
-          <Calendar
-            className="w-4 h-4"
-            style={{ color: "hsl(var(--v2-info))" }}
-            strokeWidth={2}
-          />
-          <h2
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: "hsl(var(--v2-text))",
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-            }}
-          >
-            Calendario prossimi 7 giorni
-          </h2>
-          <span
-            style={{
-              fontSize: 11,
-              color: "hsl(var(--v2-text-mute))",
-              fontFamily: "var(--font-mono), monospace",
-            }}
-          >
-            {segments.week.length}
-          </span>
-        </div>
-        <WeekCalendar
-          posts={segments.week}
-          onOpen={(p) => setEditing(p)}
-          base={now}
-        />
-      </section>
-
-      {/* Bozze */}
-      <section style={{ marginBottom: 32 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 14,
-          }}
-        >
-          <Sparkles
-            className="w-4 h-4"
-            style={{ color: "hsl(var(--v2-warn))" }}
-            strokeWidth={2}
-          />
-          <h2
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: "hsl(var(--v2-text))",
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-            }}
-          >
-            Bozze non schedulate
-          </h2>
-          <span
-            style={{
-              fontSize: 11,
-              color: "hsl(var(--v2-text-mute))",
-              fontFamily: "var(--font-mono), monospace",
-            }}
-          >
-            {segments.draft.length}
-          </span>
-        </div>
-        {segments.draft.length === 0 ? (
+      {/* Calendario settimanale opzionale: mostra solo se ci sono post con scheduled_at */}
+      {segments.week.length > 0 && (
+        <section style={{ marginBottom: 32 }}>
           <div
-            className="v2-card"
             style={{
-              padding: 20,
-              textAlign: "center",
-              color: "hsl(var(--v2-text-mute))",
-              fontSize: 13,
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 14,
             }}
           >
-            Nessuna bozza.
+            <Calendar
+              className="w-4 h-4"
+              style={{ color: "hsl(var(--v2-info))" }}
+              strokeWidth={2}
+            />
+            <h2
+              style={{
+                fontSize: 14,
+                fontWeight: 700,
+                color: "hsl(var(--v2-text))",
+                textTransform: "uppercase",
+                letterSpacing: "0.14em",
+              }}
+            >
+              Calendario prossimi 7 giorni
+            </h2>
+            <span
+              style={{
+                fontSize: 11,
+                color: "hsl(var(--v2-text-mute))",
+                fontFamily: "var(--font-mono), monospace",
+              }}
+            >
+              {segments.week.length}
+            </span>
           </div>
-        ) : (
-          <div style={{ display: "grid", gap: 12 }}>
-            {segments.draft.map((p) => (
-              <PostRow key={p.id} post={p} onOpen={() => setEditing(p)} />
-            ))}
-          </div>
-        )}
-      </section>
+          <WeekCalendar
+            posts={segments.week}
+            onOpen={(p) => setEditing(p)}
+            base={now}
+          />
+        </section>
+      )}
 
       {/* Pubblicati (ultimi 10) */}
       {segments.published.length > 0 && (
@@ -486,7 +445,7 @@ function PostRow({
         >
           {meta.emoji} {meta.label}
         </span>
-        <span style={statusChipStyle(post.status)}>{post.status}</span>
+        <span style={statusChipStyle(post.status)}>{statusLabel(post.status)}</span>
         {post.generated_by === "auto" && (
           <span
             title="Generato automaticamente dal cron mattutino"
@@ -894,8 +853,6 @@ function PostDrawer({
     });
   };
 
-  const scheduleNow = () => save({ status: "schedulato" });
-  const approve = () => save({ status: "approvato" });
   const markDone = async (laneUsed: "linkedin" | "x" | "both") => {
     await markPublished(post.id, laneUsed);
     toast.success("Segnato come pubblicato");
@@ -932,7 +889,7 @@ function PostDrawer({
     .filter(Boolean);
 
   const statusBadge = (
-    <span style={statusChipStyle(post.status)}>{post.status}</span>
+    <span style={statusChipStyle(post.status)}>{statusLabel(post.status)}</span>
   );
 
   const tabsBar = (
@@ -985,38 +942,6 @@ function PostDrawer({
         )}
         Salva
       </button>
-
-      {post.status !== "schedulato" && post.status !== "pubblicato" && (
-        <button
-          type="button"
-          className="v2-btn v2-btn--ghost"
-          onClick={scheduleNow}
-          disabled={!scheduledAt || isSaving}
-          title={!scheduledAt ? "Imposta data in 'Schedula' prima" : ""}
-        >
-          <Calendar className="w-4 h-4" /> Schedula
-        </button>
-      )}
-
-      {post.status === "bozza" && (
-        <button
-          type="button"
-          className="v2-btn v2-btn--ghost"
-          onClick={approve}
-          disabled={isSaving}
-        >
-          <Check className="w-4 h-4" /> Approva
-        </button>
-      )}
-
-      <div
-        style={{
-          width: 1,
-          height: 20,
-          background: "hsl(var(--v2-border))",
-          margin: "0 4px",
-        }}
-      />
 
       {post.status !== "pubblicato" && (
         <>
@@ -1275,7 +1200,7 @@ function PostDrawer({
               <div style={{ textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 4 }}>
                 Stato
               </div>
-              <span style={statusChipStyle(post.status)}>{post.status}</span>
+              <span style={statusChipStyle(post.status)}>{statusLabel(post.status)}</span>
             </div>
             <div>
               <div style={{ textTransform: "uppercase", letterSpacing: "0.16em", marginBottom: 4 }}>

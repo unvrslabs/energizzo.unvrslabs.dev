@@ -7,7 +7,6 @@ import {
   Send,
   Sparkles,
   Terminal,
-  User,
   Wrench,
   X,
 } from "lucide-react";
@@ -474,31 +473,26 @@ function MessageBubble({ msg }: { msg: Msg }) {
             .map((b) => b.text)
             .join("\n");
     return (
-      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          paddingLeft: 48,
+        }}
+      >
         <div
           style={{
-            width: 26,
-            height: 26,
-            borderRadius: 7,
-            display: "grid",
-            placeItems: "center",
-            background: "hsl(var(--v2-bg-elev))",
-            border: "1px solid hsl(var(--v2-border))",
-            color: "hsl(var(--v2-text-dim))",
-            flexShrink: 0,
-            marginTop: 2,
-          }}
-        >
-          <User className="w-3.5 h-3.5" />
-        </div>
-        <div
-          style={{
-            flex: 1,
+            background: "hsl(var(--v2-accent) / 0.12)",
+            border: "1px solid hsl(var(--v2-accent) / 0.3)",
+            borderRadius: 12,
+            borderTopRightRadius: 4,
+            padding: "9px 13px",
             fontSize: 13,
-            lineHeight: 1.55,
+            lineHeight: 1.5,
             color: "hsl(var(--v2-text))",
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
+            maxWidth: "100%",
           }}
         >
           {text}

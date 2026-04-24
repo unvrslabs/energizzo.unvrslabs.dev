@@ -21,7 +21,17 @@ Il tuo job è eseguire QUALUNQUE richiesta di Emanuele dentro la dashboard admin
 ## Stack conoscenza
 - Next.js 15 + Supabase (service_role bypass RLS).
 - Tabelle principali:
-  • **social_posts** (id uuid, tipo enum {delibera,market,scadenza,digest,educational,podcast,libero}, status enum {bozza,approvato,schedulato,pubblicato,skip}, copy_linkedin text, copy_x text, hashtags text[], image_url text, image_template text, image_data jsonb, scheduled_at timestamptz, scheduled_lane text {linkedin,x,both}, generated_by text {manual,auto}, notes text, created_at, updated_at)
+  • **social_posts** — NOME TABELLA: social_posts (plurale). Campi principali:
+    - id uuid
+    - tipo enum {delibera,market,scadenza,digest,educational,podcast,libero}
+    - status enum {bozza,approvato,schedulato,pubblicato,skip}
+    - **IMPORTANTE**: workflow semplificato. Tutti i post non ancora pubblicati hanno status='bozza' e sono "pronti da pubblicare". NON c'è più un workflow approvato/schedulato — quelli status esistono nell'enum ma non vengono più usati. Quando cerchi "post da pubblicare oggi" → filtra `status != 'pubblicato' AND status != 'skip'` (equivale a status='bozza').
+    - copy_linkedin text, copy_x text, hashtags text[]
+    - image_url text (URL Fal Nano Banana se AI), image_template text, image_data jsonb
+    - scheduled_at timestamptz (opzionale, solo metadata: quando l'utente vuole pubblicarlo)
+    - scheduled_lane text {linkedin,x,both}
+    - generated_by text {manual,auto}
+    - notes text, created_at, updated_at
   • **delibere_cache** (id bigint, numero, titolo, ai_summary, ai_bullets jsonb, ai_scadenze jsonb, ai_importanza text {alta,media,bassa})
   • **market_power_pun** (price_day date, price_eur_mwh, zones jsonb)
   • **market_gas_storage** (gas_day, full_pct, gas_in_storage_twh)
@@ -40,9 +50,18 @@ Il tuo job è eseguire QUALUNQUE richiesta di Emanuele dentro la dashboard admin
 - Quando mostri risultati SQL: riassumi (n righe, campo chiave), non dumpare JSON.
 - Se crei post social, riporta id + hook breve + se ha image Fal.
 - Se modifichi/elimini N record, conferma "Fatto: N righe aggiornate/cancellate".
-- Per pianificare schedule_at: formato ISO UTC in SQL (es "2026-04-25 08:30:00+00").
 - "Oggi", "domani", "questa settimana" → calcola date SQL relative (CURRENT_DATE, CURRENT_DATE + INTERVAL '1 day', ecc).
-- Se user vuole pubblicare: cambia status a 'pubblicato' + set published_linkedin_at/published_x_at a NOW().`;
+- Se user vuole pubblicare: cambia status a 'pubblicato' + set published_linkedin_at/published_x_at a NOW().
+
+## Query default per "post da pubblicare / i miei post / cosa c'è"
+Usa SEMPRE questa forma:
+  SELECT id, tipo, hook, hashtags, image_url IS NOT NULL AS has_ai_image, generated_by, created_at
+  FROM social_posts
+  WHERE status NOT IN ('pubblicato','skip')
+  ORDER BY created_at DESC;
+NON filtrare mai per status='approvato' o status='schedulato' — quelli non vengono usati.
+Se user dice "post di oggi" → filtra created_at::date = CURRENT_DATE.
+Se user dice "post questa settimana" → created_at >= CURRENT_DATE - INTERVAL '7 days'.`;
 
 const TOOLS: Anthropic.Messages.Tool[] = [
   {
