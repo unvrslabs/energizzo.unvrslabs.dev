@@ -231,15 +231,12 @@ export default async function V2HomePage() {
           </ul>
         </div>
 
-        {/* Mercato elettrico (placeholder) — 6 */}
+        {/* Mercato elettrico PUN + Stoccaggio gas AGSI — 6+6 */}
         <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} />
-
-        {/* Mix rinnovabili + Forecast domanda (ENTSO-E) */}
-        <GenerationMixMini payload={mixRow?.payload as never} />
-        <LoadForecastMini payload={loadRow?.payload as never} />
-
-        {/* Mercato gas AGSI — 6 */}
         <GasStorageCard latest={gasLatest} history={gasHistory} />
+
+        {/* Forecast domanda elettrica (mix rinnovabili rimosso) */}
+        <LoadForecastMini payload={loadRow?.payload as never} />
 
         {/* Podcast video preview — 12 */}
         <PodcastPreviewCard />
