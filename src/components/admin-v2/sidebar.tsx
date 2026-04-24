@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Activity,
   LayoutDashboard,
@@ -9,12 +10,13 @@ import {
   Megaphone,
   Mic,
   Network as NetworkIcon,
-  Search,
+  Sparkles,
   Target,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/v2/theme-toggle";
+import { AgentChatDrawer } from "@/components/admin-v2/agent-chat-drawer";
 
 type NavItem = {
   href: string;
@@ -74,6 +76,7 @@ export function AdminV2Sidebar({
   counts?: AdminV2Counts;
 }) {
   const pathname = usePathname() ?? "";
+  const [chatOpen, setChatOpen] = useState(false);
 
   return (
     <aside className="v2-sidebar">
@@ -93,10 +96,23 @@ export function AdminV2Sidebar({
         <ThemeToggle />
       </div>
 
-      <div className="v2-sidebar-search">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
-        <input type="text" placeholder="Cerca lead, membri…" className="v2-input" />
-      </div>
+      <button
+        type="button"
+        onClick={() => setChatOpen(true)}
+        className="v2-sidebar-ai-trigger"
+        aria-label="Apri Agente AI"
+      >
+        <Sparkles className="w-3.5 h-3.5" />
+        <span className="flex-1 text-left">Chat AI</span>
+        <span
+          className="v2-mono text-[9px] font-bold uppercase tracking-[0.14em]"
+          style={{ color: "hsl(var(--v2-accent))", opacity: 0.7 }}
+        >
+          Agente
+        </span>
+      </button>
+
+      <AgentChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
 
       <nav className="flex flex-col gap-0.5">
         {SECTIONS.map((section) => (
