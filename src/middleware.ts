@@ -49,7 +49,8 @@ function isNetworkProtectedRoute(pathname: string): boolean {
   return (
     ((pathname === "/network" || pathname.startsWith("/network/")) &&
       pathname !== "/network/login") ||
-    pathname.startsWith("/api/network/agent-chat")
+    pathname.startsWith("/api/network/agent-chat/") ||
+    pathname === "/api/network/agent-chat"
   );
 }
 

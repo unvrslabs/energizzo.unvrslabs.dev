@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { getNetworkMember } from "@/lib/network/session";
+import { generateDeliberaSummary } from "@/actions/delibere-summary";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -53,10 +54,17 @@ Se l'utente chiede di una delibera/TI/dato che non trovi nei tool → rispondi e
 
 ## Quando usare quale tool
 - Domanda su delibera specifica (numero/argomento) → search_delibere → poi get_delibera(id) per dettaglio
+  * get_delibera GENERA L'ANALISI AI se manca (trigger automatico + salvataggio in DB)
+  * Se l'utente menziona @delibera con id=X nel messaggio, vai DIRETTO a get_delibera(X), salta search
 - Testi integrati → search_testi_integrati
 - Prezzo PUN/gas/stoccaggi → get_market_snapshot
 - Scadenze → list_scadenze_prossime
-- Quando non sai se il dato esiste nelle fonti → usa i tool per verificare PRIMA di rispondere.`;
+- Quando non sai se il dato esiste nelle fonti → usa i tool per verificare PRIMA di rispondere.
+
+## Formato mention utente
+L'utente può usare @mention per riferirsi a una delibera specifica. Il messaggio conterrà una stringa tipo:
+"@delibera:123 (40/2014/R/gas) — spiegami nel dettaglio"
+Il numero dopo "@delibera:" è l'ID interno (bigint). Usa quell'ID con get_delibera(id=123). Non chiedere conferma.`;
 
 const TOOLS: Anthropic.Messages.Tool[] = [
   {
@@ -77,7 +85,7 @@ const TOOLS: Anthropic.Messages.Tool[] = [
   {
     name: "get_delibera",
     description:
-      "Ritorna il dettaglio completo di una delibera: numero, titolo, data pubblicazione, settore, ai_summary, ai_bullets operativi, ai_scadenze estratte, ai_importanza.",
+      "Ritorna il dettaglio completo di una delibera: numero, titolo, data pubblicazione, settore, ai_summary, ai_bullets operativi, ai_scadenze estratte, ai_importanza. Se l'analisi AI non esiste ancora, la GENERA automaticamente e salva in DB (stesso trigger usato dal bottone 'analizza' nell'UI). Usa sempre questo tool quando l'utente chiede di una delibera specifica.",
     input_schema: {
       type: "object",
       properties: {
@@ -163,6 +171,17 @@ async function runTool(
     if (name === "get_delibera") {
       const id = Number(input.id);
       if (!id) return JSON.stringify({ error: "id invalido" });
+
+      // Ensure analysis exists. generateDeliberaSummary è idempotente:
+      // se già analizzata ritorna cached, altrimenti fa lock+generate+save.
+      let analysisNote = "cached";
+      try {
+        const result = await generateDeliberaSummary(id);
+        analysisNote = result.cached ? "cached" : "appena generata";
+      } catch (e) {
+        analysisNote = `skip: ${(e as Error).message.slice(0, 120)}`;
+      }
+
       const { data, error } = await supabase
         .from("delibere_cache")
         .select(
@@ -172,7 +191,7 @@ async function runTool(
         .maybeSingle();
       if (error) return JSON.stringify({ error: error.message });
       if (!data) return JSON.stringify({ error: "delibera non trovata" });
-      return JSON.stringify(data);
+      return JSON.stringify({ ...data, _analysis: analysisNote });
     }
     if (name === "search_testi_integrati") {
       const q = String(input.query ?? "").trim();
