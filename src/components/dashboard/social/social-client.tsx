@@ -409,6 +409,13 @@ function PostRow({
 }) {
   const meta = tipoMeta(post.tipo);
   const preview = (post.hook || post.copy_linkedin || "(vuoto)").slice(0, 180);
+  const hasImage =
+    Boolean(post.image_url) ||
+    Boolean(post.image_template);
+  const imgSrc = hasImage
+    ? `/api/admin/social/image/${post.id}?format=square`
+    : null;
+  const thumbSize = big ? 92 : compact ? 52 : 72;
 
   return (
     <button
@@ -418,72 +425,132 @@ function PostRow({
       style={{
         width: "100%",
         textAlign: "left",
-        padding: compact ? 12 : big ? 20 : 16,
+        padding: compact ? 12 : big ? 18 : 14,
         display: "flex",
-        flexDirection: "column",
-        gap: 10,
+        alignItems: "stretch",
+        gap: 14,
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          flexWrap: "wrap",
-        }}
-      >
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: "hsl(var(--v2-text))",
-          }}
-        >
-          {meta.emoji} {meta.label}
-        </span>
-        <span style={statusChipStyle(post.status)}>{statusLabel(post.status)}</span>
-        {post.generated_by === "auto" && (
-          <span
-            title="Generato automaticamente dal cron mattutino"
-            style={{
-              fontSize: 10,
-              padding: "2px 7px",
-              borderRadius: 5,
-              background: "hsl(var(--v2-accent) / 0.12)",
-              color: "hsl(var(--v2-accent))",
-              border: "1px solid hsl(var(--v2-accent) / 0.3)",
-              fontWeight: 700,
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-            }}
-          >
-            🤖 auto
-          </span>
-        )}
-        <span
-          className="v2-mono"
-          style={{
-            fontSize: 10,
-            color: "hsl(var(--v2-text-mute))",
-            marginLeft: "auto",
-          }}
-        >
-          {formatDateShort(post.scheduled_at)}
-        </span>
-      </div>
-      {!compact && (
+      {imgSrc && (
         <div
           style={{
-            fontSize: big ? 14 : 13,
-            lineHeight: 1.45,
-            color: "hsl(var(--v2-text-dim))",
-            whiteSpace: "pre-wrap",
+            width: thumbSize,
+            height: thumbSize,
+            flexShrink: 0,
+            borderRadius: 10,
+            overflow: "hidden",
+            background: "hsl(var(--v2-bg))",
+            border: "1px solid hsl(var(--v2-border))",
           }}
         >
-          {preview}
-          {post.copy_linkedin.length > 180 ? "…" : ""}
+          <img
+            src={imgSrc}
+            alt=""
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+            loading="lazy"
+          />
         </div>
       )}
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "hsl(var(--v2-text))",
+            }}
+          >
+            {meta.emoji} {meta.label}
+          </span>
+          <span style={statusChipStyle(post.status)}>
+            {statusLabel(post.status)}
+          </span>
+          {post.generated_by === "auto" && (
+            <span
+              title="Generato automaticamente dal cron mattutino"
+              style={{
+                fontSize: 10,
+                padding: "2px 7px",
+                borderRadius: 5,
+                background: "hsl(var(--v2-accent) / 0.12)",
+                color: "hsl(var(--v2-accent))",
+                border: "1px solid hsl(var(--v2-accent) / 0.3)",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              🤖 auto
+            </span>
+          )}
+          {post.image_url && (
+            <span
+              title="Con hero AI Nano Banana"
+              style={{
+                fontSize: 10,
+                padding: "2px 7px",
+                borderRadius: 5,
+                background: "hsl(var(--v2-info) / 0.12)",
+                color: "hsl(var(--v2-info))",
+                border: "1px solid hsl(var(--v2-info) / 0.3)",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+              }}
+            >
+              🎨 AI
+            </span>
+          )}
+          <span
+            className="v2-mono"
+            style={{
+              fontSize: 10,
+              color: "hsl(var(--v2-text-mute))",
+              marginLeft: "auto",
+            }}
+          >
+            {formatDateShort(post.scheduled_at)}
+          </span>
+        </div>
+        {!compact && (
+          <div
+            style={{
+              fontSize: big ? 13.5 : 12.5,
+              lineHeight: 1.45,
+              color: "hsl(var(--v2-text-dim))",
+              whiteSpace: "pre-wrap",
+              display: "-webkit-box",
+              WebkitLineClamp: big ? 3 : 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {preview}
+            {post.copy_linkedin.length > 180 ? "…" : ""}
+          </div>
+        )}
+      </div>
     </button>
   );
 }

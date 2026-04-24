@@ -536,18 +536,19 @@ export async function GET(
   }
 
   // Se c'è una URL Fal generata, proxy a quella invece di fare Satori template.
-  // Funziona anche con format diversi perché Fal restituisce immagini quadrate high-res
-  // (il browser/consumer fa resize dove serve).
+  // Uso arrayBuffer per evitare issues di streaming cross-origin.
   if (post.image_url && typeof post.image_url === "string") {
     try {
       const upstream = await fetch(post.image_url, { cache: "no-store" });
       if (upstream.ok) {
-        return new Response(upstream.body, {
+        const buf = await upstream.arrayBuffer();
+        return new Response(buf, {
           status: 200,
           headers: {
             "content-type":
               upstream.headers.get("content-type") ?? "image/png",
             "cache-control": "private, max-age=300",
+            "content-length": String(buf.byteLength),
           },
         });
       }
