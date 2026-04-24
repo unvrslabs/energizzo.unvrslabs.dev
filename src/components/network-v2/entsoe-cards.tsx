@@ -822,7 +822,7 @@ function MiniBars({ values, color, peakColor }: { values: number[]; color: strin
             style={{
               flex: 1,
               height: `${Math.max(8, h)}%`,
-              background: isPeak ? peakColor : `${color} / 0.5`,
+              background: isPeak ? peakColor : color,
               opacity: isPeak ? 1 : 0.55,
               borderRadius: "2px 2px 0 0",
             }}

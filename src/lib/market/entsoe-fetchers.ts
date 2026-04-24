@@ -130,6 +130,25 @@ function splitTimeSeries(xml: string): string[] {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Riduce una serie di N valori (es. 96 PT15M o 35 mixed) a 24 buckets orari. */
+function normalizeTo24(series: number[]): number[] {
+  if (series.length === 0) return [];
+  if (series.length === 24) return series;
+  const out: number[] = [];
+  const ratio = series.length / 24;
+  for (let i = 0; i < 24; i++) {
+    const start = Math.floor(i * ratio);
+    const end = Math.max(start + 1, Math.floor((i + 1) * ratio));
+    const slice = series.slice(start, Math.min(series.length, end));
+    if (slice.length === 0) {
+      out.push(series[series.length - 1] ?? 0);
+    } else {
+      out.push(slice.reduce((a, b) => a + b, 0) / slice.length);
+    }
+  }
+  return out;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // A75 - Generation mix per psrType
 // Ritorna MWh per fuel type aggregati sul giorno (somma oraria)
@@ -242,16 +261,8 @@ export async function fetchLoadForecast(
 
   if (hourly.length === 0) return null;
 
-  // Normalizza a 24h: se PT15M (96 valori), rimedio a 24 accorpando 4 quarti
-  let series = hourly;
-  if (hourly.length >= 90) {
-    const grouped: number[] = [];
-    for (let i = 0; i < 24; i++) {
-      const slice = hourly.slice(i * 4, i * 4 + 4);
-      grouped.push(slice.reduce((a, b) => a + b, 0) / slice.length);
-    }
-    series = grouped;
-  }
+  // Normalizza SEMPRE a 24 buckets orari (gestisce PT15M/PT30M/PT60M o mix).
+  const series = normalizeTo24(hourly);
 
   const peak = Math.max(...series);
   const peakIdx = series.indexOf(peak);
@@ -330,18 +341,8 @@ export async function fetchRenewableForecast(
     return out;
   };
 
-  const normalize24 = (series: number[]) => {
-    if (series.length < 90) return series; // PT60M already
-    const grouped: number[] = [];
-    for (let i = 0; i < 24; i++) {
-      const slice = series.slice(i * 4, i * 4 + 4);
-      grouped.push(slice.reduce((a, b) => a + b, 0) / slice.length);
-    }
-    return grouped;
-  };
-
-  const solar = normalize24(sumSeries(perZoneSolar)).map(Math.round);
-  const wind = normalize24(sumSeries(perZoneWind)).map(Math.round);
+  const solar = normalizeTo24(sumSeries(perZoneSolar)).map(Math.round);
+  const wind = normalizeTo24(sumSeries(perZoneWind)).map(Math.round);
 
   if (solar.length === 0 && wind.length === 0) return null;
 

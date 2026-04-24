@@ -148,7 +148,8 @@ export async function PodcastPreviewCard() {
         <div
           className="relative overflow-hidden flex items-center justify-center"
           style={{
-            minHeight: 260,
+            minHeight: 320,
+            padding: "56px 32px 40px",
             background:
               "radial-gradient(ellipse at 25% 30%, hsl(158 55% 24%) 0%, hsl(215 30% 12%) 55%, hsl(215 35% 8%) 100%)",
             borderRight: "1px solid hsl(var(--v2-border))",
@@ -245,7 +246,7 @@ export async function PodcastPreviewCard() {
           </div>
 
           {/* Elemento centrale a seconda del mode */}
-          <div className="relative flex flex-col items-center gap-4">
+          <div className="relative flex flex-col items-center gap-5">
             {mode === "published" ? (
               <div
                 className="grid place-items-center"
@@ -293,7 +294,16 @@ export async function PodcastPreviewCard() {
                 )}
               </div>
             )}
-            <div className="text-center flex flex-col gap-1">
+            <div
+              className="text-center flex flex-col gap-2"
+              style={{
+                padding: "10px 18px",
+                borderRadius: 10,
+                background: "hsl(215 30% 8% / 0.55)",
+                backdropFilter: "blur(8px)",
+                border: "1px solid hsl(0 0% 100% / 0.05)",
+              }}
+            >
               <span
                 className="v2-mono font-semibold uppercase tracking-[0.18em]"
                 style={{ fontSize: 10.5, color: "hsl(var(--v2-accent))" }}
