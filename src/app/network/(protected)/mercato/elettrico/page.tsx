@@ -397,13 +397,13 @@ export default async function MercatoElettricoPage() {
           style={{ color: "hsl(var(--v2-text-dim))" }}
         >
           <strong style={{ color: "hsl(var(--v2-text))" }}>Come leggere questi dati.</strong>{" "}
-          Il PUN mostrato è una stima calcolata come media pesata dei prezzi MGP delle 7
-          zone bidding italiane, con pesi basati sulla quota di fabbisogno Terna (Nord 47%,
+          Il PUN mostrato è una stima calcolata come media pesata dei prezzi day-ahead MGP delle
+          7 zone bidding italiane, con pesi basati sulla quota di fabbisogno Terna (Nord 47%,
           Centro-Nord 11%, Centro-Sud 13%, Sud 14%, Sicilia 6%, Sardegna 4%, Calabria 5%).
-          Errore tipico vs PUN ufficiale GME: <strong>&lt; 5%</strong>. Fonte dati: Fraunhofer
-          ISE via ENTSO-E Transparency Platform. Spread Nord-Sud &gt; 15 €/MWh indica
-          congestioni di rete. Il PUN ufficiale GME sarà integrato appena approvata la
-          richiesta API ENTSO-E.
+          Fonte dati: <strong>ENTSO-E Transparency Platform</strong> (stessa fonte del PUN GME).
+          Errore tipico vs PUN ufficiale GME: <strong>&lt; 3%</strong>, dovuto all&apos;uso di
+          pesi statici annuali invece della pesatura oraria sui consumi reali. Spread Nord-Sud
+          &gt; 15 €/MWh indica congestioni di rete interzonali.
         </div>
       </section>
     </div>

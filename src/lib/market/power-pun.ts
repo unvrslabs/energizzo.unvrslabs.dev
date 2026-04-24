@@ -1,13 +1,17 @@
 /**
- * PUN stimato da ENTSO-E zone italiane via energy-charts.info
+ * PUN stimato (media pesata 7 zone italiane).
  *
- * Il PUN ufficiale GME richiede login/cookies. Usiamo come proxy una media
- * pesata dei prezzi MGP delle 7 zone italiane (dati ENTSO-E via Fraunhofer).
- * Errore tipico < 5% vs PUN ufficiale.
+ * Fonte primaria: ENTSO-E Transparency Platform (token ENTSOE_TOKEN in env).
+ * Fallback: energy-charts.info (Fraunhofer ISE aggregatore ENTSO-E, no key).
  *
  * Pesi basati su quota fabbisogno elettrico Italia (Terna, medie annuali):
  *   Nord 47% · Centro-Nord 11% · Centro-Sud 13% · Sud 14% · Sicilia 6% · Sardegna 4% · Calabria 5%
+ *
+ * Il PUN ufficiale GME è la media pesata oraria sui consumi. Qui usiamo una
+ * approssimazione con pesi statici: errore tipico < 5% vs PUN GME.
  */
+
+import { fetchEntsoeDayAheadForZone, ENTSOE_ZONES } from "./entsoe";
 
 const BZN_WEIGHTS: Record<string, number> = {
   "IT-North": 0.47,
@@ -19,23 +23,25 @@ const BZN_WEIGHTS: Record<string, number> = {
   "IT-Calabria": 0.05,
 };
 
-const ZONES = Object.keys(BZN_WEIGHTS);
-
 type EnergyChartsResponse = {
   unix_seconds?: number[];
   price?: number[];
   license_info?: string;
 };
 
+export type PunSource = "ENTSO-E" | "energy-charts.info";
+
 export type PunResult = {
-  price_day: string; // YYYY-MM-DD
+  price_day: string;
   price_eur_mwh: number;
   zones: Record<string, number>;
   method: "weighted_avg";
-  source: "energy-charts.info";
+  source: PunSource;
 };
 
-async function fetchZoneDayOnce(
+// ─── FALLBACK: energy-charts.info ────────────────────────────
+
+async function fetchZoneDayOnceEC(
   bzn: string,
   dayIso: string,
 ): Promise<number | null> {
@@ -62,13 +68,13 @@ async function fetchZoneDayOnce(
   }
 }
 
-async function fetchZoneDay(
+async function fetchZoneDayEC(
   bzn: string,
   dayIso: string,
 ): Promise<number | null> {
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const val = await fetchZoneDayOnce(bzn, dayIso);
+      const val = await fetchZoneDayOnceEC(bzn, dayIso);
       if (val != null) return val;
     } catch {
       /* retry */
@@ -78,14 +84,37 @@ async function fetchZoneDay(
   return null;
 }
 
+// ─── MAIN: ENTSO-E con fallback EC ───────────────────────────
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+async function fetchZoneDay(
+  bzn: string,
+  dayIso: string,
+): Promise<{ value: number; source: PunSource } | null> {
+  // Primary: ENTSO-E
+  if (process.env.ENTSOE_TOKEN) {
+    const v = await fetchEntsoeDayAheadForZone(bzn, dayIso);
+    if (v != null) return { value: v, source: "ENTSO-E" };
+  }
+  // Fallback: energy-charts.info
+  const vec = await fetchZoneDayEC(bzn, dayIso);
+  if (vec != null) return { value: vec, source: "energy-charts.info" };
+  return null;
+}
+
 export async function fetchPunForDay(dayIso: string): Promise<PunResult | null> {
-  // Sequenziale con piccolo delay per non triggerare rate limit energy-charts.info
   const zones: Record<string, number> = {};
-  for (const z of ZONES) {
-    const v = await fetchZoneDay(z, dayIso);
-    if (v != null) zones[z] = Number(v.toFixed(3));
+  let entsoeCount = 0;
+  let ecCount = 0;
+
+  for (const z of ENTSOE_ZONES) {
+    const r = await fetchZoneDay(z, dayIso);
+    if (r != null) {
+      zones[z] = Number(r.value.toFixed(3));
+      if (r.source === "ENTSO-E") entsoeCount++;
+      else ecCount++;
+    }
     await sleep(120);
   }
   if (Object.keys(zones).length === 0) return null;
@@ -99,12 +128,16 @@ export async function fetchPunForDay(dayIso: string): Promise<PunResult | null> 
   }
   const price = totalWeight > 0 ? weightedSum / totalWeight : 0;
 
+  // Se almeno metà zone arrivano da ENTSO-E, etichetta ENTSO-E
+  const source: PunSource =
+    entsoeCount >= ecCount ? "ENTSO-E" : "energy-charts.info";
+
   return {
     price_day: dayIso,
     price_eur_mwh: Number(price.toFixed(3)),
     zones,
     method: "weighted_avg",
-    source: "energy-charts.info",
+    source,
   };
 }
 
@@ -115,11 +148,7 @@ export async function fetchPunRange(
   const out: PunResult[] = [];
   const start = new Date(fromIso);
   const end = new Date(toIso);
-  for (
-    let d = new Date(start);
-    d <= end;
-    d.setDate(d.getDate() + 1)
-  ) {
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
     const iso = d.toISOString().slice(0, 10);
     const r = await fetchPunForDay(iso);
     if (r) out.push(r);
