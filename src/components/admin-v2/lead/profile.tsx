@@ -664,7 +664,7 @@ export function LeadProfileV2({
                   {copied ? "Copiato" : "Copia"}
                 </button>
               </div>
-              {lead.survey_status === "not_sent" && (
+              {(lead.survey_status === "not_sent" || lead.survey_status == null) && (
                 <button type="button" onClick={markSent} disabled={markingSent} className="v2-btn v2-btn--primary w-fit">
                   {markingSent ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                   Segna come invitato
