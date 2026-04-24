@@ -12,11 +12,13 @@ import {
   LayoutDashboard,
   LogOut,
   Mic,
+  Sparkles,
   TrendingUp,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/v2/theme-toggle";
+import { AgentChatDrawer } from "@/components/admin-v2/agent-chat-drawer";
 
 type NavItem = {
   href: string;
@@ -121,18 +123,8 @@ export function V2Sidebar({
   counts: { delibere: number; testiIntegrati: number; scadenze: number };
 }) {
   const pathname = usePathname() ?? "";
-  const [now, setNow] = useState<string>(() => formatClock(new Date()));
-  const [status, setStatus] = useState<MgpStatus>(() => mgpStatus(new Date()));
+  const [chatOpen, setChatOpen] = useState(false);
   const sections = buildSections(counts);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      const d = new Date();
-      setNow(formatClock(d));
-      setStatus(mgpStatus(d));
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
 
   return (
     <aside className="v2-sidebar">
@@ -144,45 +136,39 @@ export function V2Sidebar({
         <ThemeToggle />
       </div>
 
-      {/* GME status — calcolato da orari MGP (8:00-12:00, Europe/Rome, 7/7) */}
-      <div
-        className="flex items-center gap-2 px-3 py-2 mb-2 rounded-lg"
-        style={{
-          background: "hsl(var(--v2-card))",
-          border: "1px solid hsl(var(--v2-border))",
-        }}
-        title={
-          status === "open"
-            ? "Sessione MGP aperta (08:00–12:00)"
-            : "Sessione MGP chiusa — riapre alle 08:00"
-        }
+      <button
+        type="button"
+        onClick={() => setChatOpen(true)}
+        className="v2-sidebar-ai-trigger"
+        aria-label="Apri Agente AI Il Dispaccio"
       >
+        <Sparkles className="w-3.5 h-3.5" />
+        <span className="flex-1 text-left">Chiedi a Il Dispaccio</span>
         <span
-          className="v2-status-dot"
-          style={{
-            background:
-              status === "open"
-                ? "hsl(var(--v2-accent))"
-                : "hsl(var(--v2-danger))",
-            boxShadow:
-              status === "open"
-                ? "0 0 6px hsl(var(--v2-accent) / 0.55)"
-                : "0 0 6px hsl(var(--v2-danger) / 0.5)",
-          }}
-        />
-        <span className="text-[11.5px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
-          MGP{" "}
-          <strong style={{ color: "hsl(var(--v2-text))", fontWeight: 600 }}>
-            {status === "open" ? "aperto" : "chiuso"}
-          </strong>
-        </span>
-        <span
-          className="v2-mono text-[11px] ml-auto"
-          style={{ color: "hsl(var(--v2-text-dim))" }}
+          className="v2-mono text-[9px] font-bold uppercase tracking-[0.14em]"
+          style={{ color: "hsl(var(--v2-accent))", opacity: 0.75 }}
         >
-          {now}
+          Agente
         </span>
-      </div>
+      </button>
+
+      <AgentChatDrawer
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        endpoint="/api/network/agent-chat"
+        storageKey="ild-network-chat-v1"
+        title="Agente Il Dispaccio"
+        subtitle="Delibere · Mercato · Scadenze"
+        intro="Fammi domande su delibere ARERA, testi integrati, mercato elettrico/gas, scadenze regolatorie, podcast. Rispondo solo con dati verificabili dalle mie fonti."
+        suggestions={[
+          "Spiegami la delibera 40/2014/R/gas",
+          "Qual è il PUN oggi?",
+          "Quanto sono pieni gli stoccaggi gas?",
+          "Scadenze regolatorie nei prossimi 14 giorni",
+          "Cerca delibere su dispacciamento",
+          "Ultimi episodi del podcast",
+        ]}
+      />
 
       <nav className="flex flex-col gap-0.5">
         {sections.map((section) => (

@@ -21,7 +21,8 @@ function isPublicRoute(pathname: string): boolean {
     pathname.startsWith("/api/podcast-invite") ||
     pathname.startsWith("/api/network-join") ||
     pathname === "/network/login" ||
-    pathname.startsWith("/api/network/") ||
+    (pathname.startsWith("/api/network/") &&
+      !pathname.startsWith("/api/network/agent-chat")) ||
     pathname.startsWith("/api/cron/")
   );
 }
@@ -46,8 +47,9 @@ function isAdminRoute(pathname: string): boolean {
 
 function isNetworkProtectedRoute(pathname: string): boolean {
   return (
-    (pathname === "/network" || pathname.startsWith("/network/")) &&
-    pathname !== "/network/login"
+    ((pathname === "/network" || pathname.startsWith("/network/")) &&
+      pathname !== "/network/login") ||
+    pathname.startsWith("/api/network/agent-chat")
   );
 }
 

@@ -30,27 +30,7 @@ type Msg =
   | { role: "user"; content: string | ContentBlock[] }
   | { role: "assistant"; content: ContentBlock[] };
 
-const STORAGE_KEY = "ild-agent-chat-v1";
-
-function loadMessages(): Msg[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as Msg[];
-  } catch {
-    return [];
-  }
-}
-function saveMessages(m: Msg[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
-  } catch {
-    /* noop */
-  }
-}
-
-const SUGGESTIONS = [
+const DEFAULT_ADMIN_SUGGESTIONS = [
   "Mostrami le bozze social non schedulate",
   "Schedula tutti i post di oggi alle 09:00 e 15:00",
   "Crea un post educational sul PUN con hero AI",
@@ -59,12 +39,42 @@ const SUGGESTIONS = [
   "Genera un teaser podcast per il prossimo episodio",
 ];
 
+function loadMessages(key: string): Msg[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    return JSON.parse(raw) as Msg[];
+  } catch {
+    return [];
+  }
+}
+function saveMessages(key: string, m: Msg[]) {
+  try {
+    localStorage.setItem(key, JSON.stringify(m));
+  } catch {
+    /* noop */
+  }
+}
+
 export function AgentChatDrawer({
   open,
   onClose,
+  endpoint = "/api/agent-chat",
+  storageKey = "ild-agent-chat-v1",
+  title = "Agente Il Dispaccio",
+  subtitle = "Sonnet 4.5 · full DB + codebase",
+  intro = "Chiedimi qualsiasi cosa. Posso creare/modificare/eliminare post social, leggere dati DB, generare contenuti con AI, schedulare pubblicazioni, eseguire SQL.",
+  suggestions = DEFAULT_ADMIN_SUGGESTIONS,
 }: {
   open: boolean;
   onClose: () => void;
+  endpoint?: string;
+  storageKey?: string;
+  title?: string;
+  subtitle?: string;
+  intro?: string;
+  suggestions?: string[];
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -74,17 +84,17 @@ export function AgentChatDrawer({
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setMessages(loadMessages());
-  }, []);
+    setMessages(loadMessages(storageKey));
+  }, [storageKey]);
 
   useEffect(() => {
-    saveMessages(messages);
+    saveMessages(storageKey, messages);
     requestAnimationFrame(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
     });
-  }, [messages]);
+  }, [messages, storageKey]);
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -101,7 +111,7 @@ export function AgentChatDrawer({
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch("/api/agent-chat", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages: next }),
@@ -122,7 +132,7 @@ export function AgentChatDrawer({
 
   const resetConversation = () => {
     setMessages([]);
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(storageKey);
   };
 
   if (!open) return null;
@@ -199,7 +209,7 @@ export function AgentChatDrawer({
                   lineHeight: 1.2,
                 }}
               >
-                Agente Il Dispaccio
+                {title}
               </div>
               <div
                 className="v2-mono"
@@ -210,7 +220,7 @@ export function AgentChatDrawer({
                   textTransform: "uppercase",
                 }}
               >
-                Sonnet 4.5 · full DB + codebase
+                {subtitle}
               </div>
             </div>
           </div>
@@ -286,9 +296,7 @@ export function AgentChatDrawer({
                   lineHeight: 1.55,
                 }}
               >
-                Chiedimi qualsiasi cosa. Posso creare/modificare/eliminare post
-                social, leggere dati DB, generare contenuti con AI, schedulare
-                pubblicazioni, eseguire SQL.
+                {intro}
               </div>
               <div
                 className="v2-mono"
@@ -309,7 +317,7 @@ export function AgentChatDrawer({
                   gap: 6,
                 }}
               >
-                {SUGGESTIONS.map((s) => (
+                {suggestions.map((s) => (
                   <button
                     key={s}
                     type="button"
