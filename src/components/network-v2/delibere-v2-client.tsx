@@ -180,19 +180,36 @@ export function DelibereV2Client({
           maxHeight: listMaxHeight,
         }}
       >
-        <div className="p-3 flex flex-col gap-2" style={{ borderBottom: "1px solid hsl(var(--v2-border))" }}>
+        <div
+          className="flex flex-col gap-3"
+          style={{
+            padding: "16px 18px",
+            borderBottom: "1px solid hsl(var(--v2-border))",
+          }}
+        >
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5" style={{ color: "hsl(var(--v2-text-mute))" }} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+              style={{ color: "hsl(var(--v2-text-mute))" }}
+            />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cerca codice, titolo, contenuto…"
               className="v2-input"
+              style={{
+                width: "100%",
+                paddingLeft: 36,
+                paddingRight: query ? 32 : 12,
+                paddingTop: 9,
+                paddingBottom: 9,
+                fontSize: 13,
+              }}
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5"
                 style={{ color: "hsl(var(--v2-text-mute))" }}
                 aria-label="Pulisci"
               >
@@ -200,7 +217,7 @@ export function DelibereV2Client({
               </button>
             )}
           </div>
-          <div className="flex items-center gap-1 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {(["all", "dual", "eel", "gas"] as const).map((s) => {
               const active = sector === s;
               const label =
@@ -221,7 +238,7 @@ export function DelibereV2Client({
                   type="button"
                   onClick={() => setSector(s)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11.5px] font-medium transition-colors",
+                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors",
                   )}
                   style={{
                     background: active ? "hsl(var(--v2-accent) / 0.14)" : "hsl(var(--v2-bg-elev))",
@@ -230,7 +247,7 @@ export function DelibereV2Client({
                   }}
                 >
                   {label}
-                  <span className="v2-mono text-[10px] opacity-70">{count}</span>
+                  <span className="v2-mono text-[10px] opacity-75 font-semibold">{count}</span>
                 </button>
               );
             })}
