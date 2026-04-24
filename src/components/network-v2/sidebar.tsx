@@ -158,7 +158,7 @@ export function V2Sidebar({
         mentionEndpoint="/api/network/agent-chat/mention"
         storageKey="ild-network-chat-v1"
         title="Max Power"
-        subtitle="Il Dispaccio · delibere, mercato, scadenze"
+        subtitle=""
         intro="Ciao, sono Max Power. Chiedimi di delibere ARERA, testi integrati, mercato elettrico/gas, scadenze regolatorie, podcast. Usa @ per cercare una delibera specifica. Rispondo solo con dati verificabili dalle mie fonti."
         suggestions={[
           "Spiegami la delibera 40/2014/R/gas",

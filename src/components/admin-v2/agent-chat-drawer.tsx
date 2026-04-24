@@ -304,17 +304,19 @@ export function AgentChatDrawer({
               >
                 {title}
               </div>
-              <div
-                className="v2-mono"
-                style={{
-                  fontSize: 9.5,
-                  color: "hsl(var(--v2-text-mute))",
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {subtitle}
-              </div>
+              {subtitle ? (
+                <div
+                  className="v2-mono"
+                  style={{
+                    fontSize: 9.5,
+                    color: "hsl(var(--v2-text-mute))",
+                    letterSpacing: "0.16em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {subtitle}
+                </div>
+              ) : null}
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -716,6 +718,160 @@ export function AgentChatDrawer({
 
 // ─── MESSAGE BUBBLE ─────────────────────────────────────────
 
+// Light markdown renderer per le risposte dell'agente.
+// Supporta:
+//  • **bold** → <strong>
+//  • `code` inline → <code>
+//  • righe che iniziano con "- ", "— ", "• ", "→ " → lista con bullet
+//  • righe "## Titolo" → heading
+//  • righe tutte MAIUSCOLE (4+ parole brevi) → mini heading
+//  • paragrafi separati da righe vuote
+function MarkdownLight({ text }: { text: string }) {
+  const renderInline = (str: string, keyPrefix: string): React.ReactNode[] => {
+    const out: React.ReactNode[] = [];
+    // regex cattura **bold** o `code`
+    const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+    let last = 0;
+    let i = 0;
+    for (const m of str.matchAll(regex)) {
+      const idx = m.index ?? 0;
+      if (idx > last) out.push(str.slice(last, idx));
+      const piece = m[0];
+      if (piece.startsWith("**")) {
+        out.push(
+          <strong key={`${keyPrefix}-b-${i++}`} style={{ fontWeight: 700, color: "hsl(var(--v2-text))" }}>
+            {piece.slice(2, -2)}
+          </strong>,
+        );
+      } else if (piece.startsWith("`")) {
+        out.push(
+          <code
+            key={`${keyPrefix}-c-${i++}`}
+            style={{
+              fontFamily: "var(--font-mono), monospace",
+              fontSize: "0.92em",
+              padding: "1px 5px",
+              borderRadius: 4,
+              background: "hsl(var(--v2-bg-elev))",
+              border: "1px solid hsl(var(--v2-border))",
+              color: "hsl(var(--v2-accent))",
+            }}
+          >
+            {piece.slice(1, -1)}
+          </code>,
+        );
+      }
+      last = idx + piece.length;
+    }
+    if (last < str.length) out.push(str.slice(last));
+    return out;
+  };
+
+  // Split per blocchi separati da righe vuote
+  const lines = text.split("\n");
+  const blocks: React.ReactNode[] = [];
+  let currentList: string[] | null = null;
+
+  const flushList = () => {
+    if (!currentList || currentList.length === 0) return;
+    const items = [...currentList];
+    currentList = null;
+    blocks.push(
+      <ul
+        key={`ul-${blocks.length}`}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          margin: "2px 0",
+          padding: 0,
+          listStyle: "none",
+        }}
+      >
+        {items.map((item, i) => (
+          <li
+            key={i}
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "flex-start",
+              paddingLeft: 2,
+            }}
+          >
+            <span
+              aria-hidden
+              style={{
+                color: "hsl(var(--v2-accent))",
+                flexShrink: 0,
+                fontWeight: 700,
+                lineHeight: 1.6,
+              }}
+            >
+              ·
+            </span>
+            <span style={{ flex: 1 }}>{renderInline(item, `li-${i}`)}</span>
+          </li>
+        ))}
+      </ul>,
+    );
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+
+    // Riga vuota → chiudi lista, spacer
+    if (trimmed === "") {
+      flushList();
+      if (blocks.length > 0) {
+        blocks.push(<div key={`sp-${i}`} style={{ height: 4 }} />);
+      }
+      continue;
+    }
+
+    // Heading "## Xxx"
+    if (/^#{1,3}\s+/.test(trimmed)) {
+      flushList();
+      const lvl = trimmed.match(/^#+/)![0].length;
+      const content = trimmed.replace(/^#+\s+/, "");
+      blocks.push(
+        <div
+          key={`h-${i}`}
+          style={{
+            fontSize: lvl === 1 ? 15 : lvl === 2 ? 14 : 13,
+            fontWeight: 700,
+            color: "hsl(var(--v2-text))",
+            marginTop: blocks.length > 0 ? 6 : 0,
+            marginBottom: 2,
+            letterSpacing: "-0.005em",
+          }}
+        >
+          {renderInline(content, `h-${i}`)}
+        </div>,
+      );
+      continue;
+    }
+
+    // Lista: - / — / • / →
+    const listMatch = trimmed.match(/^(-|—|•|→)\s+(.+)$/);
+    if (listMatch) {
+      if (currentList == null) currentList = [];
+      currentList.push(listMatch[2]);
+      continue;
+    }
+
+    // Paragrafo normale
+    flushList();
+    blocks.push(
+      <div key={`p-${i}`} style={{ whiteSpace: "pre-wrap" }}>
+        {renderInline(raw, `p-${i}`)}
+      </div>,
+    );
+  }
+  flushList();
+  return <>{blocks}</>;
+}
+
 function MessageBubble({ msg }: { msg: Msg }) {
   const isUser = msg.role === "user";
 
@@ -784,13 +940,12 @@ function MessageBubble({ msg }: { msg: Msg }) {
                 key={i}
                 style={{
                   fontSize: 13,
-                  lineHeight: 1.55,
+                  lineHeight: 1.6,
                   color: "hsl(var(--v2-text))",
-                  whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
                 }}
               >
-                {b.text}
+                <MarkdownLight text={b.text} />
               </div>
             );
           }
