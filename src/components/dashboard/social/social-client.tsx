@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import {
   Calendar,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   Copy,
   Download,
@@ -138,35 +140,49 @@ export function SocialClient({
   const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
   const weekEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
 
-  const segments = useMemo(() => {
-    const today: SocialPost[] = [];
-    const week: SocialPost[] = [];
-    const pending: SocialPost[] = []; // tutti i non-pubblicati
-    const published: SocialPost[] = [];
+  const [selectedDay, setSelectedDay] = useState<string>(todayKey);
 
+  const { postsOfSelectedDay, postsWithoutDate } = useMemo(() => {
+    const ofDay: SocialPost[] = [];
+    const noDate: SocialPost[] = [];
+    const seenIds = new Set<string>();
+    const add = (list: SocialPost[], p: SocialPost) => {
+      if (seenIds.has(p.id)) return;
+      seenIds.add(p.id);
+      list.push(p);
+    };
     for (const p of posts) {
-      if (p.status === "pubblicato") {
-        published.push(p);
+      if (p.status === "skip") continue;
+      const matchesDay =
+        (p.published_linkedin_at && dayKey(p.published_linkedin_at) === selectedDay) ||
+        (p.published_x_at && dayKey(p.published_x_at) === selectedDay) ||
+        (p.status !== "pubblicato" &&
+          p.scheduled_at &&
+          dayKey(p.scheduled_at) === selectedDay);
+
+      if (matchesDay) {
+        add(ofDay, p);
         continue;
       }
-      if (p.status === "skip") continue;
-
-      pending.push(p);
-
-      if (p.scheduled_at) {
-        const sched = new Date(p.scheduled_at);
-        if (dayKey(p.scheduled_at) === todayKey && sched < todayEnd) {
-          today.push(p);
-          week.push(p);
-        } else if (sched >= todayEnd && sched < weekEnd) {
-          week.push(p);
-        } else if (sched >= weekEnd) {
-          week.push(p);
-        }
+      // Bozze senza alcuna data → in "senza data" se il giorno selezionato NON è oggi,
+      // altrimenti appaiono in "oggi" come backlog utile
+      if (
+        !p.scheduled_at &&
+        !p.published_linkedin_at &&
+        !p.published_x_at &&
+        p.status !== "pubblicato"
+      ) {
+        if (selectedDay === todayKey) add(ofDay, p);
+        else add(noDate, p);
       }
     }
-    return { today, week, pending, published };
-  }, [posts, todayKey]);
+    return { postsOfSelectedDay: ofDay, postsWithoutDate: noDate };
+  }, [posts, selectedDay, todayKey]);
+
+  const isSelectedToday = selectedDay === todayKey;
+  const selectedDayHeading = isSelectedToday
+    ? "Oggi · da pubblicare"
+    : `Post del ${new Date(selectedDay + "T12:00:00").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}`;
 
   return (
     <>
@@ -225,7 +241,16 @@ export function SocialClient({
         </button>
       </div>
 
-      {/* Oggi */}
+      {/* 1. Calendario ribbon orizzontale sempre in alto */}
+      <section style={{ marginBottom: 28 }}>
+        <CalendarRibbon
+          allPosts={posts}
+          selectedDayKey={selectedDay}
+          onSelect={setSelectedDay}
+        />
+      </section>
+
+      {/* 2. Post del giorno selezionato */}
       <section style={{ marginBottom: 32 }}>
         <div
           style={{
@@ -249,7 +274,7 @@ export function SocialClient({
               letterSpacing: "0.14em",
             }}
           >
-            Da pubblicare
+            {selectedDayHeading}
           </h2>
           <span
             style={{
@@ -258,10 +283,10 @@ export function SocialClient({
               fontFamily: "var(--font-mono), monospace",
             }}
           >
-            {segments.pending.length}
+            {postsOfSelectedDay.length}
           </span>
         </div>
-        {segments.pending.length === 0 ? (
+        {postsOfSelectedDay.length === 0 ? (
           <div
             className="v2-card"
             style={{
@@ -271,28 +296,25 @@ export function SocialClient({
               fontSize: 13,
             }}
           >
-            Nessun post pronto. Genera qualcosa con il pulsante
-            <strong> Nuovo post</strong> o chiedi all'agente AI.
+            Nessun post per questo giorno.{" "}
+            {isSelectedToday ? (
+              <>
+                Genera qualcosa con il pulsante <strong>Nuovo post</strong> o
+                chiedi all&apos;agente AI.
+              </>
+            ) : null}
           </div>
         ) : (
           <div style={{ display: "grid", gap: 12 }}>
-            {segments.pending.map((p) => (
+            {postsOfSelectedDay.map((p) => (
               <PostRow key={p.id} post={p} onOpen={() => setEditing(p)} big />
             ))}
           </div>
         )}
       </section>
 
-      {/* Calendario settimanale sempre visibile · navigabile */}
-      <section style={{ marginBottom: 32 }}>
-        <CalendarSection
-          allPosts={posts}
-          onOpen={(p) => setEditing(p)}
-        />
-      </section>
-
-      {/* Pubblicati (ultimi 10) */}
-      {segments.published.length > 0 && (
+      {/* 3. Bozze senza data (se ce ne sono) */}
+      {postsWithoutDate.length > 0 && !isSelectedToday && (
         <section style={{ marginBottom: 32 }}>
           <div
             style={{
@@ -302,9 +324,9 @@ export function SocialClient({
               marginBottom: 14,
             }}
           >
-            <Check
+            <Sparkles
               className="w-4 h-4"
-              style={{ color: "hsl(var(--v2-accent))" }}
+              style={{ color: "hsl(var(--v2-warn))" }}
               strokeWidth={2}
             />
             <h2
@@ -316,16 +338,27 @@ export function SocialClient({
                 letterSpacing: "0.14em",
               }}
             >
-              Ultimi pubblicati
+              Bozze senza data
             </h2>
+            <span
+              style={{
+                fontSize: 11,
+                color: "hsl(var(--v2-text-mute))",
+                fontFamily: "var(--font-mono), monospace",
+              }}
+            >
+              {postsWithoutDate.length}
+            </span>
           </div>
-          <div style={{ display: "grid", gap: 8 }}>
-            {segments.published.slice(0, 10).map((p) => (
-              <PostRow key={p.id} post={p} onOpen={() => setEditing(p)} compact />
+          <div style={{ display: "grid", gap: 10 }}>
+            {postsWithoutDate.map((p) => (
+              <PostRow key={p.id} post={p} onOpen={() => setEditing(p)} />
             ))}
           </div>
         </section>
       )}
+
+      {/* Pubblicati ora si vedono cliccando sui giorni passati nel calendario */}
 
       {/* Drawer generatore */}
       {generatorOpen && (
@@ -456,82 +489,124 @@ function PostRow({
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// WEEK CALENDAR
+// CALENDAR RIBBON (horizontal scroll)
 // ═══════════════════════════════════════════════════════════════════
 
-type CalItem = {
-  post: SocialPost;
-  timeLabel: string;
-  kind: "scheduled" | "published" | "draft";
+type DayMeta = {
+  date: Date;
+  key: string;
+  counts: { published: number; scheduled: number; draft: number; total: number };
 };
 
-function CalendarSection({
+function CalendarRibbon({
   allPosts,
-  onOpen,
+  selectedDayKey,
+  onSelect,
 }: {
   allPosts: SocialPost[];
-  onOpen: (p: SocialPost) => void;
+  selectedDayKey: string;
+  onSelect: (key: string) => void;
 }) {
-  // weekStart state: default = lunedì della settimana corrente per avere 7gg centrati
-  const today = new Date();
-  const initStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() - ((today.getDay() + 6) % 7), // lunedì
-  );
-  const [weekStart, setWeekStart] = useState<Date>(initStart);
-
-  const shift = (days: number) => {
-    const next = new Date(weekStart);
-    next.setDate(next.getDate() + days);
-    setWeekStart(next);
-  };
-  const goToday = () => setWeekStart(initStart);
-
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekEnd.getDate() + 6);
-  const fmtRange = (d: Date) =>
-    d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
-
   const todayKey = dayKey(new Date().toISOString());
-  const weekStartKey = dayKey(weekStart.toISOString());
-  const isCurrentWeek =
-    weekStartKey === dayKey(initStart.toISOString());
+  // Range: 30gg indietro + 60gg avanti rispetto a oggi
+  const RANGE_BACK = 30;
+  const RANGE_FWD = 60;
 
-  // Conta post nel range visibile
-  const visibleCount = allPosts.filter((p) => {
-    const startKey = weekStartKey;
-    const endKey = dayKey(weekEnd.toISOString());
-    const candidates = [
-      p.published_linkedin_at,
-      p.published_x_at,
-      p.status !== "pubblicato" ? p.scheduled_at : null,
-    ].filter(Boolean) as string[];
-    if (candidates.length === 0) {
+  const days = useMemo<DayMeta[]>(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - RANGE_BACK);
+    const list: DayMeta[] = [];
+    for (let i = 0; i <= RANGE_BACK + RANGE_FWD; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const key = dayKey(d.toISOString());
+      list.push({
+        date: d,
+        key,
+        counts: { published: 0, scheduled: 0, draft: 0, total: 0 },
+      });
+    }
+    // Conta per ogni giorno
+    const byKey = new Map(list.map((x) => [x.key, x]));
+    for (const p of allPosts) {
+      if (p.status === "skip") continue;
+      const ids = new Set<string>();
+      const bump = (k: string | null | undefined, kind: "published" | "scheduled" | "draft") => {
+        if (!k) return;
+        const dm = byKey.get(k);
+        if (!dm) return;
+        const uniq = p.id + ":" + kind;
+        if (ids.has(uniq)) return;
+        ids.add(uniq);
+        dm.counts[kind]++;
+        dm.counts.total++;
+      };
+      if (p.published_linkedin_at) bump(dayKey(p.published_linkedin_at), "published");
+      if (p.published_x_at) bump(dayKey(p.published_x_at), "published");
+      if (p.status !== "pubblicato" && p.scheduled_at)
+        bump(dayKey(p.scheduled_at), "scheduled");
       if (
         !p.scheduled_at &&
-        p.status !== "pubblicato" &&
-        todayKey >= startKey &&
-        todayKey <= endKey
+        !p.published_linkedin_at &&
+        !p.published_x_at &&
+        p.status !== "pubblicato"
       )
-        return true;
-      return false;
+        bump(todayKey, "draft");
     }
-    return candidates.some((iso) => {
-      const k = dayKey(iso);
-      return k >= startKey && k <= endKey;
+    return list;
+  }, [allPosts, todayKey]);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
+  // Al mount: scroll fino al giorno selezionato (default oggi) centrato
+  useEffect(() => {
+    if (selectedRef.current) {
+      selectedRef.current.scrollIntoView({
+        behavior: "instant" as ScrollBehavior,
+        inline: "center",
+        block: "nearest",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const shiftBy = (n: number) => {
+    const idx = days.findIndex((d) => d.key === selectedDayKey);
+    if (idx < 0) return;
+    const next = Math.max(0, Math.min(days.length - 1, idx + n));
+    onSelect(days[next].key);
+    // Sincronizza scroll verso nuovo selezionato
+    requestAnimationFrame(() => {
+      const el = scrollRef.current?.querySelector<HTMLElement>(
+        `[data-day="${days[next].key}"]`,
+      );
+      el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
     });
-  }).length;
+  };
+
+  const goToday = () => {
+    onSelect(todayKey);
+    requestAnimationFrame(() => {
+      const el = scrollRef.current?.querySelector<HTMLElement>(
+        `[data-day="${todayKey}"]`,
+      );
+      el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    });
+  };
+
+  const scrollByPx = (px: number) => {
+    scrollRef.current?.scrollBy({ left: px, behavior: "smooth" });
+  };
 
   return (
-    <>
+    <div>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 10,
-          marginBottom: 14,
-          flexWrap: "wrap",
+          marginBottom: 12,
         }}
       >
         <Calendar
@@ -550,43 +625,16 @@ function CalendarSection({
         >
           Calendario
         </h2>
-        <span
-          className="v2-mono"
-          style={{
-            fontSize: 11,
-            color: "hsl(var(--v2-text-mute))",
-            letterSpacing: "0.08em",
-          }}
-        >
-          {fmtRange(weekStart)} — {fmtRange(weekEnd)}
-        </span>
-        <span
-          className="v2-mono"
-          style={{
-            fontSize: 10,
-            color: "hsl(var(--v2-text-mute))",
-          }}
-        >
-          · {visibleCount} post
-        </span>
-
-        <div
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            gap: 4,
-            alignItems: "center",
-          }}
-        >
+        <div style={{ marginLeft: "auto", display: "flex", gap: 4 }}>
           <button
             type="button"
-            onClick={() => shift(-7)}
+            onClick={() => shiftBy(-1)}
             className="v2-btn v2-btn--ghost"
             style={{ padding: "6px 10px", fontSize: 12 }}
-            aria-label="Settimana precedente"
-            title="Settimana precedente"
+            title="Giorno precedente"
+            aria-label="Giorno precedente"
           >
-            ←
+            <ChevronLeft className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
@@ -595,310 +643,262 @@ function CalendarSection({
             style={{
               padding: "6px 12px",
               fontSize: 11,
-              fontWeight: 600,
+              fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              opacity: isCurrentWeek ? 0.5 : 1,
+              opacity: selectedDayKey === todayKey ? 0.5 : 1,
             }}
-            disabled={isCurrentWeek}
+            disabled={selectedDayKey === todayKey}
           >
             Oggi
           </button>
           <button
             type="button"
-            onClick={() => shift(7)}
+            onClick={() => shiftBy(1)}
             className="v2-btn v2-btn--ghost"
             style={{ padding: "6px 10px", fontSize: 12 }}
-            aria-label="Settimana successiva"
-            title="Settimana successiva"
+            title="Giorno successivo"
+            aria-label="Giorno successivo"
           >
-            →
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      <WeekCalendar posts={allPosts} base={weekStart} onOpen={onOpen} />
+      {/* Ribbon con scroll orizzontale */}
+      <div style={{ position: "relative" }}>
+        <button
+          type="button"
+          onClick={() => scrollByPx(-600)}
+          aria-label="Scorri indietro"
+          style={{
+            position: "absolute",
+            left: -8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 30,
+            height: 30,
+            borderRadius: "50%",
+            background: "hsl(var(--v2-bg))",
+            border: "1px solid hsl(var(--v2-border))",
+            color: "hsl(var(--v2-text-dim))",
+            display: "grid",
+            placeItems: "center",
+            cursor: "pointer",
+            boxShadow: "0 2px 8px hsl(0 0% 0% / 0.3)",
+            zIndex: 2,
+          }}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollByPx(600)}
+          aria-label="Scorri avanti"
+          style={{
+            position: "absolute",
+            right: -8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 30,
+            height: 30,
+            borderRadius: "50%",
+            background: "hsl(var(--v2-bg))",
+            border: "1px solid hsl(var(--v2-border))",
+            color: "hsl(var(--v2-text-dim))",
+            display: "grid",
+            placeItems: "center",
+            cursor: "pointer",
+            boxShadow: "0 2px 8px hsl(0 0% 0% / 0.3)",
+            zIndex: 2,
+          }}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
 
-      <div
-        className="v2-mono"
-        style={{
-          marginTop: 10,
-          fontSize: 10,
-          color: "hsl(var(--v2-text-mute))",
-          display: "flex",
-          gap: 14,
-          flexWrap: "wrap",
-        }}
-      >
-        <span>
-          <span
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              borderRadius: 2,
-              background: "hsl(var(--v2-accent))",
-              marginRight: 4,
-              verticalAlign: "middle",
-            }}
-          />
-          Pubblicato
-        </span>
-        <span>
-          <span
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              borderRadius: 2,
-              background: "hsl(var(--v2-info))",
-              marginRight: 4,
-              verticalAlign: "middle",
-            }}
-          />
-          Schedulato
-        </span>
-        <span>
-          <span
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 8,
-              borderRadius: 2,
-              background: "hsl(var(--v2-warn))",
-              marginRight: 4,
-              verticalAlign: "middle",
-            }}
-          />
-          Bozza senza data
-        </span>
-      </div>
-    </>
-  );
-}
-
-function WeekCalendar({
-  posts,
-  base,
-  onOpen,
-}: {
-  posts: SocialPost[];
-  base: Date;
-  onOpen: (p: SocialPost) => void;
-}) {
-  const todayKey = dayKey(new Date().toISOString());
-  const days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
-    return d;
-  });
-  const byDay = new Map<string, CalItem[]>();
-
-  const pushItem = (key: string, item: CalItem) => {
-    const arr = byDay.get(key) ?? [];
-    if (arr.find((x) => x.post.id === item.post.id)) return;
-    arr.push(item);
-    byDay.set(key, arr);
-  };
-
-  const timeOf = (iso: string | null) => {
-    if (!iso) return "";
-    return new Date(iso).toLocaleTimeString("it-IT", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  for (const p of posts) {
-    // Pubblicato LinkedIn
-    if (p.published_linkedin_at) {
-      pushItem(dayKey(p.published_linkedin_at), {
-        post: p,
-        timeLabel: timeOf(p.published_linkedin_at),
-        kind: "published",
-      });
-    }
-    // Pubblicato X (se diverso giorno)
-    if (p.published_x_at) {
-      pushItem(dayKey(p.published_x_at), {
-        post: p,
-        timeLabel: timeOf(p.published_x_at),
-        kind: "published",
-      });
-    }
-    // Scheduled (solo se non già pubblicato)
-    if (p.scheduled_at && p.status !== "pubblicato") {
-      pushItem(dayKey(p.scheduled_at), {
-        post: p,
-        timeLabel: timeOf(p.scheduled_at),
-        kind: "scheduled",
-      });
-    }
-    // Draft senza data → mostrati su "oggi" come card "senza orario"
-    if (!p.scheduled_at && !p.published_linkedin_at && !p.published_x_at && p.status !== "pubblicato") {
-      pushItem(todayKey, {
-        post: p,
-        timeLabel: "—",
-        kind: "draft",
-      });
-    }
-  }
-
-  return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-        gap: 8,
-      }}
-    >
-      {days.map((d) => {
-        const key = dayKey(d.toISOString());
-        const items = (byDay.get(key) ?? []).sort((a, b) =>
-          a.timeLabel.localeCompare(b.timeLabel),
-        );
-        const isToday = key === todayKey;
-        const isPast = key < todayKey;
-        return (
-          <div
-            key={key}
-            className="v2-card"
-            style={{
-              padding: 12,
-              minHeight: 140,
-              borderColor: isToday ? "hsl(var(--v2-accent) / 0.4)" : undefined,
-              boxShadow: isToday
-                ? "0 0 0 1px hsl(var(--v2-accent) / 0.2), inset 0 0 24px hsl(var(--v2-accent) / 0.05)"
-                : undefined,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                marginBottom: 8,
-                paddingBottom: 6,
-                borderBottom: "1px solid hsl(var(--v2-border))",
-              }}
-            >
-              <span
+        <div
+          ref={scrollRef}
+          className="v2-calendar-ribbon"
+          style={{
+            display: "flex",
+            gap: 10,
+            overflowX: "auto",
+            overflowY: "hidden",
+            scrollSnapType: "x mandatory",
+            padding: "6px 4px",
+            scrollbarWidth: "thin",
+          }}
+        >
+          {days.map((dm) => {
+            const isSel = dm.key === selectedDayKey;
+            const isToday = dm.key === todayKey;
+            const isPast = dm.key < todayKey;
+            return (
+              <button
+                type="button"
+                key={dm.key}
+                data-day={dm.key}
+                ref={isSel ? selectedRef : undefined}
+                onClick={() => onSelect(dm.key)}
                 style={{
-                  fontSize: 10,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: isToday
-                    ? "hsl(var(--v2-accent))"
-                    : "hsl(var(--v2-text-mute))",
-                  fontWeight: 700,
-                }}
-              >
-                {d.toLocaleDateString("it-IT", { weekday: "short" })}
-              </span>
-              <span
-                style={{
-                  fontSize: 16,
-                  fontWeight: 800,
+                  flex: "0 0 auto",
+                  minWidth: 180,
+                  padding: "14px 16px",
+                  borderRadius: 12,
+                  border: `1px solid ${
+                    isSel
+                      ? "hsl(var(--v2-accent))"
+                      : isToday
+                        ? "hsl(var(--v2-accent) / 0.35)"
+                        : "hsl(var(--v2-border))"
+                  }`,
+                  background: isSel
+                    ? "hsl(var(--v2-accent) / 0.14)"
+                    : "hsl(var(--v2-card))",
                   color: "hsl(var(--v2-text))",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  scrollSnapAlign: "center",
+                  transition: "all 140ms ease",
+                  boxShadow: isSel
+                    ? "0 0 0 1px hsl(var(--v2-accent) / 0.3), 0 4px 16px hsl(var(--v2-accent) / 0.14)"
+                    : "none",
+                  opacity: isPast && !isSel ? 0.72 : 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
                 }}
               >
-                {d.getDate()}
-              </span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {items.length === 0 ? (
-                <span
+                <div
                   style={{
-                    fontSize: 11,
-                    color: "hsl(var(--v2-text-mute))",
-                    fontStyle: "italic",
+                    display: "flex",
+                    alignItems: "baseline",
+                    justifyContent: "space-between",
                   }}
                 >
-                  —
-                </span>
-              ) : (
-                items.map((it) => {
-                  const meta = tipoMeta(it.post.tipo);
-                  const color =
-                    it.kind === "published"
-                      ? "hsl(var(--v2-accent))"
-                      : it.kind === "scheduled"
-                        ? "hsl(var(--v2-info))"
-                        : "hsl(var(--v2-warn))";
-                  const bg =
-                    it.kind === "published"
-                      ? "hsl(var(--v2-accent) / 0.08)"
-                      : it.kind === "scheduled"
-                        ? "hsl(var(--v2-info) / 0.08)"
-                        : "hsl(var(--v2-warn) / 0.06)";
-                  const borderCol =
-                    it.kind === "published"
-                      ? "hsl(var(--v2-accent) / 0.25)"
-                      : it.kind === "scheduled"
-                        ? "hsl(var(--v2-info) / 0.25)"
-                        : "hsl(var(--v2-warn) / 0.22)";
-                  return (
-                    <button
-                      key={`${it.post.id}-${it.kind}-${it.timeLabel}`}
-                      type="button"
-                      onClick={() => onOpen(it.post)}
+                  <span
+                    className="v2-mono"
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      fontWeight: 700,
+                      color: isToday
+                        ? "hsl(var(--v2-accent))"
+                        : "hsl(var(--v2-text-mute))",
+                    }}
+                  >
+                    {dm.date.toLocaleDateString("it-IT", { weekday: "short" })}
+                    {isToday ? " · oggi" : ""}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "hsl(var(--v2-text-mute))",
+                      textTransform: "lowercase",
+                    }}
+                  >
+                    {dm.date.toLocaleDateString("it-IT", { month: "short" })}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: 8,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 28,
+                      fontWeight: 800,
+                      letterSpacing: "-0.02em",
+                      color: "hsl(var(--v2-text))",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {dm.date.getDate()}
+                  </span>
+                  {dm.counts.total > 0 && (
+                    <span
+                      className="v2-mono"
                       style={{
-                        background: bg,
-                        border: `1px solid ${borderCol}`,
-                        borderRadius: 6,
-                        padding: "6px 8px",
-                        textAlign: "left",
-                        fontSize: 11,
-                        color: "hsl(var(--v2-text))",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                        cursor: "pointer",
+                        fontSize: 10.5,
+                        color: "hsl(var(--v2-text-mute))",
+                        letterSpacing: "0.08em",
                       }}
-                      title={
-                        it.kind === "published"
-                          ? "Pubblicato"
-                          : it.kind === "scheduled"
-                            ? "Schedulato"
-                            : "Bozza senza data"
-                      }
                     >
+                      {dm.counts.total} post
+                    </span>
+                  )}
+                </div>
+
+                {/* Dots counter per tipo */}
+                {dm.counts.total > 0 ? (
+                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                    {dm.counts.published > 0 && (
                       <span
+                        className="v2-mono"
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: 4,
+                          fontSize: 9.5,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background: "hsl(var(--v2-accent) / 0.14)",
+                          color: "hsl(var(--v2-accent))",
+                          fontWeight: 700,
                         }}
                       >
-                        <span
-                          style={{
-                            fontFamily: "var(--font-mono), monospace",
-                            color,
-                            fontSize: 10,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {it.timeLabel}
-                        </span>
-                        {it.kind === "published" && (
-                          <span style={{ fontSize: 9, color }}>✓</span>
-                        )}
+                        ✓ {dm.counts.published}
                       </span>
-                      <span>
-                        {meta.emoji}{" "}
-                        {(it.post.hook || it.post.copy_linkedin)
-                          .slice(0, 40)
-                          .replace(/\n/g, " ")}
-                        …
+                    )}
+                    {dm.counts.scheduled > 0 && (
+                      <span
+                        className="v2-mono"
+                        style={{
+                          fontSize: 9.5,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background: "hsl(var(--v2-info) / 0.14)",
+                          color: "hsl(var(--v2-info))",
+                          fontWeight: 700,
+                        }}
+                      >
+                        ◇ {dm.counts.scheduled}
                       </span>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        );
-      })}
+                    )}
+                    {dm.counts.draft > 0 && (
+                      <span
+                        className="v2-mono"
+                        style={{
+                          fontSize: 9.5,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background: "hsl(var(--v2-warn) / 0.14)",
+                          color: "hsl(var(--v2-warn))",
+                          fontWeight: 700,
+                        }}
+                      >
+                        ✎ {dm.counts.draft}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "hsl(var(--v2-text-mute))",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    —
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
