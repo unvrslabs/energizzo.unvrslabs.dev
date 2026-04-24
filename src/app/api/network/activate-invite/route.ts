@@ -12,6 +12,7 @@ const UUID_REGEX =
 const BodySchema = z.object({
   token: z.string().regex(UUID_REGEX, "Token non valido"),
   whatsapp: z.string().min(6).max(30),
+  referente: z.string().min(2).max(120).optional(),
 });
 
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -138,7 +139,9 @@ export async function POST(req: NextRequest) {
   }
 
   const referente =
-    (lead.ragione_sociale.split(/\s+/)[0] ?? "").trim() || "Reseller";
+    parsed.referente?.replace(/\s+/g, " ").trim() ||
+    (lead.ragione_sociale.split(/\s+/)[0] ?? "").trim() ||
+    "Reseller";
 
   const { error: insertErr } = await supabase.from("network_members").insert({
     phone,

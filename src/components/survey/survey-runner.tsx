@@ -108,12 +108,17 @@ export function SurveyRunner({
       setSaving(true);
       await completeSurveyResponse(token, currentAnswers);
       const whatsapp = currentAnswers["Q25_whatsapp"];
+      const referente = currentAnswers["Q24_nome"];
       if (typeof whatsapp === "string" && whatsapp.trim()) {
         try {
           const res = await fetch("/api/network/activate-invite", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, whatsapp: whatsapp.trim() }),
+            body: JSON.stringify({
+              token,
+              whatsapp: whatsapp.trim(),
+              referente: typeof referente === "string" ? referente.trim() : undefined,
+            }),
           });
           if (!res.ok) {
             const data = await res.json().catch(() => null);

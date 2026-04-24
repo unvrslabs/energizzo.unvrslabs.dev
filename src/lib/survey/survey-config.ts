@@ -378,6 +378,29 @@ export const SURVEY_SCREENS: Screen[] = [
     ],
   },
   {
+    id: "Q19b",
+    type: "multi_choice",
+    section: SEC.s5,
+    title: "Software di gestione aziendale / CRM in uso",
+    description:
+      "Piattaforma principale per gestione commerciale, pipeline, reportistica direzionale. Puoi selezionare fino a 2 voci.",
+    required: true,
+    maxSelections: 2,
+    options: [
+      "Energizzo",
+      "Venus",
+      "Salesforce",
+      "HubSpot",
+      "Microsoft Dynamics 365",
+      "Zoho CRM",
+      "Pipedrive",
+      "SugarCRM",
+      "Gestionale proprietario sviluppato internamente",
+      "Excel / fogli di calcolo",
+      "Nessuno / non strutturato",
+    ],
+  },
+  {
     id: "Q20",
     type: "multi_choice",
     section: SEC.s5,
@@ -407,6 +430,18 @@ export const SURVEY_SCREENS: Screen[] = [
       "Abbiamo almeno un uso in produzione",
       "Abbiamo trasformato strutturalmente uno o più processi con AI",
     ],
+  },
+  {
+    id: "Q24_nome",
+    type: "short_text",
+    section: SEC.s7,
+    title: "Chi ci scrive? Nome e cognome",
+    description:
+      "Il referente registrato nel network. Comparirà nel profilo azienda e nelle comunicazioni dirette.",
+    required: true,
+    placeholder: "es. Mario Rossi",
+    pattern: /^[\p{L}][\p{L}\s'’.-]{1,80}$/u,
+    patternMessage: "Inserisci nome e cognome.",
   },
   {
     id: "Q25_whatsapp",
