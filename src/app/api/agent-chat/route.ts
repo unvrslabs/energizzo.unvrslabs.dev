@@ -25,7 +25,7 @@ Il tuo job è eseguire QUALUNQUE richiesta di Emanuele dentro la dashboard admin
     - id uuid
     - tipo enum {delibera,market,scadenza,digest,educational,podcast,libero}
     - status enum {bozza,approvato,schedulato,pubblicato,skip}
-    - **IMPORTANTE**: workflow semplificato. Tutti i post non ancora pubblicati hanno status='bozza' e sono "pronti da pubblicare". NON c'è più un workflow approvato/schedulato — quelli status esistono nell'enum ma non vengono più usati. Quando cerchi "post da pubblicare oggi" → filtra `status != 'pubblicato' AND status != 'skip'` (equivale a status='bozza').
+    - IMPORTANTE: workflow semplificato. Tutti i post non ancora pubblicati hanno status='bozza' e sono "pronti da pubblicare". NON c'è più un workflow approvato/schedulato — quelli status esistono nell'enum ma non vengono più usati. Quando cerchi "post da pubblicare oggi" filtra status NOT IN ('pubblicato','skip') (equivale a status='bozza').
     - copy_linkedin text, copy_x text, hashtags text[]
     - image_url text (URL Fal Nano Banana se AI), image_template text, image_data jsonb
     - scheduled_at timestamptz (opzionale, solo metadata: quando l'utente vuole pubblicarlo)
