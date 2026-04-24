@@ -126,31 +126,70 @@ export async function updateSocialPost(
   return data as SocialPost;
 }
 
-export async function markPublished(id: string, lane: "linkedin" | "x" | "both") {
+export async function markPublished(
+  id: string,
+  lane: "linkedin" | "x" | "both",
+): Promise<SocialPost> {
   const admin = await getAdminMember();
   if (!admin) throw new Error("Unauthorized");
 
   const supabase = await createClient();
   const now = new Date().toISOString();
+
+  // Appena uno dei due è pubblicato, il post è 'pubblicato' (anche parzialmente).
+  const patch: Record<string, string | SocialPostStatus> = {
+    status: "pubblicato",
+  };
+  if (lane === "linkedin" || lane === "both") patch.published_linkedin_at = now;
+  if (lane === "x" || lane === "both") patch.published_x_at = now;
+
+  const { data, error } = await supabase
+    .from("social_posts")
+    .update(patch as never)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  revalidatePath("/dashboard/social");
+  return data as SocialPost;
+}
+
+/**
+ * Rimuove la pubblicazione di un canale (annulla click accidentale).
+ * Se entrambi i canali tornano null, lo status torna 'bozza'.
+ */
+export async function unmarkPublished(
+  id: string,
+  lane: "linkedin" | "x",
+): Promise<SocialPost> {
+  const admin = await getAdminMember();
+  if (!admin) throw new Error("Unauthorized");
+
+  const supabase = await createClient();
   const { data: existing } = await supabase
     .from("social_posts")
     .select("published_linkedin_at,published_x_at")
     .eq("id", id)
     .single();
 
-  const patch: Record<string, string | SocialPostStatus> = { status: "pubblicato" };
-  if (lane === "linkedin" || lane === "both") patch.published_linkedin_at = now;
-  if (lane === "x" || lane === "both") patch.published_x_at = now;
-  if (lane === "linkedin" && existing?.published_x_at == null) {
-    delete patch.status;
-  }
-  if (lane === "x" && existing?.published_linkedin_at == null) {
-    delete patch.status;
-  }
+  const patch: Record<string, string | null | SocialPostStatus> = {};
+  if (lane === "linkedin") patch.published_linkedin_at = null;
+  if (lane === "x") patch.published_x_at = null;
 
-  const { error } = await supabase.from("social_posts").update(patch as never).eq("id", id);
+  const afterLi =
+    lane === "linkedin" ? null : (existing?.published_linkedin_at ?? null);
+  const afterX = lane === "x" ? null : (existing?.published_x_at ?? null);
+  if (afterLi == null && afterX == null) patch.status = "bozza";
+
+  const { data, error } = await supabase
+    .from("social_posts")
+    .update(patch as never)
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   revalidatePath("/dashboard/social");
+  return data as SocialPost;
 }
 
 export async function deleteSocialPost(id: string) {

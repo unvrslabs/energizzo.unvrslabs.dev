@@ -23,6 +23,7 @@ import {
   deleteSocialPost,
   generateSocialPost,
   markPublished,
+  unmarkPublished,
   updateSocialPost,
   type SocialPost,
   type SocialPostTipo,
@@ -486,6 +487,48 @@ function PostRow({
           <span style={statusChipStyle(post.status)}>
             {statusLabel(post.status)}
           </span>
+          {post.published_linkedin_at && (
+            <span
+              title={`LinkedIn pubblicato ${new Date(post.published_linkedin_at).toLocaleString("it-IT")}`}
+              style={{
+                fontSize: 10,
+                padding: "2px 7px",
+                borderRadius: 5,
+                background: "hsl(var(--v2-accent) / 0.14)",
+                color: "hsl(var(--v2-accent))",
+                border: "1px solid hsl(var(--v2-accent) / 0.35)",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+              }}
+            >
+              in ✓
+            </span>
+          )}
+          {post.published_x_at && (
+            <span
+              title={`X pubblicato ${new Date(post.published_x_at).toLocaleString("it-IT")}`}
+              style={{
+                fontSize: 10,
+                padding: "2px 7px",
+                borderRadius: 5,
+                background: "hsl(var(--v2-accent) / 0.14)",
+                color: "hsl(var(--v2-accent))",
+                border: "1px solid hsl(var(--v2-accent) / 0.35)",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+                textTransform: "uppercase",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+              }}
+            >
+              𝕏 ✓
+            </span>
+          )}
           {post.generated_by === "auto" && (
             <span
               title="Generato automaticamente dal cron mattutino"
@@ -1183,9 +1226,26 @@ function PostDrawer({
   };
 
   const markDone = async (laneUsed: "linkedin" | "x" | "both") => {
-    await markPublished(post.id, laneUsed);
-    toast.success("Segnato come pubblicato");
-    onUpdate({ ...post, status: "pubblicato" });
+    try {
+      const updated = await markPublished(post.id, laneUsed);
+      toast.success(`${laneUsed === "both" ? "LinkedIn + X" : laneUsed === "linkedin" ? "LinkedIn" : "X"} segnato come pubblicato`);
+      onUpdate(updated);
+    } catch (e) {
+      toast.error(
+        `Errore: ${e instanceof Error ? e.message : "impossibile aggiornare"}`,
+      );
+    }
+  };
+  const undoPublish = async (lane: "linkedin" | "x") => {
+    try {
+      const updated = await unmarkPublished(post.id, lane);
+      toast.success(`${lane === "linkedin" ? "LinkedIn" : "X"}: pubblicazione annullata`);
+      onUpdate(updated);
+    } catch (e) {
+      toast.error(
+        `Errore: ${e instanceof Error ? e.message : "impossibile aggiornare"}`,
+      );
+    }
   };
   const del = async () => {
     if (!confirm("Eliminare questo post?")) return;
@@ -1272,24 +1332,63 @@ function PostDrawer({
         Salva
       </button>
 
-      {post.status !== "pubblicato" && (
-        <>
-          <button
-            type="button"
-            className="v2-btn v2-btn--ghost"
-            onClick={() => markDone("linkedin")}
-          >
-            <Linkedin className="w-4 h-4" /> Pubblicato LI
-          </button>
-          <button
-            type="button"
-            className="v2-btn v2-btn--ghost"
-            onClick={() => markDone("x")}
-          >
-            𝕏 Pubblicato X
-          </button>
-        </>
-      )}
+      {/* Toggle LinkedIn */}
+      <button
+        type="button"
+        className="v2-btn v2-btn--ghost"
+        onClick={() =>
+          post.published_linkedin_at
+            ? undoPublish("linkedin")
+            : markDone("linkedin")
+        }
+        style={
+          post.published_linkedin_at
+            ? {
+                background: "hsl(var(--v2-accent) / 0.14)",
+                borderColor: "hsl(var(--v2-accent) / 0.4)",
+                color: "hsl(var(--v2-accent))",
+              }
+            : undefined
+        }
+        title={
+          post.published_linkedin_at
+            ? "Annulla pubblicazione LinkedIn"
+            : "Segna come pubblicato su LinkedIn"
+        }
+      >
+        {post.published_linkedin_at ? (
+          <Check className="w-4 h-4" />
+        ) : (
+          <Linkedin className="w-4 h-4" />
+        )}
+        {post.published_linkedin_at ? "LinkedIn ✓" : "Pubblicato LI"}
+      </button>
+
+      {/* Toggle X */}
+      <button
+        type="button"
+        className="v2-btn v2-btn--ghost"
+        onClick={() =>
+          post.published_x_at ? undoPublish("x") : markDone("x")
+        }
+        style={
+          post.published_x_at
+            ? {
+                background: "hsl(var(--v2-accent) / 0.14)",
+                borderColor: "hsl(var(--v2-accent) / 0.4)",
+                color: "hsl(var(--v2-accent))",
+              }
+            : undefined
+        }
+        title={
+          post.published_x_at
+            ? "Annulla pubblicazione X"
+            : "Segna come pubblicato su X"
+        }
+      >
+        {post.published_x_at ? <Check className="w-4 h-4" /> : null}
+        {post.published_x_at ? "X ✓" : "𝕏 Pubblicato X"}
+      </button>
 
       <button
         type="button"
