@@ -393,7 +393,6 @@ export const SURVEY_SCREENS: Screen[] = [
       "Enerp",
       "Trilance",
       "Gridway Power",
-      "E360",
       "Altro",
     ],
   },
