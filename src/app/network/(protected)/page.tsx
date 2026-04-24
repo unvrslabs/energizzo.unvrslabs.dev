@@ -232,7 +232,7 @@ export default async function V2HomePage() {
         </div>
 
         {/* Cockpit mercato — 4 card v2-col-6 (2x2 grid) */}
-        <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} />
+        <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} history={punHistory} />
         <GasStorageCard latest={gasLatest} history={gasHistory} />
         <LoadForecastMini payload={loadRow?.payload as never} />
         <RenewableForecastMini payload={renewRow?.payload as never} />

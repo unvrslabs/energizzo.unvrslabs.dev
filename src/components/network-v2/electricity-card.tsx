@@ -2,6 +2,52 @@ import Link from "next/link";
 import { Zap, ArrowRight, TrendingUp, TrendingDown, ArrowUpRight } from "lucide-react";
 import type { PunRow } from "@/lib/market/power-pun-db";
 
+function PunSparkline({ history }: { history: PunRow[] }) {
+  if (history.length < 3) return null;
+  const prices = history.map((h) => Number(h.price_eur_mwh));
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const range = max - min || 1;
+  const w = 320;
+  const h = 44;
+  const step = w / Math.max(1, prices.length - 1);
+  const points = prices.map((p, i) => ({
+    x: i * step,
+    y: h - ((p - min) / range) * (h - 4) - 2,
+  }));
+  const path = points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(2)} ${p.y.toFixed(2)}`)
+    .join(" ");
+  const area = `M 0 ${h} ${points.map((p) => `L ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ")} L ${w} ${h} Z`;
+  const last = points[points.length - 1];
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      width="100%"
+      height={h}
+      preserveAspectRatio="none"
+      style={{ display: "block" }}
+    >
+      <defs>
+        <linearGradient id="pun-card-spark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="hsl(var(--v2-warn))" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="hsl(var(--v2-warn))" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#pun-card-spark)" />
+      <path d={path} fill="none" stroke="hsl(var(--v2-warn))" strokeWidth="1.6" />
+      <circle
+        cx={last.x}
+        cy={last.y}
+        r="3"
+        fill="hsl(var(--v2-warn))"
+        stroke="hsl(var(--v2-bg))"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
+
 const MONTHS_IT = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
 
 function fmtDate(iso: string): string {
@@ -12,9 +58,11 @@ function fmtDate(iso: string): string {
 export function ElectricityCard({
   latest,
   weekAgo,
+  history,
 }: {
   latest: PunRow | null;
   weekAgo?: PunRow | null;
+  history?: PunRow[];
 }) {
   if (!latest) {
     return (
@@ -141,6 +189,96 @@ export function ElectricityCard({
           <span>·</span>
           <span>media pesata 7 zone ENTSO-E</span>
         </div>
+
+        {/* Sparkline trend ultimi giorni */}
+        {history && history.length > 2 && (
+          <div
+            style={{
+              marginTop: 2,
+              padding: "4px 0",
+              borderTop: "1px solid hsl(var(--v2-border))",
+            }}
+          >
+            <div
+              className="v2-mono"
+              style={{
+                fontSize: 9.5,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: "hsl(var(--v2-text-mute))",
+                marginBottom: 6,
+                fontWeight: 600,
+              }}
+            >
+              Trend {history.length}gg · €/MWh
+            </div>
+            <PunSparkline history={history} />
+          </div>
+        )}
+
+        {/* Spread bar: posizione relativa tra min e max zone */}
+        {minZ && maxZ && spread > 0 && (
+          <div
+            style={{
+              padding: "4px 0",
+            }}
+          >
+            <div
+              className="v2-mono"
+              style={{
+                fontSize: 9.5,
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                color: "hsl(var(--v2-text-mute))",
+                marginBottom: 6,
+                fontWeight: 600,
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <span>Spread zone</span>
+              <span>{spread.toFixed(1)} €/MWh</span>
+            </div>
+            <div
+              style={{
+                height: 8,
+                borderRadius: 4,
+                overflow: "hidden",
+                background: "hsl(var(--v2-border))",
+                position: "relative",
+              }}
+              title={`${minZ[0].replace("IT-", "")} ${minZ[1].toFixed(1)} → ${maxZ[0].replace("IT-", "")} ${maxZ[1].toFixed(1)} €/MWh`}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: "100%",
+                  background: `linear-gradient(to right, hsl(var(--v2-accent)), hsl(var(--v2-warn)))`,
+                }}
+              />
+            </div>
+            <div
+              className="v2-mono"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: 10,
+                color: "hsl(var(--v2-text-mute))",
+                marginTop: 3,
+              }}
+            >
+              <span>
+                {minZ[0].replace("IT-", "")} {minZ[1].toFixed(1)}
+              </span>
+              <span>
+                {maxZ[0].replace("IT-", "")} {maxZ[1].toFixed(1)}
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2 pt-2" style={{ borderTop: "1px solid hsl(var(--v2-border))" }}>
           {minZ && (

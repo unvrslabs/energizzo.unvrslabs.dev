@@ -545,6 +545,13 @@ export function RenewableForecastMini({
 }: {
   payload: RenewablePayload | null;
 }) {
+  const maxBoth = payload
+    ? Math.max(
+        ...(payload.solar_hourly_mw ?? [0]),
+        ...(payload.wind_hourly_mw ?? [0]),
+        1,
+      )
+    : 1;
   return (
     <div className="v2-card v2-col-6 flex flex-col">
       <div className="v2-card-head flex items-center justify-between">
@@ -564,20 +571,27 @@ export function RenewableForecastMini({
         </span>
       </div>
       {payload ? (
-        <div className="p-5 flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
+        <div className="p-5 flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div
+              style={{
+                padding: 10,
+                borderRadius: 9,
+                background: "hsl(45 100% 55% / 0.06)",
+                border: "1px solid hsl(45 100% 55% / 0.22)",
+              }}
+            >
               <div
                 className="v2-mono text-[10px] uppercase tracking-[0.16em] mb-1"
                 style={{ color: "hsl(var(--v2-text-mute))" }}
               >
                 ☀️ Solare
               </div>
-              <div className="flex items-baseline gap-1">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span
                   className="v2-mono"
                   style={{
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: 700,
                     color: "hsl(45 100% 60%)",
                     letterSpacing: "-0.02em",
@@ -586,31 +600,43 @@ export function RenewableForecastMini({
                   {(payload.solar_peak_mw / 1000).toFixed(1)}
                 </span>
                 <span
-                  className="v2-mono text-[11px]"
+                  className="v2-mono text-[10.5px]"
                   style={{ color: "hsl(var(--v2-text-dim))" }}
                 >
                   GW picco
                 </span>
               </div>
+              <SparklineMini
+                values={payload.solar_hourly_mw ?? []}
+                max={maxBoth}
+                color="hsl(45 100% 60%)"
+              />
               <div
                 className="v2-mono text-[10px]"
-                style={{ color: "hsl(var(--v2-text-mute))" }}
+                style={{ color: "hsl(var(--v2-text-mute))", marginTop: 4 }}
               >
                 {(payload.solar_total_mwh / 1000).toFixed(0)} GWh giornata
               </div>
             </div>
-            <div>
+            <div
+              style={{
+                padding: 10,
+                borderRadius: 9,
+                background: "hsl(var(--v2-info) / 0.06)",
+                border: "1px solid hsl(var(--v2-info) / 0.22)",
+              }}
+            >
               <div
                 className="v2-mono text-[10px] uppercase tracking-[0.16em] mb-1"
                 style={{ color: "hsl(var(--v2-text-mute))" }}
               >
                 💨 Eolico
               </div>
-              <div className="flex items-baseline gap-1">
+              <div className="flex items-baseline gap-1 mb-1">
                 <span
                   className="v2-mono"
                   style={{
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: 700,
                     color: "hsl(var(--v2-info))",
                     letterSpacing: "-0.02em",
@@ -619,31 +645,75 @@ export function RenewableForecastMini({
                   {(payload.wind_peak_mw / 1000).toFixed(1)}
                 </span>
                 <span
-                  className="v2-mono text-[11px]"
+                  className="v2-mono text-[10.5px]"
                   style={{ color: "hsl(var(--v2-text-dim))" }}
                 >
                   GW picco
                 </span>
               </div>
+              <SparklineMini
+                values={payload.wind_hourly_mw ?? []}
+                max={maxBoth}
+                color="hsl(var(--v2-info))"
+              />
               <div
                 className="v2-mono text-[10px]"
-                style={{ color: "hsl(var(--v2-text-mute))" }}
+                style={{ color: "hsl(var(--v2-text-mute))", marginTop: 4 }}
               >
                 {(payload.wind_total_mwh / 1000).toFixed(0)} GWh giornata
               </div>
             </div>
           </div>
-          <div
-            className="v2-mono text-[11px] pt-2"
-            style={{
-              color: "hsl(var(--v2-text-mute))",
-              borderTop: "1px solid hsl(var(--v2-border))",
-            }}
-          >
-            Combinato rinnovabili previsto:{" "}
-            <strong style={{ color: "hsl(var(--v2-accent))" }}>
-              {(payload.combined_total_mwh / 1000).toFixed(0)} GWh
-            </strong>
+          {/* Stacked bar combinato */}
+          <div>
+            <div
+              className="v2-mono text-[10px]"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                color: "hsl(var(--v2-text-mute))",
+                letterSpacing: "0.16em",
+                textTransform: "uppercase",
+                marginBottom: 5,
+                fontWeight: 600,
+              }}
+            >
+              <span>Mix rinnovabile giornata</span>
+              <span>
+                <strong style={{ color: "hsl(var(--v2-accent))" }}>
+                  {(payload.combined_total_mwh / 1000).toFixed(0)}
+                </strong>{" "}
+                GWh
+              </span>
+            </div>
+            <div
+              style={{
+                height: 8,
+                borderRadius: 4,
+                overflow: "hidden",
+                background: "hsl(var(--v2-border))",
+                display: "flex",
+              }}
+            >
+              {payload.combined_total_mwh > 0 && (
+                <>
+                  <div
+                    style={{
+                      flex: payload.solar_total_mwh,
+                      background: "hsl(45 100% 60%)",
+                    }}
+                    title={`Solare ${((payload.solar_total_mwh / payload.combined_total_mwh) * 100).toFixed(0)}%`}
+                  />
+                  <div
+                    style={{
+                      flex: payload.wind_total_mwh,
+                      background: "hsl(var(--v2-info))",
+                    }}
+                    title={`Eolico ${((payload.wind_total_mwh / payload.combined_total_mwh) * 100).toFixed(0)}%`}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -652,6 +722,43 @@ export function RenewableForecastMini({
         </div>
       )}
     </div>
+  );
+}
+
+function SparklineMini({
+  values,
+  max,
+  color,
+}: {
+  values: number[];
+  max: number;
+  color: string;
+}) {
+  if (values.length === 0) return null;
+  const w = 160;
+  const h = 30;
+  const step = w / Math.max(1, values.length - 1);
+  const pts = values.map((v, i) => ({
+    x: i * step,
+    y: h - (v / max) * (h - 2) - 1,
+  }));
+  const path = pts
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(" ");
+  const area = `M 0 ${h} ${pts
+    .map((p) => `L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+    .join(" ")} L ${w} ${h} Z`;
+  return (
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      width="100%"
+      height={h}
+      preserveAspectRatio="none"
+      style={{ display: "block" }}
+    >
+      <path d={area} fill={color} opacity="0.2" />
+      <path d={path} fill="none" stroke={color} strokeWidth="1.2" />
+    </svg>
   );
 }
 
