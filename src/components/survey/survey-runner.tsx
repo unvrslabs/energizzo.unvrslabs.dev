@@ -100,42 +100,78 @@ export function SurveyRunner({
     const newIndex = Math.min(index + 1, visible.length - 1);
     const nextScreen = visible[newIndex];
 
+    // Se l'utente sta confermando la schermata WhatsApp (l'ultima prima di
+    // thanks), controlliamo che il numero non sia già registrato. Se lo è,
+    // blocchiamo QUI: survey non completata, utente può correggere.
+    if (current.id === "Q25_whatsapp" && nextScreen?.type === "thanks") {
+      const whatsapp = currentAnswers["Q25_whatsapp"];
+      if (typeof whatsapp !== "string" || !whatsapp.trim()) {
+        setError("Inserisci un numero WhatsApp valido.");
+        return;
+      }
+      setSaving(true);
+      try {
+        const checkRes = await fetch("/api/network/check-phone-available", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, whatsapp: whatsapp.trim() }),
+        });
+        if (!checkRes.ok) {
+          const data = await checkRes.json().catch(() => null);
+          const msg = data?.error ?? "Numero non valido o già registrato.";
+          setError(msg);
+          setSaving(false);
+          return;
+        }
+      } catch (err) {
+        console.error("check-phone-available failed", err);
+        setError("Verifica del numero non riuscita. Riprova tra un attimo.");
+        setSaving(false);
+        return;
+      }
+    }
+
+    // Numero OK (o non era la schermata WhatsApp): completa survey + attiva.
+    if (nextScreen && nextScreen.type === "thanks") {
+      const whatsapp = currentAnswers["Q25_whatsapp"];
+      const referente = currentAnswers["Q24_nome"];
+      setSaving(true);
+      try {
+        await completeSurveyResponse(token, currentAnswers);
+        const res = await fetch("/api/network/activate-invite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token,
+            whatsapp: typeof whatsapp === "string" ? whatsapp.trim() : "",
+            referente: typeof referente === "string" ? referente.trim() : undefined,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          const msg =
+            data?.error ??
+            "Attivazione accesso non riuscita. Contatta l'admin per essere aggiunto al network.";
+          setError(msg);
+          setSaving(false);
+          return;
+        }
+      } catch (err) {
+        console.error("activate-invite failed", err);
+        setError(
+          "Attivazione accesso non riuscita (connessione). Riprova tra un attimo.",
+        );
+        setSaving(false);
+        return;
+      }
+      setSaving(false);
+    }
+
     setDirection("forward");
     setIndex(newIndex);
     setError(null);
 
-    if (nextScreen && nextScreen.type === "thanks") {
-      setSaving(true);
-      await completeSurveyResponse(token, currentAnswers);
-      const whatsapp = currentAnswers["Q25_whatsapp"];
-      const referente = currentAnswers["Q24_nome"];
-      if (typeof whatsapp === "string" && whatsapp.trim()) {
-        try {
-          const res = await fetch("/api/network/activate-invite", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              token,
-              whatsapp: whatsapp.trim(),
-              referente: typeof referente === "string" ? referente.trim() : undefined,
-            }),
-          });
-          if (!res.ok) {
-            const data = await res.json().catch(() => null);
-            const msg =
-              data?.error ??
-              "Attivazione accesso non riuscita. Contatta l'admin per essere aggiunto al network.";
-            setError(msg);
-          }
-        } catch (err) {
-          console.error("activate-invite failed", err);
-          setError(
-            "Attivazione accesso non riuscita (connessione). Contatta l'admin.",
-          );
-        }
-      }
-      setSaving(false);
-    } else {
+    if (!(nextScreen && nextScreen.type === "thanks")) {
       persistProgress(newIndex, currentAnswers);
     }
   }, [current, index, visible, token, persistProgress]);

@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
   const { data: existingByPhone } = await supabase
     .from("network_members")
-    .select("id, revoked_at")
+    .select("id, piva, revoked_at")
     .eq("phone", phone)
     .maybeSingle();
 
@@ -135,7 +135,20 @@ export async function POST(req: NextRequest) {
         { status: 403 },
       );
     }
-    return NextResponse.json({ ok: true, already: true });
+    // Stesso numero, stessa azienda: retry idempotente (in realtà il ramo PIVA
+    // sopra lo gestisce già; qui è un fallback se lead.piva è nullo).
+    if (lead.piva && existingByPhone.piva === lead.piva) {
+      return NextResponse.json({ ok: true, already: true });
+    }
+    // Numero già registrato su ALTRA azienda → blocca.
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Questo numero WhatsApp risulta già registrato nel network per un'altra azienda. Usa un numero diverso oppure contatta l'admin.",
+      },
+      { status: 409 },
+    );
   }
 
   const referente =
