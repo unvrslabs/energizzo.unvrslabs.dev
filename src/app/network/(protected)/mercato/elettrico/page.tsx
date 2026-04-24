@@ -1,6 +1,14 @@
 import { Info, ArrowUpRight, TrendingUp, TrendingDown } from "lucide-react";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { PunHistoryChart } from "@/components/network-v2/pun-history-chart";
+import { getLatestEntsoe } from "@/lib/market/entsoe-db";
+import {
+  GenerationMixCard,
+  LoadForecastCard,
+  RenewableForecastCard,
+  CrossBorderCard,
+  UnavailabilityCard,
+} from "@/components/network-v2/entsoe-cards";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -41,9 +49,13 @@ const ZONE_WEIGHTS: Record<string, number> = {
 };
 
 export default async function MercatoElettricoPage() {
-  const [latest, history] = await Promise.all([
+  const [latest, history, mixRow, loadRow, renewRow, flowsRow] = await Promise.all([
     getLatestPun(),
     listPunHistory(90),
+    getLatestEntsoe("generation_mix"),
+    getLatestEntsoe("load_forecast"),
+    getLatestEntsoe("renewable_forecast"),
+    getLatestEntsoe("cross_border_flows"),
   ]);
 
   if (!latest) {
@@ -378,6 +390,26 @@ export default async function MercatoElettricoPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* ENTSO-E extra widgets */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <GenerationMixCard
+          payload={mixRow?.payload as never}
+        />
+        <LoadForecastCard
+          payload={loadRow?.payload as never}
+        />
+        <RenewableForecastCard
+          payload={renewRow?.payload as never}
+        />
+        <CrossBorderCard
+          payload={flowsRow?.payload as never}
+        />
+      </section>
+
+      <section>
+        <UnavailabilityCard />
       </section>
 
       {/* Info box */}

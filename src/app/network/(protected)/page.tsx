@@ -11,10 +11,12 @@ import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { listScadenzeFuture } from "@/lib/delibere/scadenze";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
+import { getLatestEntsoe } from "@/lib/market/entsoe-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
 import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
+import { GenerationMixMini, LoadForecastMini } from "@/components/network-v2/entsoe-cards";
 import { getNetworkMember } from "@/lib/network/session";
 
 export const dynamic = "force-dynamic";
@@ -47,16 +49,27 @@ function greeting(): string {
 }
 
 export default async function V2HomePage() {
-  const [member, allDelibere, allScadenze, gasLatest, gasHistory, punLatest, punHistory] =
-    await Promise.all([
-      getNetworkMember(),
-      listDelibere({ limit: 200 }),
-      listScadenzeFuture(),
-      getLatestGasStorage(),
-      listGasStorageHistory(60),
-      getLatestPun(),
-      listPunHistory(14),
-    ]);
+  const [
+    member,
+    allDelibere,
+    allScadenze,
+    gasLatest,
+    gasHistory,
+    punLatest,
+    punHistory,
+    mixRow,
+    loadRow,
+  ] = await Promise.all([
+    getNetworkMember(),
+    listDelibere({ limit: 200 }),
+    listScadenzeFuture(),
+    getLatestGasStorage(),
+    listGasStorageHistory(60),
+    getLatestPun(),
+    listPunHistory(14),
+    getLatestEntsoe("generation_mix"),
+    getLatestEntsoe("load_forecast"),
+  ]);
 
   const punWeekAgo = punLatest
     ? punHistory.find((row) => {
@@ -220,6 +233,10 @@ export default async function V2HomePage() {
 
         {/* Mercato elettrico (placeholder) — 6 */}
         <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} />
+
+        {/* Mix rinnovabili + Forecast domanda (ENTSO-E) */}
+        <GenerationMixMini payload={mixRow?.payload as never} />
+        <LoadForecastMini payload={loadRow?.payload as never} />
 
         {/* Mercato gas AGSI — 6 */}
         <GasStorageCard latest={gasLatest} history={gasHistory} />

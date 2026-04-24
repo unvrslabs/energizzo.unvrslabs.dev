@@ -542,6 +542,36 @@ export type Database = {
         }
         Relationships: []
       }
+      market_entsoe: {
+        Row: {
+          created_at: string
+          id: number
+          metric_type: string
+          payload: Json
+          reference_day: string
+          source: string
+          synced_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          metric_type: string
+          payload?: Json
+          reference_day: string
+          source?: string
+          synced_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          metric_type?: string
+          payload?: Json
+          reference_day?: string
+          source?: string
+          synced_at?: string
+        }
+        Relationships: []
+      }
       market_gas_storage: {
         Row: {
           company: string | null
