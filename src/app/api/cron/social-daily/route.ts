@@ -310,6 +310,15 @@ export async function GET(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
+  const url = new URL(req.url);
+  const forceAi =
+    url.searchParams.get("force_ai") === "1" ||
+    url.searchParams.get("force_ai") === "true";
+
+  const aiOverride = forceAi
+    ? `\n\nIMAGE_STRATEGY OVERRIDE: devi generare ESCLUSIVAMENTE image_strategy.type="ai" con ai_prompt molto dettagliato (100-160 parole) in inglese per un'immagine editoriale d'impatto. Stile: cinematic, atmospheric, dark emerald accents, high contrast, no text on image, professional energy sector aesthetic. template_data resta come fallback ma type='ai' è obbligatorio.`
+    : "";
+
   const startTs = Date.now();
   const supabase = await createClient();
 
@@ -359,6 +368,7 @@ export async function GET(req: Request) {
               tipo: "delibera",
               fonte_kind: "delibera",
               fonte_id: c.fonte_id,
+              brief: aiOverride || undefined,
             },
             {
               generatedBy: "auto",
@@ -367,7 +377,7 @@ export async function GET(req: Request) {
           );
           stats.delibere_generated++;
         } else if (c.kind === "scadenza") {
-          const brief = `Scadenza regolatoria: ${c.label}. Data: ${c.data_scadenza}. Mancano ${c.giorni_mancanti} giorni. Genera un alert per i reseller che spieghi cosa fare entro la scadenza e a chi si applica. image_data.data deve essere in formato "GG MMM" (es. "31 GEN") maiuscolo, image_data.giorni_mancanti deve essere "${c.giorni_mancanti}".`;
+          const brief = `Scadenza regolatoria: ${c.label}. Data: ${c.data_scadenza}. Mancano ${c.giorni_mancanti} giorni. Genera un alert per i reseller che spieghi cosa fare entro la scadenza e a chi si applica. image_data.data deve essere in formato "GG MMM" (es. "31 GEN") maiuscolo, image_data.giorni_mancanti deve essere "${c.giorni_mancanti}".${aiOverride}`;
           await generateAndInsert(
             supabase,
             {
@@ -424,7 +434,7 @@ ISTRUZIONI output:
 - image_data.valore_grande = "${pun}"
 - image_data.unita = "€/MWh"
 - image_data.variazione = "${deltaWeek}"
-- image_data.sottotitolo = "Media pesata 7 zone · ${c.price_day}"`;
+- image_data.sottotitolo = "Media pesata 7 zone · ${c.price_day}"${aiOverride}`;
 
           await generateAndInsert(
             supabase,
@@ -469,7 +479,7 @@ ISTRUZIONI output:
 - image_data.valore_grande = "${fullPct}"
 - image_data.unita = "%"
 - image_data.variazione = "${deltaWeek}"
-- image_data.sottotitolo = "${storage} TWh in stoccaggio · fase ${c.phase}"`;
+- image_data.sottotitolo = "${storage} TWh in stoccaggio · fase ${c.phase}"${aiOverride}`;
 
           await generateAndInsert(
             supabase,
@@ -485,7 +495,7 @@ ISTRUZIONI output:
             supabase,
             {
               tipo: "digest",
-              brief: c.brief,
+              brief: c.brief + aiOverride,
             },
             {
               generatedBy: "auto",
