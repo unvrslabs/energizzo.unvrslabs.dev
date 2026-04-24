@@ -140,10 +140,10 @@ export function V2Sidebar({
         type="button"
         onClick={() => setChatOpen(true)}
         className="v2-sidebar-ai-trigger"
-        aria-label="Apri Agente AI Il Dispaccio"
+        aria-label="Apri Max Power"
       >
         <Sparkles className="w-3.5 h-3.5" />
-        <span className="flex-1 text-left">Chiedi a Il Dispaccio</span>
+        <span className="flex-1 text-left">Chiedi a Max Power</span>
         <span
           className="v2-mono text-[9px] font-bold uppercase tracking-[0.14em]"
           style={{ color: "hsl(var(--v2-accent))", opacity: 0.75 }}
@@ -157,9 +157,9 @@ export function V2Sidebar({
         onClose={() => setChatOpen(false)}
         endpoint="/api/network/agent-chat"
         storageKey="ild-network-chat-v1"
-        title="Agente Il Dispaccio"
-        subtitle="Delibere · Mercato · Scadenze"
-        intro="Fammi domande su delibere ARERA, testi integrati, mercato elettrico/gas, scadenze regolatorie, podcast. Rispondo solo con dati verificabili dalle mie fonti."
+        title="Max Power"
+        subtitle="Il Dispaccio · delibere, mercato, scadenze"
+        intro="Ciao, sono Max Power. Chiedimi di delibere ARERA, testi integrati, mercato elettrico/gas, scadenze regolatorie, podcast. Rispondo solo con dati verificabili dalle mie fonti."
         suggestions={[
           "Spiegami la delibera 40/2014/R/gas",
           "Qual è il PUN oggi?",
