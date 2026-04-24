@@ -11,12 +11,10 @@ import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { listScadenzeFuture } from "@/lib/delibere/scadenze";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
-import { getLatestEntsoe } from "@/lib/market/entsoe-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
 import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
-import { GenerationMixMini, LoadForecastMini } from "@/components/network-v2/entsoe-cards";
 import { getNetworkMember } from "@/lib/network/session";
 
 export const dynamic = "force-dynamic";
@@ -57,8 +55,6 @@ export default async function V2HomePage() {
     gasHistory,
     punLatest,
     punHistory,
-    mixRow,
-    loadRow,
   ] = await Promise.all([
     getNetworkMember(),
     listDelibere({ limit: 200 }),
@@ -67,8 +63,6 @@ export default async function V2HomePage() {
     listGasStorageHistory(60),
     getLatestPun(),
     listPunHistory(14),
-    getLatestEntsoe("generation_mix"),
-    getLatestEntsoe("load_forecast"),
   ]);
 
   const punWeekAgo = punLatest
@@ -234,9 +228,6 @@ export default async function V2HomePage() {
         {/* Mercato elettrico PUN + Stoccaggio gas AGSI — 6+6 */}
         <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} />
         <GasStorageCard latest={gasLatest} history={gasHistory} />
-
-        {/* Forecast domanda elettrica (mix rinnovabili rimosso) */}
-        <LoadForecastMini payload={loadRow?.payload as never} />
 
         {/* Podcast video preview — 12 */}
         <PodcastPreviewCard />
