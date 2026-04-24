@@ -143,12 +143,11 @@ export function V2Sidebar({
         aria-label="Apri Max Power"
       >
         <Sparkles className="w-3.5 h-3.5" />
-        <span className="flex-1 text-left">Chiedi a Max Power</span>
         <span
-          className="v2-mono text-[9px] font-bold uppercase tracking-[0.14em]"
-          style={{ color: "hsl(var(--v2-accent))", opacity: 0.75 }}
+          className="flex-1 text-left"
+          style={{ whiteSpace: "nowrap" }}
         >
-          Agente
+          Chiedi a Max Power
         </span>
       </button>
 
