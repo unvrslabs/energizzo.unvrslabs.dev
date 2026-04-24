@@ -3,7 +3,6 @@ import {
   Mic,
   Play,
   Clock,
-  Users,
   Radio,
   ArrowRight,
   Sparkles,
@@ -143,16 +142,25 @@ export async function PodcastPreviewCard() {
         </Link>
       </div>
 
-      <div className="grid lg:grid-cols-[1.4fr_1fr] gap-0">
-        {/* HERO visuale */}
+      <div
+        className="grid lg:grid-cols-[1.4fr_1fr]"
+        style={{
+          gap: 24,
+          padding: 24,
+        }}
+      >
+        {/* HERO visuale — riquadro con bordo + gradient */}
         <div
           className="relative overflow-hidden flex items-center justify-center"
           style={{
             minHeight: 320,
-            padding: "56px 32px 40px",
+            padding: "48px 32px",
+            borderRadius: 14,
+            border: "1px solid hsl(var(--v2-border-strong))",
             background:
               "radial-gradient(ellipse at 25% 30%, hsl(158 55% 24%) 0%, hsl(215 30% 12%) 55%, hsl(215 35% 8%) 100%)",
-            borderRight: "1px solid hsl(var(--v2-border))",
+            boxShadow:
+              "inset 0 1px 0 hsl(0 0% 100% / 0.06), 0 8px 24px hsl(0 0% 0% / 0.3)",
           }}
         >
           {/* Waveform decorativa */}
@@ -223,27 +231,33 @@ export async function PodcastPreviewCard() {
           </div>
 
           {/* Stats top-right */}
-          <div
-            className="absolute top-3 right-3 flex items-center gap-2"
-            style={{
-              padding: "4px 10px",
-              borderRadius: 6,
-              background: "hsl(215 30% 8% / 0.72)",
-              border: "1px solid hsl(0 0% 100% / 0.08)",
-              backdropFilter: "blur(8px)",
-            }}
-          >
-            <Users
-              className="w-3 h-3"
-              style={{ color: "hsl(var(--v2-text-mute))" }}
-            />
-            <span
-              className="v2-mono"
-              style={{ fontSize: 10, color: "hsl(var(--v2-text-dim))" }}
+          {mode === "published" && (
+            <div
+              className="absolute top-3 right-3 flex items-center gap-2"
+              style={{
+                padding: "4px 10px",
+                borderRadius: 6,
+                background: "hsl(var(--v2-accent) / 0.2)",
+                border: "1px solid hsl(var(--v2-accent) / 0.4)",
+                backdropFilter: "blur(8px)",
+              }}
             >
-              {stats.total} ospiti
-            </span>
-          </div>
+              <span
+                className="relative inline-flex h-1.5 w-1.5"
+                style={{
+                  background: "hsl(0 72% 62%)",
+                  borderRadius: 999,
+                  boxShadow: "0 0 8px hsl(0 72% 62%)",
+                }}
+              />
+              <span
+                className="v2-mono font-semibold uppercase tracking-[0.18em]"
+                style={{ fontSize: 10, color: "hsl(var(--v2-accent))" }}
+              >
+                Live
+              </span>
+            </div>
+          )}
 
           {/* Elemento centrale a seconda del mode */}
           <div className="relative flex flex-col items-center gap-5">
@@ -329,38 +343,24 @@ export async function PodcastPreviewCard() {
         </div>
 
         {/* CONTENUTO destra */}
-        <div className="p-5 flex flex-col gap-4">
-          {/* Pipeline stats */}
+        <div className="flex flex-col gap-4" style={{ padding: "4px 0" }}>
+          {/* Descrizione podcast per i membri */}
           <div>
             <div
               className="v2-mono text-[10px] font-semibold uppercase tracking-[0.18em] mb-2"
               style={{ color: "hsl(var(--v2-text-mute))" }}
             >
-              Pipeline episodi
+              Il podcast del network
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              <StatCell
-                label="Target"
-                value={stats.target}
-                color="hsl(var(--v2-text-dim))"
-              />
-              <StatCell
-                label="Invitati"
-                value={stats.invited}
-                color="hsl(var(--v2-info))"
-              />
-              <StatCell
-                label="Registrati"
-                value={stats.recorded}
-                color="hsl(var(--v2-warn))"
-              />
-              <StatCell
-                label="Live"
-                value={stats.published}
-                color="hsl(var(--v2-accent))"
-                highlight
-              />
-            </div>
+            <p
+              className="text-[13px] leading-relaxed"
+              style={{ color: "hsl(var(--v2-text))" }}
+            >
+              Conversazioni con i protagonisti del retail energia italiano.
+              Niente interviste-spot: solo <strong>dati, regolazione e
+              operatività</strong> raccontati da chi gestisce reseller, trading
+              e dispacciamento ogni giorno.
+            </p>
           </div>
 
           {/* Prossimo episodio / Latest guest */}
@@ -478,61 +478,7 @@ export async function PodcastPreviewCard() {
   );
 }
 
-function StatCell({
-  label,
-  value,
-  color,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  color: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      style={{
-        padding: "8px 10px",
-        borderRadius: 8,
-        background: highlight
-          ? "hsl(var(--v2-accent) / 0.1)"
-          : "hsl(var(--v2-bg-elev))",
-        border: `1px solid ${
-          highlight ? "hsl(var(--v2-accent) / 0.3)" : "hsl(var(--v2-border))"
-        }`,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
-      }}
-    >
-      <span
-        className="v2-mono"
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "hsl(var(--v2-text-mute))",
-          fontWeight: 600,
-        }}
-      >
-        {label}
-      </span>
-      <span
-        className="v2-mono"
-        style={{
-          fontSize: 22,
-          fontWeight: 700,
-          color,
-          lineHeight: 1,
-          letterSpacing: "-0.02em",
-        }}
-      >
-        {value}
-      </span>
-    </div>
-  );
-}
-
-// Clock import kept for potential future use
 export type { GuestRow };
+// Clock/stats/Calendar kept for future live mode usage
 void Clock;
+void Calendar;
