@@ -33,7 +33,7 @@ function cornerBadge(label: string, kind: "info" | "warn" | "danger" = "info") {
   return (
     <div
       style={{
-        display: "inline-flex",
+        display: "flex",
         alignItems: "center",
         gap: 10,
         padding: "8px 16px",
@@ -446,7 +446,7 @@ function ScadenzaCard({
         {daysLeft && (
           <div
             style={{
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
               gap: 12,
               padding: "12px 22px",
