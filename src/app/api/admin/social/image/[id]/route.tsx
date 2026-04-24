@@ -528,11 +528,32 @@ export async function GET(
   const supabase = await createClient();
   const { data: post, error } = await supabase
     .from("social_posts")
-    .select("image_template,image_data")
+    .select("image_template,image_data,image_url")
     .eq("id", id)
     .maybeSingle();
   if (error || !post) {
     return new Response("Post not found", { status: 404 });
+  }
+
+  // Se c'è una URL Fal generata, proxy a quella invece di fare Satori template.
+  // Funziona anche con format diversi perché Fal restituisce immagini quadrate high-res
+  // (il browser/consumer fa resize dove serve).
+  if (post.image_url && typeof post.image_url === "string") {
+    try {
+      const upstream = await fetch(post.image_url, { cache: "no-store" });
+      if (upstream.ok) {
+        return new Response(upstream.body, {
+          status: 200,
+          headers: {
+            "content-type":
+              upstream.headers.get("content-type") ?? "image/png",
+            "cache-control": "private, max-age=300",
+          },
+        });
+      }
+    } catch {
+      // fallback silenzioso al template
+    }
   }
 
   const template = (post.image_template as string | null) ?? "quote_card";

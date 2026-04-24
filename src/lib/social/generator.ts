@@ -1,9 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
+import { generateFalImage, wrapBrandPrompt } from "@/lib/ai/fal-image";
 
 export const MODEL = "claude-sonnet-4-5-20250929";
-export const PROMPT_VERSION = "v2-conversazionale-informato-rich-images";
+export const PROMPT_VERSION = "v3-conversazionale-informato-ai-images";
 
 export type SocialPostTipo =
   | "delibera"
@@ -46,16 +47,34 @@ FORMATO OUTPUT: JSON stretto senza backtick né markdown.
   "copy_x": "Post X singolo (max 270 char) o thread numerato [1/3][2/3][3/3] separato da '\\n\\n---\\n\\n'. Stesso tono, più stringato, più punchy.",
   "hashtags": ["energia", "ARERA", "PUN", "..."],
   "image_strategy": {
-    "type": "template",
-    "template": "quote_card" | "data_card" | "scadenza_card",
-    "template_data": { ...campi specifici del template, vedi sotto... },
-    "ai_prompt": null
+    "type": "template" | "ai",
+    "template": "quote_card" | "data_card" | "scadenza_card" (null se type="ai"),
+    "template_data": { ...campi specifici del template, vedi sotto... } (obbligatorio anche con type="ai" come fallback),
+    "ai_prompt": "descrizione inglese dettagliata dello scenario editoriale" (obbligatorio se type="ai")
   }
 }
+
+AI_PROMPT guidelines (solo se type="ai"):
+- Scrivi in inglese, 60-150 parole
+- Descrivi la scena fisica, non concetti astratti
+- Niente testo embedded nell'immagine
+- Mood coerente con brand (professionale, non hype)
+- Esempi buoni:
+  * "A close-up of official ARERA regulatory document on a mahogany desk, soft morning light through window blinds, shallow depth of field, out-of-focus energy company logo in background"
+  * "Wide shot of modern industrial gas storage facility at dawn, silhouette of cylindrical tanks against misty landscape, cold atmospheric light, aerial perspective"
+- Evita: stock photo energetico generico, infografiche, grafici, testo, mani su tastiera, meeting room classico
 
 ═══ SCELTA TEMPLATE IMMAGINE ═══
 
 OGNI post deve avere un'immagine template (no "ai" per ora).
+
+SCEGLI "ai" SOLO quando un'immagine editoriale/emotiva aggiunge valore al post:
+- delibera particolarmente impattante (nuovi obblighi, cambio regime)
+- educational che spiega un concetto astratto
+- libero/digest con angolo narrativo forte
+- podcast teaser (foto studio, microfono)
+
+Per market/scadenza/news routine → USA SEMPRE "template" (data-driven = leggibilità).
 
 ▪ quote_card → per delibere, educational, libero, podcast teaser, digest
   Campi template_data (TUTTI obbligatori se applicabili):
@@ -266,6 +285,11 @@ export async function generateAndInsert(
   const { contextText, fonte_meta } = await loadFonteContext(supabase, input);
   const parsed = await runClaudeGeneration(input, contextText);
 
+  const wantsAi =
+    parsed.image_strategy?.type === "ai" &&
+    typeof parsed.image_strategy?.ai_prompt === "string" &&
+    parsed.image_strategy.ai_prompt.trim().length > 20;
+
   const insertRow = {
     tipo: input.tipo,
     fonte_kind: input.fonte_kind ?? null,
@@ -293,5 +317,29 @@ export async function generateAndInsert(
     .single();
 
   if (error) throw error;
+
+  // Se Claude ha chiesto AI image e abbiamo Fal configurato, genera e salva URL.
+  // Fallback silenzioso: se Fal fallisce, il template rimane disponibile come backup.
+  if (wantsAi && process.env.FAL_KEY && inserted?.id) {
+    try {
+      const brandedPrompt = wrapBrandPrompt(parsed.image_strategy.ai_prompt!);
+      const result = await generateFalImage(brandedPrompt, {
+        imageSize: "square_hd",
+      });
+      if (result?.url) {
+        await supabase
+          .from("social_posts")
+          .update({ image_url: result.url } as never)
+          .eq("id", inserted.id);
+        (inserted as { image_url?: string }).image_url = result.url;
+      }
+    } catch (err) {
+      console.error(
+        "[generator] Fal image generation failed:",
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+  }
+
   return inserted;
 }
