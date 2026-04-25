@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import { NavbarV2 } from "@/components/landing-v2/NavbarV2";
-import { HeroV2 } from "@/components/landing-v2/HeroV2";
-import { HomeVideoV2 } from "@/components/landing-v2/HomeVideoV2";
+import { HeroV2Demo } from "@/components/landing-v2/HeroV2Demo";
+import { CockpitShowcaseV2 } from "@/components/landing-v2/CockpitShowcaseV2";
 import { TickerBarV2 } from "@/components/landing-v2/TickerBarV2";
 import { PillarsV2 } from "@/components/landing-v2/PillarsV2";
 import { ModuliCockpitV2 } from "@/components/landing-v2/ModuliCockpitV2";
@@ -28,9 +28,9 @@ export default function DemoLandingPage() {
     <div className="lv2">
       <NavbarV2 />
       <main>
-        <HeroV2 />
+        <HeroV2Demo />
         <TickerBarV2 />
-        <HomeVideoV2 />
+        <CockpitShowcaseV2 />
         <PillarsV2 />
         <ModuliCockpitV2 />
         <StatsV2 />
