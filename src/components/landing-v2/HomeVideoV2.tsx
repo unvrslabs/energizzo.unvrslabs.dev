@@ -44,6 +44,7 @@ export function HomeVideoV2() {
     <section className="lv2-section" style={{ paddingTop: "32px" }}>
       <div className="lv2-container">
         <div className="lv2-home-video-wrap">
+          <div className="lv2-home-video-shell">
           <div className="lv2-home-video-frame">
             <video
               ref={videoRef}
@@ -89,32 +90,73 @@ export function HomeVideoV2() {
               </div>
             )}
           </div>
+          </div>
         </div>
       </div>
 
       <style jsx>{`
         .lv2-home-video-wrap {
+          position: relative;
           display: flex;
           justify-content: center;
+          padding: 32px 0;
+        }
+        .lv2-home-video-wrap::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(
+              ellipse 60% 40% at 50% 50%,
+              hsl(155 70% 45% / 0.18) 0%,
+              hsl(155 70% 45% / 0.05) 40%,
+              transparent 70%
+            );
+          filter: blur(40px);
+          pointer-events: none;
+        }
+        .lv2-home-video-shell {
+          position: relative;
+          width: 100%;
+          max-width: 380px;
+          padding: 1.5px;
+          border-radius: 26px;
+          background: linear-gradient(
+            145deg,
+            hsl(155 70% 45% / 0.55) 0%,
+            hsl(155 60% 35% / 0.18) 35%,
+            rgba(255, 255, 255, 0.04) 60%,
+            hsl(155 70% 45% / 0.35) 100%
+          );
+          box-shadow:
+            0 30px 80px -25px rgba(0, 0, 0, 0.85),
+            0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+            0 0 120px -30px hsl(155 70% 45% / 0.45);
         }
         .lv2-home-video-frame {
           position: relative;
           width: 100%;
-          max-width: 960px;
-          aspect-ratio: 16 / 9;
-          border-radius: 18px;
+          aspect-ratio: 9 / 16;
+          border-radius: 24px;
           overflow: hidden;
           background: #000;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .lv2-home-video-frame::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
           box-shadow:
-            0 20px 60px -20px rgba(0, 0, 0, 0.7),
-            0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-            0 0 80px -30px hsl(155 70% 45% / 0.25);
+            inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            inset 0 -40px 60px -40px rgba(0, 0, 0, 0.8);
         }
         .lv2-home-video {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
+          background: #000;
           display: block;
         }
         .lv2-home-video-overlay {
