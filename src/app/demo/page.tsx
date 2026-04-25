@@ -29,8 +29,8 @@ export default function DemoLandingPage() {
       <NavbarV2 />
       <main>
         <HeroV2 />
-        <HomeVideoV2 />
         <TickerBarV2 />
+        <HomeVideoV2 />
         <PillarsV2 />
         <ModuliCockpitV2 />
         <StatsV2 />
