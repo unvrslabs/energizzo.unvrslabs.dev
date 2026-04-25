@@ -1,3 +1,5 @@
+"use client";
+
 export function CockpitShowcaseV2() {
   return (
     <section className="lv2-section" style={{ paddingTop: "32px", paddingBottom: "32px" }}>
