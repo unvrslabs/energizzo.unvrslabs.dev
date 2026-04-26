@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { Flame, Mic, Radio, UserCheck, Users } from "lucide-react";
+import { Flame, Mic } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { GUEST_STATUS_CONFIG, type GuestStatus } from "@/lib/podcast-config";
+import {
+  PodcastOverview,
+  type PodcastOverviewData,
+} from "@/components/admin-v2/podcast/podcast-overview";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Home podcast · Admin v2" };
@@ -16,27 +20,38 @@ function fmtDate(iso: string | null) {
 
 export default async function PodcastHomeV2() {
   const supabase = await createClient();
-  const [guestsAll, hotTopicsRes, nextGuestRes, guestQuestionsRes] = await Promise.all([
-    supabase.from("podcast_guests").select("id, status").order("updated_at", { ascending: false }),
-    supabase
-      .from("podcast_hot_topics")
-      .select("id, title, intensity, body, active")
-      .eq("active", true)
-      .order("created_at", { ascending: false })
-      .limit(6),
-    supabase
-      .from("podcast_guests")
-      .select("id, external_name, external_company, recorded_at, lead:leads(ragione_sociale)")
-      .eq("status", "confirmed")
-      .not("recorded_at", "is", null)
-      .order("recorded_at", { ascending: true })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("podcast_guest_questions")
-      .select("question:podcast_questions(body, theme)")
-      .limit(6),
-  ]);
+  const [guestsAll, hotTopicsRes, nextGuestRes, guestQuestionsRes, publishedSeries] =
+    await Promise.all([
+      supabase
+        .from("podcast_guests")
+        .select("id, status")
+        .order("updated_at", { ascending: false }),
+      supabase
+        .from("podcast_hot_topics")
+        .select("id, title, intensity, body, active")
+        .eq("active", true)
+        .order("created_at", { ascending: false })
+        .limit(6),
+      supabase
+        .from("podcast_guests")
+        .select(
+          "id, external_name, external_company, recorded_at, lead:leads(ragione_sociale)",
+        )
+        .eq("status", "confirmed")
+        .not("recorded_at", "is", null)
+        .order("recorded_at", { ascending: true })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("podcast_guest_questions")
+        .select("question:podcast_questions(body, theme)")
+        .limit(6),
+      supabase
+        .from("podcast_guests")
+        .select("published_at")
+        .eq("status", "published")
+        .not("published_at", "is", null),
+    ]);
 
   const guests = (guestsAll.data ?? []) as { id: string; status: GuestStatus }[];
   const stats = {
@@ -46,6 +61,36 @@ export default async function PodcastHomeV2() {
     published: guests.filter((g) => g.status === "published").length,
     target: guests.filter((g) => g.status === "target").length,
     recorded: guests.filter((g) => g.status === "recorded").length,
+    rejected: guests.filter((g) => g.status === "rejected").length,
+  };
+
+  // Sparkline 12 settimane: pubblicati per settimana
+  const publishedRows = (publishedSeries.data ?? []) as {
+    published_at: string;
+  }[];
+  const weekBuckets: number[] = new Array(12).fill(0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startOfThisWeek = new Date(today);
+  startOfThisWeek.setDate(today.getDate() - today.getDay()); // domenica
+  for (const row of publishedRows) {
+    const d = new Date(row.published_at);
+    const diffDays = Math.floor(
+      (startOfThisWeek.getTime() - d.getTime()) / 86400000,
+    );
+    const weekIdx = 11 - Math.floor(diffDays / 7);
+    if (weekIdx >= 0 && weekIdx < 12) weekBuckets[weekIdx]++;
+  }
+
+  const overviewData: PodcastOverviewData = {
+    total: stats.total,
+    target: stats.target,
+    invited: stats.invited,
+    confirmed: stats.confirmed,
+    recorded: stats.recorded,
+    published: stats.published,
+    rejected: stats.rejected,
+    publishedSpark12w: weekBuckets,
   };
 
   const hotTopics = hotTopicsRes.data ?? [];
@@ -66,12 +111,7 @@ export default async function PodcastHomeV2() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Stats ticker */}
-      <div className="v2-ticker-row">
-        <StatCell code="TARGET" label="In target" value={stats.target} icon={<Users />} tint="info" />
-        <StatCell code="CONFIRMED" label="Confermati" value={stats.confirmed} icon={<UserCheck />} tint="accent" />
-        <StatCell code="PUBLISHED" label="Pubblicati" value={stats.published} icon={<Radio />} tint="accent" />
-      </div>
+      <PodcastOverview data={overviewData} />
 
       <div className="v2-bento">
         {/* Next guest card */}
@@ -200,29 +240,3 @@ export default async function PodcastHomeV2() {
   );
 }
 
-function StatCell({
-  code,
-  label,
-  value,
-  icon,
-  tint,
-}: {
-  code: string;
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  tint: "accent" | "warn" | "info";
-}) {
-  const color =
-    tint === "warn" ? "hsl(var(--v2-warn))" : tint === "info" ? "hsl(var(--v2-info))" : "hsl(var(--v2-accent))";
-  return (
-    <div className="v2-ticker-cell">
-      <div className="v2-ticker-head">
-        <span className="v2-ticker-code">{code}</span>
-        <span style={{ color }}>{icon}</span>
-      </div>
-      <span className="v2-ticker-value" style={{ color }}>{value}</span>
-      <span className="v2-ticker-label">{label}</span>
-    </div>
-  );
-}

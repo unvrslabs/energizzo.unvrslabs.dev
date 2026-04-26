@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { LinkedInPreview, XPreview } from "./previews";
+import { SocialOverview } from "./social-overview";
 import {
   deleteSocialPost,
   generateSocialPost,
@@ -242,6 +243,11 @@ export function SocialClient({
           Nuovo post
         </button>
       </div>
+
+      {/* Overview pipeline */}
+      <section style={{ marginBottom: 24 }}>
+        <SocialOverview posts={posts} />
+      </section>
 
       {/* 1. Calendario ribbon orizzontale sempre in alto */}
       <section style={{ marginBottom: 28 }}>
