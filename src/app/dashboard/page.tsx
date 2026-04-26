@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  Activity,
   ArrowRight,
   ArrowUpRight,
   CheckCircle2,
@@ -15,6 +16,11 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminMember } from "@/lib/admin/session";
+import { KpiTile } from "@/components/admin-v2/viz/kpi-tile";
+import { Donut } from "@/components/admin-v2/viz/donut";
+import { HeatStrip } from "@/components/admin-v2/viz/heat-strip";
+import { ProgressRing } from "@/components/admin-v2/viz/progress-ring";
+import { CountUp } from "@/components/admin-v2/viz/count-up";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +53,9 @@ export default async function DashboardV2Home() {
   const admin = await getAdminMember();
   const supabase = await createClient();
 
+  const since30d = new Date(Date.now() - 30 * 86400000).toISOString();
+  const since14d = new Date(Date.now() - 14 * 86400000).toISOString();
+
   const [
     leadsTotal,
     membersActive,
@@ -56,6 +65,10 @@ export default async function DashboardV2Home() {
     recentRequestsRes,
     recentLeadsRes,
     categoriaDistribution,
+    leadsCreatedSeries,
+    membersApprovedSeries,
+    requestsCreatedSeries,
+    pipelineDistribution,
   ] = await Promise.all([
     supabase.from("leads").select("*", { count: "exact", head: true }),
     supabase
@@ -86,6 +99,20 @@ export default async function DashboardV2Home() {
       .order("updated_at", { ascending: false })
       .limit(6),
     supabase.from("leads").select("categoria"),
+    supabase
+      .from("leads")
+      .select("created_at")
+      .gte("created_at", since30d),
+    supabase
+      .from("network_members")
+      .select("approved_at")
+      .gte("approved_at", since30d)
+      .is("revoked_at", null),
+    supabase
+      .from("network_join_requests")
+      .select("created_at")
+      .gte("created_at", since14d),
+    supabase.from("leads").select("status"),
   ]);
 
   const totalLeads = leadsTotal.count ?? 0;
@@ -109,6 +136,64 @@ export default async function DashboardV2Home() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6);
   const catMax = Math.max(...catRows.map(([, v]) => v), 1);
+
+  // Serie temporali 30 giorni (lead/giorno + membri/giorno + heatstrip combined)
+  const seriesByDay = (rows: { [k: string]: string | null }[], key: string) => {
+    const buckets = new Map<string, number>();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      buckets.set(d.toISOString().slice(0, 10), 0);
+    }
+    for (const r of rows) {
+      const ts = r[key];
+      if (!ts) continue;
+      const day = new Date(ts).toISOString().slice(0, 10);
+      if (buckets.has(day)) buckets.set(day, (buckets.get(day) ?? 0) + 1);
+    }
+    return Array.from(buckets.entries()).map(([date, value]) => ({ date, value }));
+  };
+
+  const leadsSeries30 = seriesByDay(
+    (leadsCreatedSeries.data ?? []) as { created_at: string | null }[],
+    "created_at",
+  );
+  const membersSeries30 = seriesByDay(
+    (membersApprovedSeries.data ?? []) as { approved_at: string | null }[],
+    "approved_at",
+  );
+  const requestsSeries14 = (requestsCreatedSeries.data ?? []).length;
+
+  // Heat strip combinata: somma giornaliera di tutte le attività
+  const activitySeries30 = leadsSeries30.map((d, i) => ({
+    date: d.date,
+    value: d.value + (membersSeries30[i]?.value ?? 0),
+    label: `${new Date(d.date).toLocaleDateString("it-IT", { day: "numeric", month: "short" })}: ${d.value} lead + ${membersSeries30[i]?.value ?? 0} membri`,
+  }));
+
+  // Last 14gg sparkline = ultimi 14 punti delle serie 30gg
+  const leadsSpark = leadsSeries30.slice(-14).map((d) => d.value);
+  const membersSpark = membersSeries30.slice(-14).map((d) => d.value);
+
+  // Pipeline distribuzione su pipeline_status (top 6 stadi)
+  const pipelineCounts = (pipelineDistribution.data ?? []).reduce<
+    Record<string, number>
+  >((acc, row) => {
+    const k = (row.status as string) ?? "n/d";
+    acc[k] = (acc[k] ?? 0) + 1;
+    return acc;
+  }, {});
+  const pipelineSlices = Object.entries(pipelineCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([label, value]) => ({ label: label.replace(/_/g, " "), value }));
+
+  // Conversion ratios per progress rings
+  const totalLeadsForRatio = totalLeads || 1;
+  const ratioInvited = ((invitedOpen + activeMembers) / totalLeadsForRatio) * 100;
+  const ratioMembers = (activeMembers / totalLeadsForRatio) * 100;
 
   const firstName = (admin?.nome ?? "").split(" ")[0] || "admin";
 
@@ -136,27 +221,132 @@ export default async function DashboardV2Home() {
       </header>
 
       {/* KPI row */}
-      <section>
-        <div className="v2-ticker-row">
-          <KpiCell code="LEADS" label="Reseller in pipeline" value={totalLeads.toString()} delta={`+${newLast7d}`} trend={newLast7d > 0 ? "up" : "flat"} />
-          <KpiCell code="MEMBERS" label="Network attivi" value={activeMembers.toString()} delta="live" trend="flat" />
-          <KpiCell code="PENDING" label="Richieste da valutare" value={pendingRequests.toString()} delta={pendingRequests > 0 ? "!" : "—"} trend={pendingRequests > 0 ? "down" : "flat"} />
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 14,
+        }}
+      >
+        <KpiTile
+          code="LEADS"
+          label="Reseller in pipeline"
+          value={totalLeads}
+          delta={newLast7d > 0 ? `+${newLast7d} 7gg` : "—"}
+          trend={newLast7d > 0 ? "up" : "flat"}
+          spark={leadsSpark}
+          variant="accent"
+          icon={<Users className="w-3.5 h-3.5" />}
+        />
+        <KpiTile
+          code="MEMBERS"
+          label="Network attivi"
+          value={activeMembers}
+          delta="live"
+          trend="flat"
+          spark={membersSpark}
+          variant="info"
+          icon={<UserCheck className="w-3.5 h-3.5" />}
+        />
+        <KpiTile
+          code="PENDING"
+          label="Richieste da valutare"
+          value={pendingRequests}
+          delta={pendingRequests > 0 ? "azione" : "—"}
+          trend={pendingRequests > 0 ? "down" : "flat"}
+          variant={pendingRequests > 0 ? "warn" : "accent"}
+          icon={<UserPlus className="w-3.5 h-3.5" />}
+        />
+        <KpiTile
+          code="REQUESTS"
+          label="Richieste form 14gg"
+          value={requestsSeries14}
+          variant="accent"
+          icon={<Activity className="w-3.5 h-3.5" />}
+        />
+      </section>
+
+      {/* Activity heatstrip 30gg */}
+      <section className="v2-card" style={{ padding: "16px 20px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 12,
+            flexWrap: "wrap",
+            gap: 8,
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
+            <span className="v2-card-title">Attività ultimi 30 giorni</span>
+          </div>
+          <span
+            className="v2-mono"
+            style={{
+              fontSize: 10.5,
+              color: "hsl(var(--v2-text-mute))",
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+            }}
+          >
+            <CountUp
+              value={activitySeries30.reduce((s, d) => s + d.value, 0)}
+              suffix=" eventi"
+            />
+          </span>
         </div>
+        <HeatStrip data={activitySeries30} variant="accent" cellSize={18} />
       </section>
 
       {/* Bento */}
       <section className="v2-bento">
-        {/* Pipeline funnel */}
+        {/* Funnel velocità con ProgressRings */}
         <div className="v2-card v2-col-4">
           <div className="v2-card-head flex items-center gap-2">
             <Target className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
-            <span className="v2-card-title">Funnel network</span>
+            <span className="v2-card-title">Conversion funnel</span>
           </div>
-          <div className="p-4 flex flex-col gap-3">
-            <FunnelStage label="Lead totali" value={totalLeads} max={totalLeads || 1} />
-            <FunnelStage label="Invitati" value={invitedOpen + activeMembers} max={totalLeads || 1} color="info" />
-            <FunnelStage label="Survey completate → membri" value={activeMembers} max={totalLeads || 1} color="accent" />
-            <FunnelStage label="Richieste da form" value={pendingRequests} max={totalLeads || 1} color="warn" />
+          <div
+            style={{
+              padding: "20px 16px",
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: 14,
+              justifyItems: "center",
+            }}
+          >
+            <ProgressRing
+              value={Math.round(ratioInvited)}
+              total={100}
+              size={90}
+              variant="info"
+              label="Invitati / lead"
+            />
+            <ProgressRing
+              value={Math.round(ratioMembers)}
+              total={100}
+              size={90}
+              variant="accent"
+              label="Membri / lead"
+            />
+            <ProgressRing
+              value={activeMembers}
+              total={100}
+              size={90}
+              variant="accent"
+              label="Membri / cap"
+              showPercent={false}
+            />
+            <ProgressRing
+              value={pendingRequests}
+              total={Math.max(pendingRequests, 10)}
+              size={90}
+              variant={pendingRequests > 0 ? "warn" : "accent"}
+              label="Pending"
+              showPercent={false}
+            />
           </div>
         </div>
 
@@ -210,15 +400,15 @@ export default async function DashboardV2Home() {
         </div>
 
         {/* Category distribution */}
-        <div className="v2-card v2-col-6">
+        <div className="v2-card v2-col-3">
           <div className="v2-card-head flex items-center gap-2">
             <Users className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-info))" }} />
-            <span className="v2-card-title">Distribuzione per categoria</span>
+            <span className="v2-card-title">Lead per categoria</span>
           </div>
           <div className="p-4 flex flex-col gap-2.5">
             {catRows.map(([cat, count]) => (
               <div key={cat} className="flex items-center gap-3">
-                <span className="v2-mono text-[11px] w-48 truncate" style={{ color: "hsl(var(--v2-text-dim))" }}>
+                <span className="v2-mono text-[11px] flex-1 truncate" style={{ color: "hsl(var(--v2-text-dim))" }}>
                   {cat.replace(/_/g, " ")}
                 </span>
                 <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--v2-border))" }}>
@@ -230,11 +420,27 @@ export default async function DashboardV2Home() {
                     }}
                   />
                 </div>
-                <span className="v2-mono text-[11.5px] font-bold w-10 text-right" style={{ color: "hsl(var(--v2-text))" }}>
-                  {count}
+                <span className="v2-mono text-[11.5px] font-bold w-8 text-right" style={{ color: "hsl(var(--v2-text))" }}>
+                  <CountUp value={count} />
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Pipeline donut */}
+        <div className="v2-card v2-col-3">
+          <div className="v2-card-head flex items-center gap-2">
+            <Target className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
+            <span className="v2-card-title">Pipeline status</span>
+          </div>
+          <div style={{ padding: 16 }}>
+            <Donut
+              slices={pipelineSlices}
+              size={130}
+              centerValue={pipelineSlices.reduce((s, x) => s + x.value, 0)}
+              centerLabel="totale"
+            />
           </div>
         </div>
 
