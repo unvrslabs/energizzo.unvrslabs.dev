@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
     .from("network_otp_codes")
     .select("id, code_hash, attempts, expires_at")
     .eq("phone", phone)
+    .eq("purpose", "login")
     .is("consumed_at", null)
     .gt("expires_at", nowIso)
     .order("created_at", { ascending: false })

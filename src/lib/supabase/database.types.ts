@@ -778,7 +778,9 @@ export type Database = {
           expires_at: string
           id: string
           ip: string | null
+          member_id: string | null
           phone: string
+          purpose: string
           user_agent: string | null
         }
         Insert: {
@@ -789,7 +791,9 @@ export type Database = {
           expires_at: string
           id?: string
           ip?: string | null
+          member_id?: string | null
           phone: string
+          purpose?: string
           user_agent?: string | null
         }
         Update: {
@@ -800,7 +804,9 @@ export type Database = {
           expires_at?: string
           id?: string
           ip?: string | null
+          member_id?: string | null
           phone?: string
+          purpose?: string
           user_agent?: string | null
         }
         Relationships: []

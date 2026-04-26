@@ -9,10 +9,10 @@ import {
   CalendarClock,
   FileText,
   LayoutDashboard,
-  LogOut,
   Mic,
   Sparkles,
   TrendingUp,
+  UserCircle,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -75,6 +75,12 @@ function buildSections(counts: { delibere: number; testiIntegrati: number; scade
       title: "Network",
       items: [
         { href: "/network/membri", label: "Membri", icon: Users },
+      ],
+    },
+    {
+      title: "Account",
+      items: [
+        { href: "/network/profilo", label: "Profilo", icon: UserCircle },
       ],
     },
   ];
@@ -195,20 +201,6 @@ export function V2Sidebar({
           </div>
         ))}
 
-        {/* Mobile-only: logout come nav item */}
-        <button
-          type="button"
-          onClick={() => {
-            fetch("/api/network/auth/logout", { method: "POST" }).finally(() => {
-              window.location.href = "/";
-            });
-          }}
-          className="v2-nav-item lg:hidden"
-          aria-label="Esci"
-        >
-          <LogOut />
-          <span>Esci</span>
-        </button>
       </nav>
 
       {/* Bottom stack: footer only (GME status moved to top) */}
@@ -220,31 +212,8 @@ export function V2Sidebar({
             </div>
           </div>
           <NotificationsBell />
-          <LogoutButton />
         </div>
       </div>
     </aside>
-  );
-}
-
-function LogoutButton() {
-  async function doLogout() {
-    try {
-      await fetch("/api/network/auth/logout", { method: "POST" });
-    } catch {
-      // ignore
-    }
-    window.location.href = "/";
-  }
-  return (
-    <button
-      type="button"
-      onClick={doLogout}
-      aria-label="Esci"
-      className="v2-btn v2-btn--ghost"
-      style={{ padding: "6px 8px" }}
-    >
-      <LogOut className="w-3.5 h-3.5" />
-    </button>
   );
 }
