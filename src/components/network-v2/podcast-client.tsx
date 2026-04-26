@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Clock, Mic, Play, User, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Clock, Mic, Play, Search, User, X } from "lucide-react";
 
 type Episode = {
   id: string;
@@ -103,10 +103,43 @@ const TAG_LABEL: Record<Episode["tag"], string> = {
 const DEMO_VIDEO_SRC =
   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
 
+// Estrae minuti da "47 min" → 47
+function parseMinutes(s: string): number {
+  const m = s.match(/(\d+)/);
+  return m ? Number(m[1]) : 0;
+}
+
+// Formatta minuti totali → "8h 12m"
+function formatTotalDuration(mins: number): string {
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
+// Avatar iniziali da "Marco Conti, ex-GME" → "MC"
+function guestInitials(guest: string): string {
+  const name = guest.split(",")[0]?.trim() ?? "";
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+const TAG_FILTERS: Array<{ key: "all" | Episode["tag"]; label: string }> = [
+  { key: "all", label: "Tutti" },
+  { key: "mercato", label: "Mercato" },
+  { key: "regolazione", label: "Regolazione" },
+  { key: "eel", label: "Energia" },
+  { key: "gas", label: "Gas" },
+];
+
 export function PodcastClient() {
   const featured = EPISODES.find((e) => e.featured) ?? EPISODES[0];
   const [selectedId, setSelectedId] = useState(featured.id);
   const [playing, setPlaying] = useState(false);
+  const [tagFilter, setTagFilter] = useState<"all" | Episode["tag"]>("all");
+  const [query, setQuery] = useState("");
 
   const selected = EPISODES.find((e) => e.id === selectedId) ?? featured;
 
@@ -115,7 +148,35 @@ export function PodcastClient() {
     setPlaying(true);
   }
 
-  const rest = EPISODES.filter((e) => e.id !== selected.id);
+  const totalMinutes = EPISODES.reduce((s, e) => s + parseMinutes(e.duration), 0);
+  const totalEpisodes = EPISODES.length;
+
+  const filteredArchive = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return EPISODES.filter((e) => e.id !== selected.id)
+      .filter((e) => tagFilter === "all" || e.tag === tagFilter)
+      .filter((e) => {
+        if (!q) return true;
+        return (
+          e.title.toLowerCase().includes(q) ||
+          e.guest.toLowerCase().includes(q)
+        );
+      });
+  }, [selected.id, tagFilter, query]);
+
+  const tagCounts = useMemo(() => {
+    const c: Record<"all" | Episode["tag"], number> = {
+      all: EPISODES.length - 1, // escludi featured
+      mercato: 0,
+      regolazione: 0,
+      eel: 0,
+      gas: 0,
+    };
+    EPISODES.filter((e) => e.id !== selected.id).forEach((e) => {
+      c[e.tag]++;
+    });
+    return c;
+  }, [selected.id]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -132,6 +193,42 @@ export function PodcastClient() {
           </p>
         </div>
       </header>
+
+      {/* Stats strip */}
+      <div className="v2-ticker-row" style={{ gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+        <div className="v2-ticker-cell">
+          <div className="v2-ticker-head">
+            <span className="v2-ticker-code">EPISODI</span>
+            <Mic className="w-3 h-3" style={{ color: "hsl(var(--v2-accent))" }} />
+          </div>
+          <div>
+            <span className="v2-ticker-value">{totalEpisodes}</span>
+          </div>
+          <span className="v2-ticker-label">disponibili in archivio</span>
+        </div>
+        <div className="v2-ticker-cell">
+          <div className="v2-ticker-head">
+            <span className="v2-ticker-code">DURATA</span>
+            <Clock className="w-3 h-3" style={{ color: "hsl(var(--v2-info))" }} />
+          </div>
+          <div>
+            <span className="v2-ticker-value">{formatTotalDuration(totalMinutes)}</span>
+          </div>
+          <span className="v2-ticker-label">contenuto totale</span>
+        </div>
+        <div className="v2-ticker-cell">
+          <div className="v2-ticker-head">
+            <span className="v2-ticker-code">CADENZA</span>
+            <span className="v2-mono text-[10.5px]" style={{ color: "hsl(var(--v2-accent))" }}>
+              live
+            </span>
+          </div>
+          <div>
+            <span className="v2-ticker-value" style={{ fontSize: 22 }}>1 / 10gg</span>
+          </div>
+          <span className="v2-ticker-label">nuovo episodio bisettimanale</span>
+        </div>
+      </div>
 
       {/* Player */}
       <section className="v2-card overflow-hidden">
@@ -179,61 +276,176 @@ export function PodcastClient() {
       </section>
 
       {/* Archive */}
-      <section>
-        <div className="flex items-center gap-2 mb-3 pl-1">
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-2 pl-1 flex-wrap">
           <span className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            Archivio
+            Archivio · {filteredArchive.length} episodi
           </span>
         </div>
-        <div className="v2-card overflow-hidden">
-          <ul>
-            {rest.map((ep) => (
-              <li
-                key={ep.id}
-                onClick={() => selectAndPlay(ep.id)}
-                className="grid grid-cols-[auto_auto_1fr_auto_auto] gap-4 items-center px-4 md:px-5 py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                style={{ borderBottom: "1px solid hsl(var(--v2-border))" }}
+
+        {/* Search + filtri tag */}
+        <div className="v2-card" style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ position: "relative" }}>
+            <Search
+              className="w-3.5 h-3.5"
+              style={{
+                position: "absolute",
+                left: 12,
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "hsl(var(--v2-text-mute))",
+              }}
+            />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Cerca per titolo o ospite…"
+              className="v2-input"
+              style={{ width: "100%", paddingLeft: 34, paddingRight: query ? 32 : 12 }}
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                style={{
+                  position: "absolute",
+                  right: 8,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "hsl(var(--v2-text-mute))",
+                }}
+                aria-label="Pulisci"
               >
-                <span className="v2-mono text-[11px] font-bold" style={{ color: "hsl(var(--v2-text-mute))", width: "42px" }}>
-                  EP.{ep.number.toString().padStart(2, "0")}
-                </span>
-                <span
-                  className="v2-chip hidden md:inline-flex"
-                  style={{
-                    color: TAG_COLOR[ep.tag],
-                    borderColor: `${TAG_COLOR[ep.tag]}55`,
-                    background: `${TAG_COLOR[ep.tag]}15`,
-                  }}
-                >
-                  {TAG_LABEL[ep.tag]}
-                </span>
-                <div className="min-w-0">
-                  <div className="text-[13.5px] font-medium line-clamp-1" style={{ color: "hsl(var(--v2-text))" }}>
-                    {ep.title}
-                  </div>
-                  <div className="text-[11.5px] mt-0.5 truncate" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                    {ep.guest}
-                  </div>
-                </div>
-                <span className="v2-mono text-[11px] hidden md:inline-flex items-center gap-1" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                  <Clock className="w-3 h-3" />
-                  {ep.duration}
-                </span>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {TAG_FILTERS.map((tf) => {
+              const active = tagFilter === tf.key;
+              const count = tagCounts[tf.key];
+              return (
                 <button
+                  key={tf.key}
                   type="button"
-                  className="v2-btn v2-btn--ghost"
-                  style={{ padding: "6px 8px" }}
-                  aria-label="Guarda episodio"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    selectAndPlay(ep.id);
+                  onClick={() => setTagFilter(tf.key)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors"
+                  style={{
+                    background: active
+                      ? "hsl(var(--v2-accent) / 0.14)"
+                      : "hsl(var(--v2-bg-elev))",
+                    color: active
+                      ? "hsl(var(--v2-accent))"
+                      : "hsl(var(--v2-text-dim))",
+                    border: `1px solid ${
+                      active
+                        ? "hsl(var(--v2-accent) / 0.35)"
+                        : "hsl(var(--v2-border))"
+                    }`,
                   }}
                 >
-                  <Play className="w-3.5 h-3.5" fill="currentColor" />
+                  {tf.label}
+                  <span className="v2-mono text-[10px] opacity-75 font-semibold">
+                    {count}
+                  </span>
                 </button>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="v2-card overflow-hidden">
+          {filteredArchive.length === 0 ? (
+            <div className="p-8 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
+              Nessun episodio trovato.
+            </div>
+          ) : (
+            <ul>
+              {filteredArchive.map((ep, idx) => (
+                <li
+                  key={ep.id}
+                  onClick={() => selectAndPlay(ep.id)}
+                  className="grid items-center gap-3 px-4 md:px-5 py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                  style={{
+                    gridTemplateColumns: "auto auto minmax(0, 1fr) auto auto",
+                    borderBottom:
+                      idx < filteredArchive.length - 1
+                        ? "1px solid hsl(var(--v2-border))"
+                        : undefined,
+                  }}
+                >
+                  {/* Avatar guest */}
+                  <span
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 8,
+                      display: "grid",
+                      placeItems: "center",
+                      background: `${TAG_COLOR[ep.tag]}15`,
+                      border: `1px solid ${TAG_COLOR[ep.tag]}40`,
+                      color: TAG_COLOR[ep.tag],
+                      flexShrink: 0,
+                      fontFamily: "var(--font-mono), monospace",
+                      fontSize: 11,
+                      fontWeight: 800,
+                      letterSpacing: "0.04em",
+                    }}
+                  >
+                    {guestInitials(ep.guest)}
+                  </span>
+
+                  {/* Ep number + tag chip */}
+                  <div className="flex flex-col gap-1 items-start" style={{ minWidth: 60 }}>
+                    <span
+                      className="v2-mono text-[10.5px] font-bold"
+                      style={{ color: "hsl(var(--v2-text-mute))", letterSpacing: "0.08em" }}
+                    >
+                      EP.{ep.number.toString().padStart(2, "0")}
+                    </span>
+                    <span
+                      className="v2-chip"
+                      style={{
+                        color: TAG_COLOR[ep.tag],
+                        borderColor: `${TAG_COLOR[ep.tag]}55`,
+                        background: `${TAG_COLOR[ep.tag]}15`,
+                      }}
+                    >
+                      {TAG_LABEL[ep.tag]}
+                    </span>
+                  </div>
+
+                  {/* Title + guest */}
+                  <div className="min-w-0">
+                    <div className="text-[13.5px] font-medium line-clamp-1" style={{ color: "hsl(var(--v2-text))" }}>
+                      {ep.title}
+                    </div>
+                    <div className="text-[11.5px] mt-0.5 truncate" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                      {ep.guest}
+                    </div>
+                  </div>
+
+                  <span className="v2-mono text-[11px] hidden md:inline-flex items-center gap-1" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                    <Clock className="w-3 h-3" />
+                    {ep.duration}
+                  </span>
+                  <button
+                    type="button"
+                    className="v2-btn v2-btn--ghost"
+                    style={{ padding: "6px 8px" }}
+                    aria-label="Guarda episodio"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      selectAndPlay(ep.id);
+                    }}
+                  >
+                    <Play className="w-3.5 h-3.5" fill="currentColor" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
     </div>
