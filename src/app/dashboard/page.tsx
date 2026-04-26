@@ -303,38 +303,38 @@ export default async function DashboardV2Home() {
       {/* Bento */}
       <section className="v2-bento">
         {/* Funnel velocità con ProgressRings */}
-        <div className="v2-card v2-col-4">
+        <div className="v2-card v2-col-3">
           <div className="v2-card-head flex items-center gap-2">
             <Target className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
             <span className="v2-card-title">Conversion funnel</span>
           </div>
           <div
             style={{
-              padding: "20px 16px",
+              padding: "16px 12px",
               display: "grid",
               gridTemplateColumns: "repeat(2, 1fr)",
-              gap: 14,
+              gap: 12,
               justifyItems: "center",
             }}
           >
             <ProgressRing
               value={Math.round(ratioInvited)}
               total={100}
-              size={90}
+              size={84}
               variant="info"
               label="Invitati / lead"
             />
             <ProgressRing
               value={Math.round(ratioMembers)}
               total={100}
-              size={90}
+              size={84}
               variant="accent"
               label="Membri / lead"
             />
             <ProgressRing
               value={activeMembers}
               total={100}
-              size={90}
+              size={84}
               variant="accent"
               label="Membri / cap"
               showPercent={false}
@@ -342,7 +342,7 @@ export default async function DashboardV2Home() {
             <ProgressRing
               value={pendingRequests}
               total={Math.max(pendingRequests, 10)}
-              size={90}
+              size={84}
               variant={pendingRequests > 0 ? "warn" : "accent"}
               label="Pending"
               showPercent={false}
@@ -350,8 +350,24 @@ export default async function DashboardV2Home() {
           </div>
         </div>
 
+        {/* Pipeline donut */}
+        <div className="v2-card v2-col-3">
+          <div className="v2-card-head flex items-center gap-2">
+            <Target className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
+            <span className="v2-card-title">Pipeline status</span>
+          </div>
+          <div style={{ padding: 16 }}>
+            <Donut
+              slices={pipelineSlices}
+              size={130}
+              centerValue={pipelineSlices.reduce((s, x) => s + x.value, 0)}
+              centerLabel="totale"
+            />
+          </div>
+        </div>
+
         {/* Recent requests */}
-        <div className="v2-card v2-col-8">
+        <div className="v2-card v2-col-6">
           <div className="v2-card-head flex items-center justify-between">
             <div className="flex items-center gap-2">
               <UserPlus className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-warn))" }} />
@@ -400,7 +416,7 @@ export default async function DashboardV2Home() {
         </div>
 
         {/* Category distribution */}
-        <div className="v2-card v2-col-3">
+        <div className="v2-card v2-col-6">
           <div className="v2-card-head flex items-center gap-2">
             <Users className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-info))" }} />
             <span className="v2-card-title">Lead per categoria</span>
@@ -425,22 +441,6 @@ export default async function DashboardV2Home() {
                 </span>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Pipeline donut */}
-        <div className="v2-card v2-col-3">
-          <div className="v2-card-head flex items-center gap-2">
-            <Target className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-accent))" }} />
-            <span className="v2-card-title">Pipeline status</span>
-          </div>
-          <div style={{ padding: 16 }}>
-            <Donut
-              slices={pipelineSlices}
-              size={130}
-              centerValue={pipelineSlices.reduce((s, x) => s + x.value, 0)}
-              centerLabel="totale"
-            />
           </div>
         </div>
 
