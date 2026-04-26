@@ -158,12 +158,12 @@ export default async function LeadV2Page({
     }
   }
 
-  // Serie 90gg lead created
-  const heatStrip90 = buildDailySeries(
+  // Serie 14gg lead created (sparkline KPI)
+  const leadsSpark14Series = buildDailySeries(
     leads.map((l) => l.created_at),
-    90,
+    14,
   );
-  const leadsSpark14 = heatStrip90.slice(-14).map((d) => d.value);
+  const leadsSpark14 = leadsSpark14Series.map((d) => d.value);
 
   // Serie 14gg lead won (basata su updated_at del lead chiuso_vinto)
   const wonSpark14Series = buildDailySeries(
@@ -228,7 +228,6 @@ export default async function LeadV2Page({
     won: leads.filter((l) => l.status === "chiuso_vinto").length,
     leadsSpark14,
     wonSpark14,
-    heatStrip90,
     statusCounts,
     tipoServizioSlices,
     conversion30Won: wonLast30.length,

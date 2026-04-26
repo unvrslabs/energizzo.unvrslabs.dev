@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { KpiTile } from "@/components/admin-v2/viz/kpi-tile";
 import { Donut, type DonutSlice } from "@/components/admin-v2/viz/donut";
-import { HeatStrip } from "@/components/admin-v2/viz/heat-strip";
 import { ProgressRing } from "@/components/admin-v2/viz/progress-ring";
 import { CountUp } from "@/components/admin-v2/viz/count-up";
 import { STATUS_CONFIG, type Status } from "@/lib/status-config";
@@ -32,8 +31,6 @@ export type LeadOverviewData = {
   // Sparkline series (ultimi 14 punti)
   leadsSpark14: number[];
   wonSpark14: number[];
-  // Heat strip 90gg
-  heatStrip90: Array<{ date: string; value: number; label?: string }>;
   // Status counts per funnel
   statusCounts: Record<Status, number>;
   // Distribuzione tipo servizio
@@ -54,7 +51,6 @@ export function LeadOverview({ data }: { data: LeadOverviewData }) {
   const wonDelta = data.wonThisMonth - data.wonPrevMonth;
   const wonTrend: "up" | "down" | "flat" =
     wonDelta > 0 ? "up" : wonDelta < 0 ? "down" : "flat";
-  const heatTotal = data.heatStrip90.reduce((s, d) => s + d.value, 0);
 
   return (
     <div className="flex flex-col gap-5">
@@ -104,40 +100,6 @@ export function LeadOverview({ data }: { data: LeadOverviewData }) {
           variant="accent"
           icon={<Trophy className="w-3.5 h-3.5" />}
         />
-      </section>
-
-      {/* Heat strip lead creati/giorno 90gg */}
-      <section className="v2-card" style={{ padding: "14px 18px" }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 10,
-            flexWrap: "wrap",
-            gap: 8,
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <Activity
-              className="w-3.5 h-3.5"
-              style={{ color: "hsl(var(--v2-info))" }}
-            />
-            <span className="v2-card-title">Nuovi lead negli ultimi 90 giorni</span>
-          </div>
-          <span
-            className="v2-mono"
-            style={{
-              fontSize: 10.5,
-              color: "hsl(var(--v2-text-mute))",
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-            }}
-          >
-            <CountUp value={heatTotal} suffix=" lead" />
-          </span>
-        </div>
-        <HeatStrip data={data.heatStrip90} variant="info" cellSize={11} gap={2} />
       </section>
 
       {/* Funnel pipeline 9-stage + ProgressRing conversione + Donut tipo servizio */}

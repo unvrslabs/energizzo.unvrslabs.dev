@@ -42,14 +42,10 @@
   }
   body {
     @apply bg-background text-foreground antialiased font-sans;
-    background:
-      radial-gradient(ellipse at 30% 20%, hsl(158 60% 45% / 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 70% 10%, hsl(170 50% 50% / 0.1) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 50%, hsl(158 64% 42% / 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 70%, hsl(180 50% 40% / 0.12) 0%, transparent 45%),
-      radial-gradient(ellipse at 20% 80%, hsl(170 40% 45% / 0.1) 0%, transparent 50%),
-      linear-gradient(180deg, hsl(215 35% 18%) 0%, hsl(215 35% 12%) 50%, hsl(215 35% 8%) 100%);
-    background-attachment: fixed;
+    /* Bg solid dark coerente con tokens v2/lv2 — fallback visibile durante
+       errori client-side, transizioni di rotta o pagine senza wrapper .v2/.lv2.
+       Le sezioni interne (.v2, .lv2) hanno comunque il proprio bg sopra questo. */
+    background-color: hsl(215 24% 8%);
     min-height: 100vh;
   }
   h1, h2, h3, h4 {
