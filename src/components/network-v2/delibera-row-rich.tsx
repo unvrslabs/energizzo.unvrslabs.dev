@@ -53,6 +53,12 @@ export type DeliberaRowRichItem = {
   sectors: UiSector[];
   importanza: "critica" | "alta" | "normale" | "bassa" | null;
   summary: string | null;
+  /** Override stripe colorata sx (default: deriva da importanza). */
+  stripeColor?: string;
+  /** Chip extra accanto ai settori (es. stato 'vigente' per testi integrati). */
+  extraChip?: { label: string; color?: string };
+  /** Override path link (default: /network/delibere?open=). */
+  hrefBase?: string;
 };
 
 /**
@@ -97,7 +103,7 @@ export function DeliberaRowRich({
 
   const inner = (
     <>
-      {/* Stripe importanza */}
+      {/* Stripe importanza (o stripe override per varianti) */}
       <span
         aria-hidden
         style={{
@@ -107,7 +113,7 @@ export function DeliberaRowRich({
           bottom: 8,
           width: 3,
           borderRadius: 2,
-          background: meta?.tint ?? "transparent",
+          background: d.stripeColor ?? meta?.tint ?? "transparent",
         }}
       />
 
@@ -153,6 +159,24 @@ export function DeliberaRowRich({
             title={`Importanza ${meta.label}`}
           >
             {meta.label}
+          </span>
+        )}
+        {d.extraChip && (
+          <span
+            className="v2-mono"
+            style={{
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: d.extraChip.color ?? "hsl(var(--v2-accent))",
+              background: "hsl(var(--v2-accent) / 0.10)",
+              padding: "1px 6px",
+              borderRadius: 3,
+              border: "1px solid hsl(var(--v2-accent) / 0.28)",
+            }}
+          >
+            {d.extraChip.label}
           </span>
         )}
         <div style={{ flex: 1 }} />
@@ -260,9 +284,10 @@ export function DeliberaRowRich({
     );
   }
 
+  const hrefBase = d.hrefBase ?? "/network/delibere?open=";
   return (
     <Link
-      href={`/network/delibere?open=${encodeURIComponent(d.code)}`}
+      href={`${hrefBase}${encodeURIComponent(d.code)}`}
       style={baseStyle}
       className="delibera-rich-row"
     >

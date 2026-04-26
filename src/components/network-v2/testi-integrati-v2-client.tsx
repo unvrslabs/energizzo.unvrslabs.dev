@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
+import { DeliberaRowRich } from "@/components/network-v2/delibera-row-rich";
 import type { UiSector } from "@/lib/delibere/api";
 import { cn } from "@/lib/utils";
 
@@ -212,44 +213,23 @@ export function TestiIntegratiV2Client({
               Nessun risultato.
             </div>
           ) : (
-            filtered.map((t) => {
-              const active = t.codice === selectedCode;
-              const codeShort = t.codice.split("/").slice(0, 2).join("/");
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setSelectedCode(t.codice)}
-                  className={cn("v2-delibera-row text-left w-full", active && "v2-delibera-row--active")}
-                  style={{ gridTemplateColumns: "min-content 1fr", gap: "10px" }}
-                >
-                  <div className="flex flex-col gap-1 items-start">
-                    <span className="v2-delibera-code">{codeShort}</span>
-                    <span className="v2-delibera-date">{fmtShort(t.dataVigore)}</span>
-                  </div>
-                  <div className="min-w-0 flex flex-col gap-1.5">
-                    <span className="v2-delibera-title">{t.titolo}</span>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {t.sectors.map((s) => (
-                        <V2SectorChip key={s} sector={s} />
-                      ))}
-                      {t.stato && (
-                        <span
-                          className="v2-mono inline-flex items-center text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-                          style={{
-                            color: "hsl(var(--v2-accent))",
-                            background: "hsl(var(--v2-accent) / 0.08)",
-                            border: "1px solid hsl(var(--v2-accent) / 0.22)",
-                          }}
-                        >
-                          {t.stato}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })
+            filtered.map((t) => (
+              <DeliberaRowRich
+                key={t.id}
+                d={{
+                  code: t.codice,
+                  title: t.titolo,
+                  date: t.dataVigore,
+                  sectors: t.sectors,
+                  importanza: null,
+                  summary: t.descrizione,
+                  stripeColor: "hsl(var(--v2-accent) / 0.5)",
+                  extraChip: t.stato ? { label: t.stato } : undefined,
+                }}
+                active={t.codice === selectedCode}
+                onClick={() => setSelectedCode(t.codice)}
+              />
+            ))
           )}
         </div>
       </div>
@@ -298,43 +278,89 @@ function DetailPanel({
   }
 
   return (
-    <article className="p-6 md:p-8 flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+    <article className="p-6 md:p-7 flex flex-col gap-4">
+      {/* Header meta riga unica */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           {t.sectors.map((s) => (
             <V2SectorChip key={s} sector={s} />
           ))}
-          <span className="v2-mono text-[11px] ml-1" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            Vigente dal {fmtFull(t.dataVigore)}
-          </span>
+          {t.stato && (
+            <span
+              className="v2-mono"
+              style={{
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "hsl(var(--v2-accent))",
+                background: "hsl(var(--v2-accent) / 0.10)",
+                padding: "2px 8px",
+                borderRadius: 4,
+                border: "1px solid hsl(var(--v2-accent) / 0.28)",
+              }}
+            >
+              {t.stato}
+            </span>
+          )}
         </div>
         <span
-          className="v2-mono text-[11px] font-semibold px-2 py-1 rounded"
+          className="v2-mono text-[10.5px] font-semibold px-2 py-1 rounded"
           style={{
             background: "hsl(var(--v2-bg-elev))",
             border: "1px solid hsl(var(--v2-border))",
             color: "hsl(var(--v2-text))",
+            letterSpacing: "0.06em",
           }}
         >
           {t.codice}
         </span>
       </div>
 
+      {/* Kicker vigenza */}
+      <div
+        className="v2-mono"
+        style={{
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "hsl(var(--v2-text-mute))",
+        }}
+      >
+        Testo integrato · Vigente dal {fmtFull(t.dataVigore)}
+      </div>
+
+      {/* Titolo */}
       <h2
-        className="text-xl md:text-[22px] font-semibold leading-tight tracking-tight"
+        className="text-lg md:text-[19px] font-semibold leading-snug tracking-tight"
         style={{ color: "hsl(var(--v2-text))" }}
       >
         {t.titolo}
       </h2>
 
       {t.descrizione && t.descrizione !== t.titolo && (
-        <p className="text-[14px] leading-relaxed" style={{ color: "hsl(var(--v2-text-dim))" }}>
+        <p
+          className="text-[13.5px] leading-relaxed"
+          style={{
+            color: "hsl(var(--v2-text-dim))",
+            paddingLeft: 12,
+            borderLeft: "2px solid hsl(var(--v2-accent) / 0.4)",
+          }}
+        >
           {t.descrizione}
         </p>
       )}
 
-      {t.hasSummary && t.summary && (
-        <p className="text-[14px] leading-relaxed" style={{ color: "hsl(var(--v2-text-dim))" }}>
+      {t.hasSummary && t.summary && t.summary !== t.descrizione && (
+        <p
+          className="text-[13.5px] leading-relaxed"
+          style={{
+            color: "hsl(var(--v2-text-dim))",
+            paddingLeft: 12,
+            borderLeft: "2px solid hsl(var(--v2-accent) / 0.4)",
+          }}
+        >
           {t.summary}
         </p>
       )}
