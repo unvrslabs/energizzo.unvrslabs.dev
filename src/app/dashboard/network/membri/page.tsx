@@ -2,6 +2,11 @@ import Link from "next/link";
 import { Building2, MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { MemberActionsV2 } from "@/components/admin-v2/member-actions";
+import {
+  MembriOverview,
+  type MembriOverviewData,
+  tierFromInviteNumber,
+} from "@/components/admin-v2/network/membri-overview";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Membri · Admin v2" };
@@ -27,10 +32,130 @@ export default async function MembriPage() {
 
   const rows = data ?? [];
 
+  // Aggregati per overview: pesca leads per match piva → invite_number + provincia
+  const pivas = rows.map((r) => r.piva).filter(Boolean) as string[];
+  const { data: leadRows } = pivas.length
+    ? await supabase
+        .from("leads")
+        .select("piva, invite_number, provincia")
+        .in("piva", pivas)
+    : { data: [] };
+  const leadByPiva = new Map<
+    string,
+    { invite_number: number | null; provincia: string | null }
+  >();
+  for (const l of (leadRows ?? []) as {
+    piva: string;
+    invite_number: number | null;
+    provincia: string | null;
+  }[]) {
+    if (!leadByPiva.has(l.piva)) {
+      leadByPiva.set(l.piva, {
+        invite_number: l.invite_number,
+        provincia: l.provincia,
+      });
+    }
+  }
+
+  const activeRows = rows.filter((r) => !r.revoked_at);
+
+  // Tier counts
+  const tierCounts = { founder: 0, pioneer: 0, early: 0, member: 0 };
+  for (const m of activeRows) {
+    const inv = leadByPiva.get(m.piva)?.invite_number ?? null;
+    const tier = tierFromInviteNumber(inv);
+    tierCounts[tier]++;
+  }
+
+  // Sparkline 14gg approved/giorno
+  const buckets = new Map<string, number>();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    buckets.set(d.toISOString().slice(0, 10), 0);
+  }
+  for (const m of activeRows) {
+    if (!m.approved_at) continue;
+    const day = new Date(m.approved_at).toISOString().slice(0, 10);
+    if (buckets.has(day)) buckets.set(day, (buckets.get(day) ?? 0) + 1);
+  }
+  const approvedSpark14 = Array.from(buckets.values());
+
+  // Approved this/prev month
+  const now = new Date();
+  const startOfThisMonth = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    1,
+  ).getTime();
+  const startOfPrevMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1,
+  ).getTime();
+  let approvedThisMonth = 0;
+  let approvedPrevMonth = 0;
+  for (const m of activeRows) {
+    if (!m.approved_at) continue;
+    const t = new Date(m.approved_at).getTime();
+    if (t >= startOfThisMonth) approvedThisMonth++;
+    else if (t >= startOfPrevMonth) approvedPrevMonth++;
+  }
+
+  // Top province (top 6)
+  const provinceCounts = new Map<string, number>();
+  for (const m of activeRows) {
+    const prov = leadByPiva.get(m.piva)?.provincia;
+    if (!prov) continue;
+    provinceCounts.set(prov, (provinceCounts.get(prov) ?? 0) + 1);
+  }
+  const topProvinces = Array.from(provinceCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([name, count]) => ({ name, count }));
+
+  const overviewData: MembriOverviewData = {
+    total: rows.length,
+    active: activeRows.length,
+    revoked: rows.length - activeRows.length,
+    tierCounts,
+    approvedSpark14,
+    topProvinces,
+    approvedThisMonth,
+    approvedPrevMonth,
+  };
+
   const GRID = "minmax(260px, 1.6fr) minmax(140px, 1fr) 170px 120px 130px 100px 120px";
 
   return (
-    <div className="v2-card overflow-hidden">
+    <div className="flex flex-col gap-5">
+      <header>
+        <p
+          className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]"
+          style={{ color: "hsl(var(--v2-text-mute))" }}
+        >
+          Network · Reseller approvati
+        </p>
+        <h1
+          className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1"
+          style={{ color: "hsl(var(--v2-text))" }}
+        >
+          Membri
+        </h1>
+        <p
+          className="text-sm mt-1"
+          style={{ color: "hsl(var(--v2-text-dim))" }}
+        >
+          {activeRows.length} attivi su {rows.length} totali · tier in base a
+          invite_number progressivo
+        </p>
+      </header>
+
+      <MembriOverview data={overviewData} />
+
+      <div className="v2-card overflow-hidden">
       <div className="overflow-x-auto">
         <div style={{ minWidth: "1140px" }}>
           <div
@@ -126,6 +251,7 @@ export default async function MembriPage() {
             )}
           </ul>
         </div>
+      </div>
       </div>
     </div>
   );
