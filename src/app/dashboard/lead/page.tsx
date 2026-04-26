@@ -3,13 +3,17 @@ import type { Lead } from "@/lib/types";
 import {
   ACTIVE_PIPELINE_STATUSES,
   DEMO_DONE_STATUSES,
+  STATUS_CONFIG,
   type Categoria,
   type Status,
   type TipoServizio,
 } from "@/lib/status-config";
-import { LeadStatsV2 } from "@/components/admin-v2/lead/stats";
 import { FilterBarV2 } from "@/components/admin-v2/lead/filter-bar-v2";
 import { LeadDashboardV2Client } from "@/components/admin-v2/lead/client";
+import {
+  LeadOverview,
+  type LeadOverviewData,
+} from "@/components/admin-v2/lead/overview";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Lead · Admin v2" };
@@ -143,11 +147,94 @@ export default async function LeadV2Page({
     new Set(((provData ?? []) as { provincia: string }[]).map((r) => r.provincia).filter(Boolean)),
   );
 
-  const stats = {
+  // ── Overview data: status counts, serie temporali, donut tipo servizio ──
+  const statusCounts = STATUSES_TO_COUNT.reduce(
+    (acc, s) => ({ ...acc, [s]: 0 }),
+    {} as Record<Status, number>,
+  );
+  for (const l of leads) {
+    if (l.status in statusCounts) {
+      statusCounts[l.status as Status] = (statusCounts[l.status as Status] ?? 0) + 1;
+    }
+  }
+
+  // Serie 90gg lead created
+  const heatStrip90 = buildDailySeries(
+    leads.map((l) => l.created_at),
+    90,
+  );
+  const leadsSpark14 = heatStrip90.slice(-14).map((d) => d.value);
+
+  // Serie 14gg lead won (basata su updated_at del lead chiuso_vinto)
+  const wonSpark14Series = buildDailySeries(
+    leads
+      .filter((l) => l.status === "chiuso_vinto")
+      .map((l) => l.updated_at ?? l.created_at),
+    14,
+  );
+  const wonSpark14 = wonSpark14Series.map((d) => d.value);
+
+  // Conversione 30gg: lead creati negli ultimi 30gg vs won negli ultimi 30gg
+  const cutoff30 = Date.now() - 30 * 86400000;
+  const leadsLast30 = leads.filter(
+    (l) => l.created_at && new Date(l.created_at).getTime() >= cutoff30,
+  );
+  const wonLast30 = leads.filter(
+    (l) =>
+      l.status === "chiuso_vinto" &&
+      l.updated_at &&
+      new Date(l.updated_at).getTime() >= cutoff30,
+  );
+
+  // Won mese corrente vs mese precedente (delta KPI)
+  const now = new Date();
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const startOfPrevMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1,
+  ).getTime();
+  const wonThisMonth = leads.filter(
+    (l) =>
+      l.status === "chiuso_vinto" &&
+      l.updated_at &&
+      new Date(l.updated_at).getTime() >= startOfThisMonth,
+  ).length;
+  const wonPrevMonth = leads.filter((l) => {
+    if (l.status !== "chiuso_vinto" || !l.updated_at) return false;
+    const t = new Date(l.updated_at).getTime();
+    return t >= startOfPrevMonth && t < startOfThisMonth;
+  }).length;
+
+  // Distribuzione tipo servizio (per Donut)
+  const tipoCounts = leads.reduce<Record<string, number>>((acc, l) => {
+    const key = l.tipo_servizio ?? "N/D";
+    acc[key] = (acc[key] ?? 0) + 1;
+    return acc;
+  }, {});
+  const tipoServizioSlices = Object.entries(tipoCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, value]) => ({
+      label: label.replace(/^Solo /, "").replace(/^Dual.*/, "Dual"),
+      value,
+    }));
+
+  const overviewData: LeadOverviewData = {
     total: leads.length,
-    inPipeline: leads.filter((l) => ACTIVE_PIPELINE_STATUSES.includes(l.status)).length,
+    inPipeline: leads.filter((l) =>
+      ACTIVE_PIPELINE_STATUSES.includes(l.status),
+    ).length,
     demoDone: leads.filter((l) => DEMO_DONE_STATUSES.includes(l.status)).length,
     won: leads.filter((l) => l.status === "chiuso_vinto").length,
+    leadsSpark14,
+    wonSpark14,
+    heatStrip90,
+    statusCounts,
+    tipoServizioSlices,
+    conversion30Won: wonLast30.length,
+    conversion30Total: leadsLast30.length,
+    wonThisMonth,
+    wonPrevMonth,
   };
 
   return (
@@ -164,11 +251,42 @@ export default async function LeadV2Page({
         </p>
       </header>
 
-      <LeadStatsV2 stats={stats} />
+      <LeadOverview data={overviewData} />
 
       <FilterBarV2 provinces={provinces} />
 
       <LeadDashboardV2Client leads={filteredLeads} />
     </div>
   );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────
+
+const STATUSES_TO_COUNT = Object.keys(STATUS_CONFIG) as Status[];
+
+function buildDailySeries(
+  dates: Array<string | null | undefined>,
+  days: number,
+): Array<{ date: string; value: number; label?: string }> {
+  const buckets = new Map<string, number>();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    buckets.set(d.toISOString().slice(0, 10), 0);
+  }
+  for (const ts of dates) {
+    if (!ts) continue;
+    const day = new Date(ts).toISOString().slice(0, 10);
+    if (buckets.has(day)) buckets.set(day, (buckets.get(day) ?? 0) + 1);
+  }
+  return Array.from(buckets.entries()).map(([date, value]) => ({
+    date,
+    value,
+    label: `${new Date(date).toLocaleDateString("it-IT", {
+      day: "numeric",
+      month: "short",
+    })}: ${value} lead`,
+  }));
 }
