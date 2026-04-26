@@ -28,7 +28,7 @@ export async function POST() {
     value: "",
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",
     path: "/",
     maxAge: 0,
     domain: process.env.ADMIN_SESSION_COOKIE_DOMAIN || undefined,

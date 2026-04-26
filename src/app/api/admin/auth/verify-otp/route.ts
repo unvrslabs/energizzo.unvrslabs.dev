@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
     value: token,
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none", // permette invio del cookie quando dash.ildispaccio.energy e' in iframe da Boss
     path: "/",
     maxAge: ADMIN_SESSION_TTL_DAYS * 24 * 60 * 60,
     domain: adminCookieDomain || undefined,
