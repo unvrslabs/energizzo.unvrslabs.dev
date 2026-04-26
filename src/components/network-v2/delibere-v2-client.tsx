@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { ImportanceBadge } from "@/components/network-v2/importance-badge";
+import { DeliberaRowRich } from "@/components/network-v2/delibera-row-rich";
 import { cn } from "@/lib/utils";
 
 export type UiSector = "eel" | "gas";
@@ -260,50 +261,21 @@ export function DelibereV2Client({
               Nessun risultato.
             </div>
           ) : (
-            filtered.map((d) => {
-              const active = d.code === selectedCode;
-              const codeShort = d.code.split("/").slice(0, 2).join("/");
-              return (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => setSelectedCode(d.code)}
-                  className={cn("v2-delibera-row text-left w-full", active && "v2-delibera-row--active")}
-                  style={{ gridTemplateColumns: "min-content 1fr", gap: "10px" }}
-                >
-                  <div className="flex flex-col gap-1 items-start">
-                    <span className="v2-delibera-code">{codeShort}</span>
-                    <span className="v2-delibera-date">{fmtShort(d.date)}</span>
-                  </div>
-                  <div className="min-w-0 flex flex-col gap-1.5">
-                    <span className="v2-delibera-title">{d.title}</span>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {d.sectors.map((s) => (
-                        <V2SectorChip key={s} sector={s} />
-                      ))}
-                      <ImportanceBadge
-                        importanza={d.importanza}
-                        categoriaImpatto={d.categoriaImpatto}
-                        heuristicTag={d.heuristicTag}
-                      />
-                      {d.hasSummary && !d.importanza && (
-                        <span
-                          className="v2-mono inline-flex items-center gap-1 text-[9.5px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
-                          style={{
-                            color: "hsl(var(--v2-accent))",
-                            background: "hsl(var(--v2-accent) / 0.1)",
-                            border: "1px solid hsl(var(--v2-accent) / 0.28)",
-                          }}
-                        >
-                          <Sparkles className="w-2.5 h-2.5" />
-                          AI
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })
+            filtered.map((d) => (
+              <DeliberaRowRich
+                key={d.id}
+                d={{
+                  code: d.code,
+                  title: d.title,
+                  date: d.date,
+                  sectors: d.sectors,
+                  importanza: d.importanza,
+                  summary: d.summary,
+                }}
+                active={d.code === selectedCode}
+                onClick={() => setSelectedCode(d.code)}
+              />
+            ))
           )}
         </div>
       </div>
@@ -358,8 +330,9 @@ function DetailPanel({
   }
 
   return (
-    <article className="p-6 md:p-8 flex flex-col gap-5">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+    <article className="p-6 md:p-7 flex flex-col gap-4">
+      {/* Header meta riga unica */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           {d.sectors.map((s) => (
             <V2SectorChip key={s} sector={s} />
@@ -370,31 +343,51 @@ function DetailPanel({
             heuristicTag={d.heuristicTag}
             size="md"
           />
-          <span className="v2-mono text-[11px] ml-1" style={{ color: "hsl(var(--v2-text-mute))" }}>
-            {d.tipo ? `${d.tipo} · ` : ""}Pubblicata {fmtFull(d.date)}
-          </span>
         </div>
         <span
-          className="v2-mono text-[11px] font-semibold px-2 py-1 rounded"
+          className="v2-mono text-[10.5px] font-semibold px-2 py-1 rounded"
           style={{
             background: "hsl(var(--v2-bg-elev))",
             border: "1px solid hsl(var(--v2-border))",
             color: "hsl(var(--v2-text))",
+            letterSpacing: "0.06em",
           }}
         >
           {d.code}
         </span>
       </div>
 
+      {/* Kicker tipo + data */}
+      <div
+        className="v2-mono"
+        style={{
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "hsl(var(--v2-text-mute))",
+        }}
+      >
+        {d.tipo ? `${d.tipo} · ` : ""}Pubblicata {fmtFull(d.date)}
+      </div>
+
+      {/* Titolo */}
       <h2
-        className="text-xl md:text-[22px] font-semibold leading-tight tracking-tight"
+        className="text-lg md:text-[19px] font-semibold leading-snug tracking-tight"
         style={{ color: "hsl(var(--v2-text))" }}
       >
         {d.title}
       </h2>
 
       {d.hasSummary && d.summary ? (
-        <p className="text-[14px] leading-relaxed" style={{ color: "hsl(var(--v2-text-dim))" }}>
+        <p
+          className="text-[13.5px] leading-relaxed"
+          style={{
+            color: "hsl(var(--v2-text-dim))",
+            paddingLeft: 12,
+            borderLeft: "2px solid hsl(var(--v2-accent) / 0.4)",
+          }}
+        >
           {d.summary}
         </p>
       ) : null}

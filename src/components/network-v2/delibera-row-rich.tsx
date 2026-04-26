@@ -56,11 +56,23 @@ export type DeliberaRowRichItem = {
 };
 
 /**
- * Riga delibera "ricca" per la home network.
+ * Riga delibera "ricca" per home network e archivio delibere.
  * Densa ma leggibile: stripe importanza | header (codice+chip+data+NEW) |
  * titolo | AI summary preview.
+ *
+ * Modalità:
+ * - default: Link a /network/delibere?open={code}
+ * - selettore: passa onClick + active per usarla come selector lista
  */
-export function DeliberaRowRich({ d }: { d: DeliberaRowRichItem }) {
+export function DeliberaRowRich({
+  d,
+  onClick,
+  active,
+}: {
+  d: DeliberaRowRichItem;
+  onClick?: () => void;
+  active?: boolean;
+}) {
   const meta = d.importanza ? IMPORTANZA_META[d.importanza] : null;
   const isNew = d.date
     ? Date.now() - new Date(d.date).getTime() < 48 * 3600 * 1000
@@ -69,19 +81,22 @@ export function DeliberaRowRich({ d }: { d: DeliberaRowRichItem }) {
   // Codice troncato 102/2026 (no suffix lungo come /R/eel)
   const shortCode = d.code.split("/").slice(0, 2).join("/");
 
-  return (
-    <Link
-      href={`/network/delibere?open=${encodeURIComponent(d.code)}`}
-      style={{
-        display: "block",
-        padding: "12px 14px 12px 18px",
-        borderBottom: "1px solid hsl(var(--v2-border))",
-        position: "relative",
-        textDecoration: "none",
-        transition: "background 140ms ease",
-      }}
-      className="delibera-rich-row"
-    >
+  const baseStyle: React.CSSProperties = {
+    display: "block",
+    width: "100%",
+    textAlign: "left",
+    padding: "12px 14px 12px 18px",
+    borderBottom: "1px solid hsl(var(--v2-border))",
+    position: "relative",
+    textDecoration: "none",
+    transition: "background 140ms ease",
+    background: active ? "hsl(var(--v2-accent) / 0.06)" : "transparent",
+    boxShadow: active ? "inset 2px 0 0 hsl(var(--v2-accent))" : "none",
+    cursor: "pointer",
+  };
+
+  const inner = (
+    <>
       {/* Stripe importanza */}
       <span
         aria-hidden
@@ -229,6 +244,29 @@ export function DeliberaRowRich({ d }: { d: DeliberaRowRichItem }) {
           {d.summary}
         </div>
       )}
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        style={{ ...baseStyle, border: "none", color: "inherit" }}
+        className="delibera-rich-row"
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href={`/network/delibere?open=${encodeURIComponent(d.code)}`}
+      style={baseStyle}
+      className="delibera-rich-row"
+    >
+      {inner}
     </Link>
   );
 }
