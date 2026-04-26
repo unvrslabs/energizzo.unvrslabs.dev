@@ -93,6 +93,9 @@ function brandFooter(extra?: string) {
 }
 
 function gridPattern() {
+  // Satori non supporta hex 8-digit con alpha (es. #4fd1a108) dentro
+  // linear-gradient color stops — usare rgba() esplicita.
+  const grid = "rgba(79, 209, 161, 0.03)";
   return (
     <div
       style={{
@@ -100,8 +103,8 @@ function gridPattern() {
         inset: 0,
         display: "flex",
         backgroundImage: `
-          linear-gradient(${ACCENT}08 1px, transparent 1px),
-          linear-gradient(90deg, ${ACCENT}08 1px, transparent 1px)
+          linear-gradient(${grid} 1px, transparent 1px),
+          linear-gradient(90deg, ${grid} 1px, transparent 1px)
         `,
         backgroundSize: "80px 80px",
         opacity: 0.6,
