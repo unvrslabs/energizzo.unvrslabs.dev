@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { Building2, Phone, User } from "lucide-react";
 import { getNetworkMember } from "@/lib/network/session";
+import { getMemberInviteNumber } from "@/lib/network/invite";
 import { ChangePhoneForm } from "@/components/network-v2/change-phone-form";
 import { LogoutButton } from "@/components/network-v2/logout-button";
+import { MemberIdBadge } from "@/components/network-v2/member-id-badge";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,8 @@ export const metadata = {
 export default async function ProfiloPage() {
   const member = await getNetworkMember();
   if (!member) redirect("/network/login");
+
+  const inviteNumber = await getMemberInviteNumber(member.piva);
 
   const fields: Array<{
     label: string;
@@ -65,6 +69,8 @@ export default async function ProfiloPage() {
           verifica OTP via WhatsApp.
         </p>
       </header>
+
+      <MemberIdBadge inviteNumber={inviteNumber} approvedAt={member.approved_at} />
 
       <section className="v2-card" style={{ padding: 0 }}>
         {fields.map((f, i) => {
