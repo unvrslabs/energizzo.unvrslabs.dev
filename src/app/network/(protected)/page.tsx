@@ -12,6 +12,7 @@ import { listScadenzeFuture } from "@/lib/delibere/scadenze";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
+import { DeliberaRowRich } from "@/components/network-v2/delibera-row-rich";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
 import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
@@ -95,6 +96,8 @@ export default async function V2HomePage() {
         d.api_created_at ??
         d.created_at,
       sectors: deriveSectorsFromNumero(d.numero),
+      importanza: d.ai_importanza,
+      summary: d.ai_summary,
     }));
 
   const upcoming = allScadenze.slice(0, 4);
@@ -149,27 +152,14 @@ export default async function V2HomePage() {
               Tutte →
             </Link>
           </div>
-          <div className="divide-y" style={{ borderColor: "hsl(var(--v2-border))" }}>
+          <div>
             {latest.length === 0 ? (
               <div className="p-6 text-center text-sm" style={{ color: "hsl(var(--v2-text-mute))" }}>
                 Nessuna delibera indicizzata.
               </div>
             ) : (
               latest.map((d) => (
-                <Link
-                  key={d.code}
-                  href={`/network/delibere?open=${encodeURIComponent(d.code)}`}
-                  className="v2-delibera-row"
-                >
-                  <span className="v2-delibera-code">{d.code.split("/").slice(0, 2).join("/")}</span>
-                  <span className="v2-delibera-date">{d.date ? formatShortDate(d.date) : "—"}</span>
-                  <span className="v2-delibera-title">{d.title}</span>
-                  <span className="flex items-center gap-1">
-                    {d.sectors.map((s) => (
-                      <V2SectorChip key={s} sector={s} />
-                    ))}
-                  </span>
-                </Link>
+                <DeliberaRowRich key={d.code} d={d} />
               ))
             )}
           </div>

@@ -2759,6 +2759,11 @@ html[data-theme="light"] .v2-chip--gas {
   flex: 0 0 96px;
   overflow: hidden;
 }
+
+/* Riga delibera "rich" della home network — più densa e ricca di info */
+.delibera-rich-row:hover {
+  background: hsl(var(--v2-card-hover));
+}
 .v2-delibera-row:hover {
   background: hsl(var(--v2-card-hover));
 }
