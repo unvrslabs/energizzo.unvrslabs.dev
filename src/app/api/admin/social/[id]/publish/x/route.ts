@@ -87,10 +87,9 @@ export async function POST(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[publish/x] failed:", msg);
-    return NextResponse.json(
-      { error: `Pubblicazione X fallita: ${msg}` },
-      { status: 502 },
-    );
+    // Il client antepone già "Pubblicazione X fallita:" al toast, quindi
+    // qui ritorniamo solo il messaggio pulito.
+    return NextResponse.json({ error: msg }, { status: 502 });
   }
 
   // 4. Aggiorna DB con timestamp + payload tweet
