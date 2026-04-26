@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAdminMember } from "@/lib/admin/session";
 import { AdminV2Sidebar } from "@/components/admin-v2/sidebar";
@@ -18,6 +19,20 @@ export default async function DashboardV2Layout({
   const admin = await getAdminMember();
   if (!admin) {
     redirect("/login");
+  }
+
+  const cookieStore = await cookies();
+  const isEmbed = cookieStore.get("ildispaccio_embed")?.value === "1";
+
+  if (isEmbed) {
+    // Modalità iframe (es. dentro Boss): no sidebar, no padding extra
+    return (
+      <div className="v2 v2--embed">
+        <div className="v2-main v2-main--embed">
+          <div className="v2-content v2-content--embed">{children}</div>
+        </div>
+      </div>
+    );
   }
 
   const supabase = await createClient();

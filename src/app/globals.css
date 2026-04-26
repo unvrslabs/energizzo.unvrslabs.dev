@@ -2509,6 +2509,15 @@ img.v2-brand-mark {
   width: 100%;
 }
 
+/* Embed mode (iframe da Boss): no sidebar offset, padding ridotto */
+.v2-main--embed {
+  margin-left: 0 !important;
+}
+.v2-content--embed {
+  padding: 16px 20px 24px;
+  max-width: none;
+}
+
 /* ──── Cards ──── */
 .v2-card {
   background: hsl(var(--v2-card));

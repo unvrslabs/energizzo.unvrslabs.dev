@@ -7,6 +7,8 @@ const ADMIN_SITE_URL = "https://dash.ildispaccio.energy";
 
 const NETWORK_COOKIE_NAME = "ildispaccio_network";
 const ADMIN_COOKIE_NAME = "ildispaccio_admin";
+const EMBED_COOKIE_NAME = "ildispaccio_embed";
+const BOSS_ORIGIN = "https://boss.unvrslabs.dev";
 
 function isPublicRoute(pathname: string): boolean {
   return (
@@ -78,6 +80,29 @@ function handleAdmin(request: NextRequest, pathname: string) {
   return NextResponse.next({ request });
 }
 
+function applyEmbedAndCsp(request: NextRequest, response: NextResponse): NextResponse {
+  // CSP: permette embed in iframe da Boss + self
+  response.headers.set(
+    "Content-Security-Policy",
+    `frame-ancestors 'self' ${BOSS_ORIGIN}`,
+  );
+  // ?embed=1 sticky via cookie (così tutti i sub-link e XHR mantengono modalità embed)
+  const embedParam = request.nextUrl.searchParams.get("embed");
+  if (embedParam === "1") {
+    response.cookies.set({
+      name: EMBED_COOKIE_NAME,
+      value: "1",
+      path: "/",
+      sameSite: "none",
+      secure: true,
+      httpOnly: false,
+    });
+  } else if (embedParam === "0") {
+    response.cookies.delete(EMBED_COOKIE_NAME);
+  }
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const host = (request.headers.get("host") ?? "").toLowerCase();
   const pathname = request.nextUrl.pathname;
@@ -90,7 +115,7 @@ export async function middleware(request: NextRequest) {
     if (isPublicRoute(pathname) && !isAdminRoute(pathname)) {
       return NextResponse.redirect(new URL(pathname, PUBLIC_SITE_URL));
     }
-    return handleAdmin(request, pathname);
+    return applyEmbedAndCsp(request, handleAdmin(request, pathname));
   }
 
   // ildispaccio.energy + www → solo rotte pubbliche
