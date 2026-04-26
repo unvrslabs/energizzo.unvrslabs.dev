@@ -1,7 +1,11 @@
 import Link from "next/link";
-import { ArrowUpRight, ExternalLink, FileText, Flame, Zap } from "lucide-react";
+import { ArrowUpRight, ExternalLink, Flame, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatMonthLabel } from "@/lib/remo/queries";
+import {
+  PriceEngineOverview,
+  type PriceEngineOverviewData,
+} from "@/components/admin-v2/price-engine/price-engine-overview";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Price Engine · Admin v2" };
@@ -43,6 +47,30 @@ export default async function PriceEngineV2Page() {
   const reports = await loadReports();
   const luce = reports.filter((r) => r.category === "luce");
   const gas = reports.filter((r) => r.category === "gas");
+  const published = reports.filter((r) => r.published_at);
+  const draft = reports.length - published.length;
+
+  // Sparkline 12 mesi: published_at per mese
+  const monthBuckets: number[] = new Array(12).fill(0);
+  const now = new Date();
+  for (const r of published) {
+    if (!r.published_at) continue;
+    const d = new Date(r.published_at);
+    const monthsDiff =
+      (now.getFullYear() - d.getFullYear()) * 12 +
+      (now.getMonth() - d.getMonth());
+    const idx = 11 - monthsDiff;
+    if (idx >= 0 && idx < 12) monthBuckets[idx]++;
+  }
+
+  const overviewData: PriceEngineOverviewData = {
+    total: reports.length,
+    luce: luce.length,
+    gas: gas.length,
+    published: published.length,
+    draft,
+    publishedSpark12m: monthBuckets,
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -58,11 +86,7 @@ export default async function PriceEngineV2Page() {
         </p>
       </header>
 
-      <div className="v2-ticker-row">
-        <MetricCell code="LUCE" label="Report energia elettrica" value={luce.length} icon={<Zap />} tint="warn" />
-        <MetricCell code="GAS" label="Report gas naturale" value={gas.length} icon={<Flame />} tint="info" />
-        <MetricCell code="PUBBL" label="Pubblicati" value={reports.filter((r) => r.published_at).length} icon={<FileText />} tint="accent" />
-      </div>
+      <PriceEngineOverview data={overviewData} />
 
       <div className="v2-card overflow-hidden">
         <div
@@ -159,29 +183,3 @@ export default async function PriceEngineV2Page() {
   );
 }
 
-function MetricCell({
-  code,
-  label,
-  value,
-  icon,
-  tint,
-}: {
-  code: string;
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  tint: "accent" | "warn" | "info";
-}) {
-  const color =
-    tint === "warn" ? "hsl(var(--v2-warn))" : tint === "info" ? "hsl(var(--v2-info))" : "hsl(var(--v2-accent))";
-  return (
-    <div className="v2-ticker-cell">
-      <div className="v2-ticker-head">
-        <span className="v2-ticker-code">{code}</span>
-        <span style={{ color }}>{icon}</span>
-      </div>
-      <span className="v2-ticker-value" style={{ color }}>{value}</span>
-      <span className="v2-ticker-label">{label}</span>
-    </div>
-  );
-}
