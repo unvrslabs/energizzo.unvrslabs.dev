@@ -9,6 +9,7 @@ import {
   CalendarClock,
   FileText,
   LayoutDashboard,
+  MessageCircle,
   Mic,
   Sparkles,
   TrendingUp,
@@ -74,6 +75,7 @@ function buildSections(counts: { delibere: number; testiIntegrati: number; scade
     {
       title: "Network",
       items: [
+        { href: "/network/bacheca", label: "Bacheca", icon: MessageCircle },
         { href: "/network/membri", label: "Membri", icon: Users },
       ],
     },

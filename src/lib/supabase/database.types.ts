@@ -769,6 +769,90 @@ export type Database = {
           },
         ]
       }
+      network_posts: {
+        Row: {
+          body: string
+          created_at: string
+          deleted_at: string | null
+          deleted_by_admin: boolean
+          id: string
+          member_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by_admin?: boolean
+          id?: string
+          member_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by_admin?: boolean
+          id?: string
+          member_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      network_post_comments: {
+        Row: {
+          body: string
+          created_at: string
+          deleted_at: string | null
+          deleted_by_admin: boolean
+          id: string
+          member_id: string
+          post_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by_admin?: boolean
+          id?: string
+          member_id: string
+          post_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by_admin?: boolean
+          id?: string
+          member_id?: string
+          post_id?: string
+        }
+        Relationships: []
+      }
+      network_post_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          member_id: string
+          post_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          member_id: string
+          post_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          member_id?: string
+          post_id?: string
+        }
+        Relationships: []
+      }
       network_otp_codes: {
         Row: {
           attempts: number
