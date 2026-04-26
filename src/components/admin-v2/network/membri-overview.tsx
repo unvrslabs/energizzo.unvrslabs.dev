@@ -1,7 +1,6 @@
 import { Crown, MapPin, Sparkles, UserCheck, Users } from "lucide-react";
-import { KpiTile } from "@/components/admin-v2/viz/kpi-tile";
-import { Donut, type DonutSlice } from "@/components/admin-v2/viz/donut";
 import { ProgressRing } from "@/components/admin-v2/viz/progress-ring";
+import { Sparkline } from "@/components/admin-v2/viz/sparkline";
 import { CountUp } from "@/components/admin-v2/viz/count-up";
 
 const NETWORK_CAP = 100;
@@ -10,210 +9,310 @@ type TierKey = "founder" | "pioneer" | "early" | "member";
 
 const TIER_META: Record<
   TierKey,
-  { label: string; range: string; color: string; variant: "accent" | "info" | "warn" | "danger" }
+  { label: string; range: string; color: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }
 > = {
-  founder: { label: "Founder", range: "1–10", color: "hsl(var(--v2-accent))", variant: "accent" },
-  pioneer: { label: "Pioneer", range: "11–30", color: "hsl(var(--v2-info))", variant: "info" },
-  early: { label: "Early", range: "31–60", color: "hsl(var(--v2-warn))", variant: "warn" },
-  member: { label: "Member", range: "61+", color: "hsl(var(--v2-text-dim))", variant: "accent" },
+  founder: { label: "Founder", range: "1–10", color: "hsl(var(--v2-accent))", icon: Crown },
+  pioneer: { label: "Pioneer", range: "11–30", color: "hsl(var(--v2-info))", icon: Sparkles },
+  early: { label: "Early", range: "31–60", color: "hsl(var(--v2-warn))", icon: Users },
+  member: { label: "Member", range: "61+", color: "hsl(var(--v2-text-dim))", icon: UserCheck },
 };
+
+const TIER_ORDER: TierKey[] = ["founder", "pioneer", "early", "member"];
 
 export type MembriOverviewData = {
   total: number;
   active: number;
   revoked: number;
-  // Tier distribution: count per tier
   tierCounts: Record<TierKey, number>;
-  // Sparkline 30gg approvati/giorno (ultimi 14 punti)
   approvedSpark14: number[];
-  // Top province: [name, count][]
   topProvinces: Array<{ name: string; count: number }>;
-  // Approvati nuovi questo mese vs precedente
   approvedThisMonth: number;
   approvedPrevMonth: number;
 };
 
 export function MembriOverview({ data }: { data: MembriOverviewData }) {
-  const tierSlices: DonutSlice[] = (Object.keys(TIER_META) as TierKey[])
-    .map((k) => ({
-      label: TIER_META[k].label,
-      value: data.tierCounts[k] ?? 0,
-      color: TIER_META[k].color,
-    }))
-    .filter((s) => s.value > 0);
-
+  const capPct = (data.active / NETWORK_CAP) * 100;
   const approvedDelta = data.approvedThisMonth - data.approvedPrevMonth;
-  const approvedTrend: "up" | "down" | "flat" =
-    approvedDelta > 0 ? "up" : approvedDelta < 0 ? "down" : "flat";
-
+  const tierMax = Math.max(...Object.values(data.tierCounts), 1);
   const provinceMax = Math.max(...data.topProvinces.map((p) => p.count), 1);
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* KPI: 4 tier + cap progress */}
-      <section
+    <div className="v2-card" style={{ padding: 0, overflow: "hidden" }}>
+      {/* Header riga unica */}
+      <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: 14,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "14px 20px",
+          borderBottom: "1px solid hsl(var(--v2-border))",
+          flexWrap: "wrap",
+          gap: 12,
         }}
       >
-        <KpiTile
-          code="ATTIVI"
-          label="Membri network attivi"
-          value={data.active}
-          delta={
-            approvedDelta === 0
-              ? "—"
-              : approvedDelta > 0
-                ? `+${approvedDelta} mese`
-                : `${approvedDelta} mese`
-          }
-          trend={approvedTrend}
-          spark={data.approvedSpark14}
-          variant="accent"
-          icon={<UserCheck className="w-3.5 h-3.5" />}
-        />
-        <KpiTile
-          code="FOUNDER"
-          label="Tier 1–10"
-          value={data.tierCounts.founder}
-          variant="accent"
-          icon={<Crown className="w-3.5 h-3.5" />}
-        />
-        <KpiTile
-          code="PIONEER"
-          label="Tier 11–30"
-          value={data.tierCounts.pioneer}
-          variant="info"
-          icon={<Sparkles className="w-3.5 h-3.5" />}
-        />
-        <KpiTile
-          code="EARLY"
-          label="Tier 31–60"
-          value={data.tierCounts.early}
-          variant="warn"
-          icon={<Users className="w-3.5 h-3.5" />}
-        />
-      </section>
+        <div className="flex items-center gap-2">
+          <UserCheck
+            className="w-3.5 h-3.5"
+            style={{ color: "hsl(var(--v2-accent))" }}
+          />
+          <span className="v2-card-title">Network attivo</span>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            flexWrap: "wrap",
+          }}
+        >
+          {data.approvedSpark14.some((v) => v > 0) && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span
+                className="v2-mono"
+                style={{
+                  fontSize: 9.5,
+                  color: "hsl(var(--v2-text-mute))",
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Approvati 14gg
+              </span>
+              <Sparkline
+                data={data.approvedSpark14}
+                width={80}
+                height={22}
+                variant="accent"
+              />
+            </div>
+          )}
+          {approvedDelta !== 0 && (
+            <span
+              className={`v2-delta v2-delta--${
+                approvedDelta > 0 ? "up" : "down"
+              }`}
+              style={{ fontSize: 10.5 }}
+            >
+              {approvedDelta > 0 ? `+${approvedDelta} mese` : `${approvedDelta} mese`}
+            </span>
+          )}
+        </div>
+      </div>
 
-      {/* Donut tier + Cap progress + Top province */}
-      <section className="v2-bento">
-        {/* Cap progress ring */}
-        <div className="v2-card v2-col-3">
-          <div className="v2-card-head flex items-center gap-2">
-            <UserCheck
-              className="w-3.5 h-3.5"
-              style={{ color: "hsl(var(--v2-accent))" }}
-            />
-            <span className="v2-card-title">Capienza network</span>
-          </div>
+      {/* Body: 3 colonne — Capienza | Tier | Province */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(220px, 280px) minmax(0, 1.2fr) minmax(0, 1.4fr)",
+          gap: 1,
+          background: "hsl(var(--v2-border))",
+        }}
+      >
+        {/* Col 1: Capienza */}
+        <div
+          style={{
+            background: "hsl(var(--v2-card))",
+            padding: "20px 18px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          }}
+        >
+          <ProgressRing
+            value={data.active}
+            total={NETWORK_CAP}
+            size={140}
+            variant="accent"
+            label="Capienza network"
+            showPercent={false}
+          />
           <div
+            className="v2-mono"
             style={{
-              padding: 16,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 10,
+              fontSize: 10.5,
+              color: "hsl(var(--v2-text-mute))",
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
             }}
           >
-            <ProgressRing
-              value={data.active}
-              total={NETWORK_CAP}
-              size={140}
-              variant="accent"
-              label={`Slot occupati`}
-              showPercent={false}
-            />
+            <CountUp value={Math.round(capPct)} suffix="% del cap" />
+          </div>
+        </div>
+
+        {/* Col 2: Tier breakdown */}
+        <div
+          style={{
+            background: "hsl(var(--v2-card))",
+            padding: "20px 18px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <div
+            className="v2-mono"
+            style={{
+              fontSize: 9.5,
+              fontWeight: 700,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: "hsl(var(--v2-text-mute))",
+            }}
+          >
+            Distribuzione tier
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {TIER_ORDER.map((k) => {
+              const meta = TIER_META[k];
+              const count = data.tierCounts[k] ?? 0;
+              const pct = (count / tierMax) * 100;
+              const Icon = meta.icon;
+              return (
+                <div
+                  key={k}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "16px 100px 1fr 30px",
+                    gap: 10,
+                    alignItems: "center",
+                  }}
+                >
+                  <Icon
+                    className="w-3.5 h-3.5"
+                    style={{ color: meta.color }}
+                  />
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "hsl(var(--v2-text))",
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {meta.label}
+                    </div>
+                    <div
+                      className="v2-mono"
+                      style={{
+                        fontSize: 9.5,
+                        color: "hsl(var(--v2-text-mute))",
+                        letterSpacing: "0.1em",
+                      }}
+                    >
+                      {meta.range}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      height: 8,
+                      borderRadius: 4,
+                      background: "hsl(var(--v2-bg))",
+                      border: "1px solid hsl(var(--v2-border))",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${pct}%`,
+                        background: `linear-gradient(90deg, ${meta.color}aa, ${meta.color})`,
+                        boxShadow: count > 0 ? `0 0 8px ${meta.color}66` : "none",
+                        transition: "width 600ms ease",
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="v2-mono"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "hsl(var(--v2-text))",
+                      textAlign: "right",
+                    }}
+                  >
+                    <CountUp value={count} />
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Col 3: Top province */}
+        <div
+          style={{
+            background: "hsl(var(--v2-card))",
+            padding: "20px 18px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
+            }}
+          >
             <div
               className="v2-mono"
               style={{
-                fontSize: 10.5,
-                color: "hsl(var(--v2-text-mute))",
-                letterSpacing: "0.16em",
+                fontSize: 9.5,
+                fontWeight: 700,
+                letterSpacing: "0.22em",
                 textTransform: "uppercase",
+                color: "hsl(var(--v2-text-mute))",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
               }}
             >
-              {((data.active / NETWORK_CAP) * 100).toFixed(0)}% del cap
-            </div>
-          </div>
-        </div>
-
-        {/* Donut tier */}
-        <div className="v2-card v2-col-4">
-          <div className="v2-card-head flex items-center gap-2">
-            <Crown
-              className="w-3.5 h-3.5"
-              style={{ color: "hsl(var(--v2-accent))" }}
-            />
-            <span className="v2-card-title">Distribuzione per tier</span>
-          </div>
-          <div style={{ padding: 16 }}>
-            {tierSlices.length === 0 ? (
-              <div
-                className="v2-mono"
-                style={{
-                  fontSize: 11,
-                  color: "hsl(var(--v2-text-mute))",
-                  textAlign: "center",
-                  padding: 20,
-                }}
-              >
-                Nessun membro
-              </div>
-            ) : (
-              <Donut
-                slices={tierSlices}
-                size={150}
-                centerValue={data.active}
-                centerLabel="membri"
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Top province bar chart */}
-        <div className="v2-card v2-col-5">
-          <div className="v2-card-head flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin
-                className="w-3.5 h-3.5"
-                style={{ color: "hsl(var(--v2-info))" }}
-              />
-              <span className="v2-card-title">Top province</span>
+              <MapPin className="w-3 h-3" /> Distribuzione geografica
             </div>
             <span
               className="v2-mono"
               style={{
-                fontSize: 10,
+                fontSize: 9.5,
                 color: "hsl(var(--v2-text-mute))",
                 letterSpacing: "0.14em",
-                textTransform: "uppercase",
               }}
             >
               {data.topProvinces.length} prov.
             </span>
           </div>
-          <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-            {data.topProvinces.length === 0 ? (
-              <div
-                className="v2-mono"
-                style={{
-                  fontSize: 11,
-                  color: "hsl(var(--v2-text-mute))",
-                  textAlign: "center",
-                  padding: 20,
-                }}
-              >
-                Nessuna provincia mappata
-              </div>
-            ) : (
-              data.topProvinces.map((p) => (
+          {data.topProvinces.length === 0 ? (
+            <div
+              style={{
+                flex: 1,
+                display: "grid",
+                placeItems: "center",
+                color: "hsl(var(--v2-text-mute))",
+                fontSize: 11.5,
+                textAlign: "center",
+                padding: 20,
+              }}
+            >
+              Nessuna provincia mappata
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              {data.topProvinces.map((p) => (
                 <div
                   key={p.name}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "60px 1fr 36px",
+                    gridTemplateColumns: "60px 1fr 30px",
                     alignItems: "center",
                     gap: 10,
                   }}
@@ -233,7 +332,7 @@ export function MembriOverview({ data }: { data: MembriOverviewData }) {
                     style={{
                       height: 8,
                       borderRadius: 4,
-                      background: "hsl(var(--v2-card))",
+                      background: "hsl(var(--v2-bg))",
                       border: "1px solid hsl(var(--v2-border))",
                       overflow: "hidden",
                     }}
@@ -252,7 +351,7 @@ export function MembriOverview({ data }: { data: MembriOverviewData }) {
                   <span
                     className="v2-mono"
                     style={{
-                      fontSize: 11.5,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "hsl(var(--v2-text))",
                       textAlign: "right",
@@ -261,17 +360,17 @@ export function MembriOverview({ data }: { data: MembriOverviewData }) {
                     <CountUp value={p.count} />
                   </span>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
 
 /**
- * Calcola il tier in base all'invite_number progressivo.
+ * Tier in base all'invite_number progressivo.
  */
 export function tierFromInviteNumber(n: number | null): TierKey {
   if (n === null) return "member";

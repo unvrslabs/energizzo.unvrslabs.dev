@@ -130,29 +130,7 @@ export default async function MembriPage() {
   const GRID = "minmax(260px, 1.6fr) minmax(140px, 1fr) 170px 120px 130px 100px 120px";
 
   return (
-    <div className="flex flex-col gap-5">
-      <header>
-        <p
-          className="v2-mono text-[10.5px] font-semibold uppercase tracking-[0.18em]"
-          style={{ color: "hsl(var(--v2-text-mute))" }}
-        >
-          Network · Reseller approvati
-        </p>
-        <h1
-          className="text-2xl md:text-[28px] font-semibold tracking-tight mt-1"
-          style={{ color: "hsl(var(--v2-text))" }}
-        >
-          Membri
-        </h1>
-        <p
-          className="text-sm mt-1"
-          style={{ color: "hsl(var(--v2-text-dim))" }}
-        >
-          {activeRows.length} attivi su {rows.length} totali · tier in base a
-          invite_number progressivo
-        </p>
-      </header>
-
+    <div className="flex flex-col gap-4">
       <MembriOverview data={overviewData} />
 
       <div className="v2-card overflow-hidden">
