@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarClock } from "lucide-react";
 import { listScadenzeFuture, SCADENZA_LABEL, type ScadenzaTipo, type ScadenzaView } from "@/lib/delibere/scadenze";
+import { ScadenzaCountdown } from "@/components/network-v2/scadenza-countdown";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,21 +16,12 @@ const MONTHS_IT = [
 ];
 const MONTHS_IT_SHORT = ["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
 
-function fmtDate(iso: string) {
-  const d = new Date(iso + "T12:00:00Z");
-  return `${d.getUTCDate()} ${MONTHS_IT_SHORT[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-}
 function monthKey(iso: string) {
   return iso.slice(0, 7);
 }
 function monthLabel(key: string) {
   const [y, m] = key.split("-").map(Number);
   return `${MONTHS_IT[m - 1]} ${y}`;
-}
-function daysTo(iso: string) {
-  const now = Date.now();
-  const target = new Date(iso + "T12:00:00Z").getTime();
-  return Math.ceil((target - now) / 86400000);
 }
 
 const TIPO_COLOR: Record<ScadenzaTipo, { fg: string; bg: string; border: string }> = {
@@ -64,14 +56,6 @@ const TIPO_COLOR: Record<ScadenzaTipo, { fg: string; bg: string; border: string 
     border: "hsl(var(--v2-info) / 0.22)",
   },
 };
-
-function severityOf(days: number) {
-  if (days <= 0) return { label: "oggi", color: "hsl(var(--v2-danger))" };
-  if (days <= 7) return { label: `+${days}g`, color: "hsl(var(--v2-danger))" };
-  if (days <= 30) return { label: `+${days}g`, color: "hsl(var(--v2-warn))" };
-  if (days <= 90) return { label: `+${days}g`, color: "hsl(var(--v2-info))" };
-  return { label: `+${days}g`, color: "hsl(var(--v2-text-mute))" };
-}
 
 export default async function ScadenzePage() {
   const scadenze = await listScadenzeFuture();
@@ -155,8 +139,6 @@ export default async function ScadenzePage() {
                 <ul>
                   {items.map((s, idx) => {
                     const col = TIPO_COLOR[s.tipo] ?? TIPO_COLOR.scadenza;
-                    const days = daysTo(s.date);
-                    const sev = severityOf(days);
                     return (
                       <li
                         key={`${s.deliberaId}-${idx}`}
@@ -164,23 +146,10 @@ export default async function ScadenzePage() {
                       >
                         <Link
                           href={`/network/delibere?open=${encodeURIComponent(s.deliberaNumero)}`}
-                          className="grid gap-4 items-start px-5 py-4 hover:bg-white/[0.02] transition-colors"
-                          style={{ gridTemplateColumns: "90px 1fr auto" }}
+                          className="grid gap-4 items-center px-5 py-4 hover:bg-white/[0.02] transition-colors"
+                          style={{ gridTemplateColumns: "auto 1fr auto" }}
                         >
-                          <div className="flex flex-col gap-0.5">
-                            <span
-                              className="v2-mono text-[12px] font-semibold"
-                              style={{ color: "hsl(var(--v2-text))" }}
-                            >
-                              {fmtDate(s.date)}
-                            </span>
-                            <span
-                              className="v2-mono text-[10.5px] font-semibold"
-                              style={{ color: sev.color }}
-                            >
-                              {sev.label}
-                            </span>
-                          </div>
+                          <ScadenzaCountdown date={s.date} size="lg" />
                           <div className="min-w-0 flex flex-col gap-1.5">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span
@@ -197,7 +166,7 @@ export default async function ScadenzePage() {
                               </span>
                             </div>
                             <p
-                              className="text-[13.5px] leading-relaxed"
+                              className="text-[13.5px] leading-snug font-medium"
                               style={{ color: "hsl(var(--v2-text))" }}
                             >
                               {s.label}
@@ -210,7 +179,7 @@ export default async function ScadenzePage() {
                             </p>
                           </div>
                           <ArrowRight
-                            className="w-4 h-4 mt-1 shrink-0"
+                            className="w-4 h-4 shrink-0"
                             style={{ color: "hsl(var(--v2-text-mute))" }}
                           />
                         </Link>

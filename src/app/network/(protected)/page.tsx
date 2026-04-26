@@ -13,6 +13,7 @@ import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { DeliberaRowRich } from "@/components/network-v2/delibera-row-rich";
+import { ScadenzaCountdown } from "@/components/network-v2/scadenza-countdown";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
 import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
@@ -186,37 +187,29 @@ export default async function V2HomePage() {
                 Nessuna scadenza futura
               </li>
             ) : (
-              upcoming.map((dl, i) => {
-                const days = Math.ceil((new Date(dl.date + "T12:00:00Z").getTime() - Date.now()) / 86400000);
-                const sev = days <= 7 ? "live" : days <= 30 ? "imminent" : days <= 90 ? "upcoming" : "far";
-                return (
-                  <li key={`${dl.deliberaId}-${i}`}>
-                    <Link
-                      href={`/network/delibere?open=${encodeURIComponent(dl.deliberaNumero)}`}
-                      className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.02] transition-colors"
-                    >
-                      <span className={`v2-sev v2-sev--${sev} mt-1.5`} />
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className="text-[13px] font-medium line-clamp-2"
-                          style={{ color: "hsl(var(--v2-text))", lineHeight: 1.35 }}
-                        >
-                          {dl.label}
-                        </div>
-                        <div className="v2-mono text-[10.5px] mt-1 flex items-center gap-2" style={{ color: "hsl(var(--v2-text-mute))" }}>
-                          <span>{formatShortDate(dl.date)} {new Date(dl.date).getFullYear()}</span>
-                          <span className="opacity-50">·</span>
-                          <span>{dl.deliberaNumero.split("/").slice(0, 2).join("/")}</span>
-                          <span className="opacity-50">·</span>
-                          <span style={{ color: days <= 7 ? "hsl(var(--v2-danger))" : days <= 30 ? "hsl(var(--v2-warn))" : undefined }}>
-                            +{days}g
-                          </span>
-                        </div>
+              upcoming.map((dl, i) => (
+                <li key={`${dl.deliberaId}-${i}`}>
+                  <Link
+                    href={`/network/delibere?open=${encodeURIComponent(dl.deliberaNumero)}`}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.02] transition-colors"
+                  >
+                    <ScadenzaCountdown date={dl.date} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="text-[13px] font-medium line-clamp-2"
+                        style={{ color: "hsl(var(--v2-text))", lineHeight: 1.35 }}
+                      >
+                        {dl.label}
                       </div>
-                    </Link>
-                  </li>
-                );
-              })
+                      <div className="v2-mono text-[10.5px] mt-1 flex items-center gap-2" style={{ color: "hsl(var(--v2-text-mute))" }}>
+                        <span>{formatShortDate(dl.date)} {new Date(dl.date).getFullYear()}</span>
+                        <span className="opacity-50">·</span>
+                        <span>{dl.deliberaNumero.split("/").slice(0, 2).join("/")}</span>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              ))
             )}
           </ul>
         </div>
