@@ -9,10 +9,11 @@ import {
   Clock,
   Copy,
   Download,
-  Image as ImageIcon,
+  ExternalLink,
   Linkedin,
   Loader2,
   Plus,
+  Send,
   Sparkles,
   Trash2,
   X,
@@ -1166,7 +1167,7 @@ function GeneratorDrawer({
 // POST EDITOR DRAWER
 // ═══════════════════════════════════════════════════════════════════
 
-type EditorTab = "preview" | "testi" | "immagine" | "schedula";
+type EditorTab = "linkedin" | "x" | "schedula";
 
 function PostDrawer({
   post,
@@ -1179,7 +1180,7 @@ function PostDrawer({
   onUpdate: (p: SocialPost) => void;
   onDelete: (id: string) => void;
 }) {
-  const [tab, setTab] = useState<EditorTab>("preview");
+  const [tab, setTab] = useState<EditorTab>("linkedin");
   const [copyLinkedin, setCopyLinkedin] = useState(post.copy_linkedin);
   const [copyX, setCopyX] = useState(post.copy_x);
   const [hashtags, setHashtags] = useState(post.hashtags.join(" "));
@@ -1193,7 +1194,11 @@ function PostDrawer({
   );
   const [notes, setNotes] = useState(post.notes ?? "");
   const [isSaving, startSave] = useTransition();
-  const [activePreview, setActivePreview] = useState<"linkedin" | "x">("linkedin");
+  const [isPublishingX, setIsPublishingX] = useState(false);
+
+  const xPublishMeta = (post.fonte_meta as Record<string, unknown> | null)?.[
+    "x_publish"
+  ] as { first_url?: string; tweet_ids?: string[]; is_thread?: boolean } | undefined;
 
   const imageUrl = post.image_template
     ? `/api/admin/social/image/${post.id}?format=square`
@@ -1254,6 +1259,63 @@ function PostDrawer({
     toast.success("Post eliminato");
   };
 
+  const publishToX = async () => {
+    if (isPublishingX) return;
+    if (!copyX || copyX.trim().length === 0) {
+      toast.error("Copy X vuota — aggiungi del testo prima di pubblicare");
+      return;
+    }
+    if (
+      !confirm(
+        `Pubblicare ora su X (@il_dispaccio)?\n\nIl tweet sarà visibile pubblicamente e non potrà essere annullato dal sistema (solo da X.com).`,
+      )
+    )
+      return;
+
+    setIsPublishingX(true);
+    try {
+      // Salva eventuali modifiche pendenti prima di pubblicare
+      const hashtagList = hashtags
+        .split(/[\s,]+/)
+        .map((h) => h.trim().replace(/^#/, ""))
+        .filter(Boolean);
+      const updated = await updateSocialPost(post.id, {
+        copy_linkedin: copyLinkedin,
+        copy_x: copyX,
+        hashtags: hashtagList,
+        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        scheduled_lane: lane,
+        notes: notes || null,
+      });
+      onUpdate(updated);
+
+      const res = await fetch(`/api/admin/social/${post.id}/publish/x`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Errore pubblicazione");
+      }
+      toast.success(
+        data.tweetIds?.length > 1
+          ? `Thread pubblicato (${data.tweetIds.length} tweet)`
+          : "Pubblicato su X",
+      );
+      // Refresh local state: ricarico il post per avere fonte_meta aggiornata
+      try {
+        const refreshed = await updateSocialPost(post.id, {});
+        onUpdate(refreshed);
+      } catch {
+        // ignore: il toast ha già confermato la pubblicazione
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "errore imprevisto";
+      toast.error(`Pubblicazione X fallita: ${msg}`);
+    } finally {
+      setIsPublishingX(false);
+    }
+  };
+
   const copyToClipboard = async (text: string) => {
     try {
       const hashtagList = hashtags
@@ -1290,22 +1352,18 @@ function PostDrawer({
       }}
     >
       <TabButton
-        active={tab === "preview"}
-        onClick={() => setTab("preview")}
+        active={tab === "linkedin"}
+        onClick={() => setTab("linkedin")}
         icon={<Linkedin className="w-3.5 h-3.5" />}
-        label="Anteprima"
+        label="LinkedIn"
+        badge={post.published_linkedin_at ? "✓" : null}
       />
       <TabButton
-        active={tab === "testi"}
-        onClick={() => setTab("testi")}
-        icon={<Copy className="w-3.5 h-3.5" />}
-        label="Testi"
-      />
-      <TabButton
-        active={tab === "immagine"}
-        onClick={() => setTab("immagine")}
-        icon={<ImageIcon className="w-3.5 h-3.5" />}
-        label="Immagine"
+        active={tab === "x"}
+        onClick={() => setTab("x")}
+        icon={<span style={{ fontSize: 12, fontWeight: 700 }}>𝕏</span>}
+        label="X"
+        badge={post.published_x_at ? "✓" : null}
       />
       <TabButton
         active={tab === "schedula"}
@@ -1332,64 +1390,6 @@ function PostDrawer({
         Salva
       </button>
 
-      {/* Toggle LinkedIn */}
-      <button
-        type="button"
-        className="v2-btn v2-btn--ghost"
-        onClick={() =>
-          post.published_linkedin_at
-            ? undoPublish("linkedin")
-            : markDone("linkedin")
-        }
-        style={
-          post.published_linkedin_at
-            ? {
-                background: "hsl(var(--v2-accent) / 0.14)",
-                borderColor: "hsl(var(--v2-accent) / 0.4)",
-                color: "hsl(var(--v2-accent))",
-              }
-            : undefined
-        }
-        title={
-          post.published_linkedin_at
-            ? "Annulla pubblicazione LinkedIn"
-            : "Segna come pubblicato su LinkedIn"
-        }
-      >
-        {post.published_linkedin_at ? (
-          <Check className="w-4 h-4" />
-        ) : (
-          <Linkedin className="w-4 h-4" />
-        )}
-        {post.published_linkedin_at ? "LinkedIn ✓" : "Pubblicato LI"}
-      </button>
-
-      {/* Toggle X */}
-      <button
-        type="button"
-        className="v2-btn v2-btn--ghost"
-        onClick={() =>
-          post.published_x_at ? undoPublish("x") : markDone("x")
-        }
-        style={
-          post.published_x_at
-            ? {
-                background: "hsl(var(--v2-accent) / 0.14)",
-                borderColor: "hsl(var(--v2-accent) / 0.4)",
-                color: "hsl(var(--v2-accent))",
-              }
-            : undefined
-        }
-        title={
-          post.published_x_at
-            ? "Annulla pubblicazione X"
-            : "Segna come pubblicato su X"
-        }
-      >
-        {post.published_x_at ? <Check className="w-4 h-4" /> : null}
-        {post.published_x_at ? "X ✓" : "𝕏 Pubblicato X"}
-      </button>
-
       <button
         type="button"
         className="v2-btn v2-btn--ghost"
@@ -1413,170 +1413,45 @@ function PostDrawer({
       tabs={tabsBar}
       footer={footer}
     >
-      {tab === "preview" && (
-        <PreviewTab
-          copyLinkedin={copyLinkedin}
-          copyX={copyX}
-          hashtags={hashtagListArr}
-          imageUrl={imageUrl}
-          activePreview={activePreview}
-          setActivePreview={setActivePreview}
-          onCopyLinkedIn={() => copyToClipboard(copyLinkedin)}
-          onCopyX={() => copyToClipboard(copyX)}
+      {tab === "linkedin" && (
+        <PlatformPanel
+          platform="linkedin"
           post={post}
+          copy={copyLinkedin}
+          setCopy={setCopyLinkedin}
+          hashtags={hashtags}
+          setHashtags={setHashtags}
+          hashtagListArr={hashtagListArr}
+          imageUrl={imageUrl}
+          isSaving={isSaving}
+          onSave={() => save()}
+          onCopy={() => copyToClipboard(copyLinkedin)}
+          onMarkPublished={() =>
+            post.published_linkedin_at
+              ? undoPublish("linkedin")
+              : markDone("linkedin")
+          }
         />
       )}
 
-      {tab === "testi" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <Field label="LinkedIn copy">
-            <textarea
-              className="v2-input"
-              rows={14}
-              value={copyLinkedin}
-              onChange={(e) => setCopyLinkedin(e.target.value)}
-              style={{ fontFamily: "inherit", lineHeight: 1.5 }}
-            />
-            <CharFooter
-              count={copyLinkedin.length}
-              onCopy={() => copyToClipboard(copyLinkedin)}
-            />
-          </Field>
-          <Field label="X copy (separa thread con '---' su riga vuota)">
-            <textarea
-              className="v2-input"
-              rows={8}
-              value={copyX}
-              onChange={(e) => setCopyX(e.target.value)}
-              style={{ fontFamily: "inherit", lineHeight: 1.5 }}
-            />
-            <CharFooter
-              count={copyX.length}
-              onCopy={() => copyToClipboard(copyX)}
-            />
-          </Field>
-          <Field label="Hashtag (separati da spazio)">
-            <input
-              type="text"
-              className="v2-input"
-              placeholder="energia ARERA PUN"
-              value={hashtags}
-              onChange={(e) => setHashtags(e.target.value)}
-            />
-            {hashtagListArr.length > 0 && (
-              <div
-                style={{
-                  marginTop: 6,
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 4,
-                }}
-              >
-                {hashtagListArr.map((h) => (
-                  <span
-                    key={h}
-                    style={{
-                      fontSize: 11,
-                      padding: "2px 8px",
-                      borderRadius: 4,
-                      background: "hsl(var(--v2-accent) / 0.1)",
-                      color: "hsl(var(--v2-accent))",
-                      fontWeight: 600,
-                    }}
-                  >
-                    #{h}
-                  </span>
-                ))}
-              </div>
-            )}
-          </Field>
-        </div>
-      )}
-
-      {tab === "immagine" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {imageUrl ? (
-            <>
-              <div
-                className="v2-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "hsl(var(--v2-text-mute))",
-                  fontWeight: 600,
-                }}
-              >
-                Template: {post.image_template}
-              </div>
-              <div
-                style={{
-                  border: "1px solid hsl(var(--v2-border))",
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  background: "hsl(var(--v2-bg))",
-                }}
-              >
-                <img
-                  src={imageUrl}
-                  alt="template"
-                  style={{ width: "100%", display: "block" }}
-                />
-              </div>
-              <div
-                className="v2-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase",
-                  color: "hsl(var(--v2-text-mute))",
-                  fontWeight: 600,
-                  marginTop: 4,
-                }}
-              >
-                Scarica nei 3 formati
-              </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <a
-                  href={`/api/admin/social/image/${post.id}?format=square`}
-                  download={`post-${post.id}-square.png`}
-                  className="v2-btn v2-btn--ghost"
-                  style={{ fontSize: 12 }}
-                >
-                  <Download className="w-3.5 h-3.5" /> Square 1080
-                </a>
-                <a
-                  href={`/api/admin/social/image/${post.id}?format=feed`}
-                  download={`post-${post.id}-feed.png`}
-                  className="v2-btn v2-btn--ghost"
-                  style={{ fontSize: 12 }}
-                >
-                  <Download className="w-3.5 h-3.5" /> LI Feed 1200×627
-                </a>
-                <a
-                  href={`/api/admin/social/image/${post.id}?format=landscape`}
-                  download={`post-${post.id}-landscape.png`}
-                  className="v2-btn v2-btn--ghost"
-                  style={{ fontSize: 12 }}
-                >
-                  <Download className="w-3.5 h-3.5" /> X 1600×900
-                </a>
-              </div>
-            </>
-          ) : (
-            <div
-              className="v2-card"
-              style={{
-                padding: 20,
-                textAlign: "center",
-                color: "hsl(var(--v2-text-mute))",
-                fontSize: 13,
-              }}
-            >
-              Nessun template immagine assegnato a questo post.
-            </div>
-          )}
-        </div>
+      {tab === "x" && (
+        <PlatformPanel
+          platform="x"
+          post={post}
+          copy={copyX}
+          setCopy={setCopyX}
+          hashtags={hashtags}
+          setHashtags={setHashtags}
+          hashtagListArr={hashtagListArr}
+          imageUrl={imageUrl}
+          isSaving={isSaving}
+          isPublishing={isPublishingX}
+          xPublishMeta={xPublishMeta}
+          onSave={() => save()}
+          onCopy={() => copyToClipboard(copyX)}
+          onPublishX={publishToX}
+          onUndoPublishX={() => undoPublish("x")}
+        />
       )}
 
       {tab === "schedula" && (
@@ -1666,11 +1541,13 @@ function TabButton({
   onClick,
   icon,
   label,
+  badge,
 }: {
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
+  badge?: string | null;
 }) {
   return (
     <button
@@ -1698,6 +1575,21 @@ function TabButton({
     >
       {icon}
       {label}
+      {badge && (
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 800,
+            color: "hsl(var(--v2-accent))",
+            background: "hsl(var(--v2-accent) / 0.16)",
+            padding: "1px 6px",
+            borderRadius: 999,
+            marginLeft: 2,
+          }}
+        >
+          {badge}
+        </span>
+      )}
     </button>
   );
 }
@@ -1745,130 +1637,291 @@ function CharFooter({
   );
 }
 
-function PreviewTab({
-  copyLinkedin,
-  copyX,
-  hashtags,
-  imageUrl,
-  activePreview,
-  setActivePreview,
-  onCopyLinkedIn,
-  onCopyX,
+/**
+ * Pannello unico per piattaforma (LinkedIn o X).
+ *
+ * Per entrambe: textarea editabile + hashtag editabili + preview live + bottone
+ * scarica immagine + copia testo.
+ *
+ * LinkedIn: bottone "Segna pubblicato" (manuale, perché non c'è API).
+ * X: bottone "Pubblica su X" (chiamata API live) + link al tweet pubblicato.
+ */
+function PlatformPanel({
+  platform,
   post,
+  copy,
+  setCopy,
+  hashtags,
+  setHashtags,
+  hashtagListArr,
+  imageUrl,
+  isSaving,
+  isPublishing,
+  xPublishMeta,
+  onSave,
+  onCopy,
+  onPublishX,
+  onUndoPublishX,
+  onMarkPublished,
 }: {
-  copyLinkedin: string;
-  copyX: string;
-  hashtags: string[];
-  imageUrl: string | null;
-  activePreview: "linkedin" | "x";
-  setActivePreview: (v: "linkedin" | "x") => void;
-  onCopyLinkedIn: () => void;
-  onCopyX: () => void;
+  platform: "linkedin" | "x";
   post: SocialPost;
+  copy: string;
+  setCopy: (v: string) => void;
+  hashtags: string;
+  setHashtags: (v: string) => void;
+  hashtagListArr: string[];
+  imageUrl: string | null;
+  isSaving: boolean;
+  isPublishing?: boolean;
+  xPublishMeta?: { first_url?: string; tweet_ids?: string[]; is_thread?: boolean };
+  onSave: () => void;
+  onCopy: () => void;
+  onPublishX?: () => void;
+  onUndoPublishX?: () => void;
+  onMarkPublished?: () => void;
 }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {/* Toggle LinkedIn / X */}
-      <div
-        style={{
-          display: "flex",
-          gap: 4,
-          padding: 4,
-          background: "hsl(var(--v2-card))",
-          border: "1px solid hsl(var(--v2-border))",
-          borderRadius: 10,
-          alignSelf: "flex-start",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setActivePreview("linkedin")}
-          style={{
-            padding: "6px 14px",
-            background:
-              activePreview === "linkedin"
-                ? "hsl(var(--v2-accent) / 0.14)"
-                : "transparent",
-            color:
-              activePreview === "linkedin"
-                ? "hsl(var(--v2-accent))"
-                : "hsl(var(--v2-text-dim))",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: 12,
-            fontWeight: 600,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <Linkedin className="w-3.5 h-3.5" /> LinkedIn
-        </button>
-        <button
-          type="button"
-          onClick={() => setActivePreview("x")}
-          style={{
-            padding: "6px 14px",
-            background:
-              activePreview === "x"
-                ? "hsl(var(--v2-accent) / 0.14)"
-                : "transparent",
-            color:
-              activePreview === "x"
-                ? "hsl(var(--v2-accent))"
-                : "hsl(var(--v2-text-dim))",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
-        >
-          𝕏 X
-        </button>
-      </div>
+  const isLinkedin = platform === "linkedin";
+  const isPublished = isLinkedin
+    ? !!post.published_linkedin_at
+    : !!post.published_x_at;
+  const downloadFormat = isLinkedin ? "feed" : "square";
+  const downloadLabel = isLinkedin
+    ? "Scarica immagine (1200×627)"
+    : "Scarica immagine (1080×1080)";
+  const charLimit = isLinkedin ? 3000 : 280;
+  const charCount = copy.length;
+  const overLimit = !isLinkedin && charCount > charLimit;
 
-      {activePreview === "linkedin" ? (
-        <LinkedInPreview
-          copy={copyLinkedin}
-          hashtags={hashtags}
-          imageUrl={imageUrl}
-        />
-      ) : (
-        <XPreview copy={copyX} hashtags={hashtags} imageUrl={imageUrl} />
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Status banner se già pubblicato */}
+      {isPublished && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "10px 14px",
+            background: "hsl(var(--v2-accent) / 0.10)",
+            border: "1px solid hsl(var(--v2-accent) / 0.32)",
+            borderRadius: 10,
+            color: "hsl(var(--v2-accent))",
+            fontSize: 12.5,
+            fontWeight: 600,
+          }}
+        >
+          <Check className="w-4 h-4" />
+          <span style={{ flex: 1 }}>
+            Pubblicato il{" "}
+            {new Date(
+              (isLinkedin ? post.published_linkedin_at : post.published_x_at) ?? "",
+            ).toLocaleString("it-IT")}
+          </span>
+          {!isLinkedin && xPublishMeta?.first_url && (
+            <a
+              href={xPublishMeta.first_url}
+              target="_blank"
+              rel="noreferrer"
+              className="v2-btn v2-btn--ghost"
+              style={{ padding: "4px 10px", fontSize: 11 }}
+            >
+              <ExternalLink className="w-3 h-3" /> Apri tweet
+            </a>
+          )}
+        </div>
       )}
 
-      {/* Azioni quick sotto la preview */}
+      {/* Preview */}
+      <div>
+        <div
+          className="v2-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "hsl(var(--v2-text-mute))",
+            fontWeight: 600,
+            marginBottom: 8,
+          }}
+        >
+          Anteprima {isLinkedin ? "LinkedIn" : "X"}
+        </div>
+        {isLinkedin ? (
+          <LinkedInPreview
+            copy={copy}
+            hashtags={hashtagListArr}
+            imageUrl={imageUrl}
+          />
+        ) : (
+          <XPreview
+            copy={copy}
+            hashtags={hashtagListArr}
+            imageUrl={imageUrl}
+          />
+        )}
+      </div>
+
+      {/* Editor copy */}
+      <Field label={isLinkedin ? "Copy LinkedIn" : "Copy X (separa thread con '---' su riga vuota)"}>
+        <textarea
+          className="v2-input"
+          rows={isLinkedin ? 12 : 8}
+          value={copy}
+          onChange={(e) => setCopy(e.target.value)}
+          style={{ fontFamily: "inherit", lineHeight: 1.5 }}
+        />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: 6,
+            fontSize: 11,
+            color: overLimit
+              ? "hsl(var(--v2-danger))"
+              : "hsl(var(--v2-text-mute))",
+            fontFamily: "var(--font-mono), monospace",
+          }}
+        >
+          <span>
+            {charCount} / {charLimit} caratteri
+            {overLimit && " · ATTENZIONE: oltre il limite, verrà splittato in thread"}
+          </span>
+        </div>
+      </Field>
+
+      {/* Hashtag */}
+      <Field label="Hashtag (separati da spazio, condivisi tra LinkedIn e X)">
+        <input
+          type="text"
+          className="v2-input"
+          placeholder="energia ARERA PUN"
+          value={hashtags}
+          onChange={(e) => setHashtags(e.target.value)}
+        />
+        {hashtagListArr.length > 0 && (
+          <div
+            style={{
+              marginTop: 6,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 4,
+            }}
+          >
+            {hashtagListArr.map((h) => (
+              <span
+                key={h}
+                style={{
+                  fontSize: 11,
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  background: "hsl(var(--v2-accent) / 0.1)",
+                  color: "hsl(var(--v2-accent))",
+                  fontWeight: 600,
+                }}
+              >
+                #{h}
+              </span>
+            ))}
+          </div>
+        )}
+      </Field>
+
+      {/* Azioni piattaforma */}
       <div
         style={{
           display: "flex",
           gap: 8,
           flexWrap: "wrap",
-          marginTop: 4,
+          paddingTop: 8,
+          borderTop: "1px solid hsl(var(--v2-border))",
         }}
       >
         <button
           type="button"
-          className="v2-btn v2-btn--primary"
-          onClick={activePreview === "linkedin" ? onCopyLinkedIn : onCopyX}
-          style={{ flex: "1 1 180px" }}
+          className="v2-btn v2-btn--ghost"
+          onClick={onCopy}
         >
-          <Copy className="w-4 h-4" /> Copia testo{" "}
-          {activePreview === "linkedin" ? "LinkedIn" : "X"}
+          <Copy className="w-4 h-4" /> Copia testo
         </button>
         {imageUrl && (
           <a
-            href={`/api/admin/social/image/${post.id}?format=${
-              activePreview === "linkedin" ? "feed" : "landscape"
-            }`}
-            download={`post-${post.id}-${
-              activePreview === "linkedin" ? "feed" : "landscape"
-            }.png`}
+            href={`/api/admin/social/image/${post.id}?format=${downloadFormat}`}
+            download={`post-${post.id}-${downloadFormat}.png`}
             className="v2-btn v2-btn--ghost"
           >
-            <Download className="w-4 h-4" /> Scarica immagine
+            <Download className="w-4 h-4" /> {downloadLabel}
           </a>
+        )}
+        <div style={{ flex: 1 }} />
+        {/* Azione principale piattaforma */}
+        {isLinkedin ? (
+          <button
+            type="button"
+            className={
+              isPublished ? "v2-btn v2-btn--ghost" : "v2-btn v2-btn--primary"
+            }
+            onClick={() => {
+              if (!isPublished) onSave();
+              onMarkPublished?.();
+            }}
+            disabled={isSaving}
+            style={
+              isPublished
+                ? {
+                    background: "hsl(var(--v2-accent) / 0.14)",
+                    borderColor: "hsl(var(--v2-accent) / 0.4)",
+                    color: "hsl(var(--v2-accent))",
+                  }
+                : undefined
+            }
+            title={
+              isPublished
+                ? "Annulla: torna a non pubblicato"
+                : "Segna come pubblicato manualmente su LinkedIn"
+            }
+          >
+            {isPublished ? <Check className="w-4 h-4" /> : <Linkedin className="w-4 h-4" />}
+            {isPublished ? "Pubblicato ✓ (annulla)" : "Segna pubblicato LI"}
+          </button>
+        ) : (
+          <>
+            {isPublished ? (
+              <button
+                type="button"
+                className="v2-btn v2-btn--ghost"
+                onClick={onUndoPublishX}
+                style={{
+                  background: "hsl(var(--v2-accent) / 0.14)",
+                  borderColor: "hsl(var(--v2-accent) / 0.4)",
+                  color: "hsl(var(--v2-accent))",
+                }}
+                title="Annulla: il tweet su X resta online ma il flag interno viene rimosso"
+              >
+                <Check className="w-4 h-4" /> Pubblicato ✓ (annulla flag)
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="v2-btn v2-btn--primary"
+                onClick={onPublishX}
+                disabled={isPublishing || isSaving || copy.trim().length === 0}
+                title={
+                  copy.trim().length === 0
+                    ? "Aggiungi del testo prima di pubblicare"
+                    : "Pubblica ora su X (@il_dispaccio)"
+                }
+              >
+                {isPublishing ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                {isPublishing ? "Pubblicazione…" : "Pubblica su X"}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>
