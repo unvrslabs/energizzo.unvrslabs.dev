@@ -1558,12 +1558,79 @@ export type Database = {
         }
         Relationships: []
       }
+      network_notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          dedup_key: string | null
+          id: string
+          link: string | null
+          member_id: string
+          payload: Json | null
+          read_at: string | null
+          severity: string
+          title: string
+          type: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          dedup_key?: string | null
+          id?: string
+          link?: string | null
+          member_id: string
+          payload?: Json | null
+          read_at?: string | null
+          severity?: string
+          title: string
+          type: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          dedup_key?: string | null
+          id?: string
+          link?: string | null
+          member_id?: string
+          payload?: Json | null
+          read_at?: string | null
+          severity?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       agent_exec_sql: { Args: { p_query: string }; Returns: Json }
+      create_broadcast_notification: {
+        Args: {
+          p_type: string
+          p_title: string
+          p_body: string | null
+          p_link: string | null
+          p_severity: string
+          p_payload: Json | null
+          p_dedup_key: string | null
+        }
+        Returns: number
+      }
+      list_scadenze_imminenti: {
+        Args: { p_days?: number }
+        Returns: {
+          delibera_id: number
+          delibera_numero: string
+          delibera_titolo: string
+          scadenza_date: string
+          scadenza_label: string
+          scadenza_tipo: string
+          giorni_residui: number
+          dedup_key: string
+        }[]
+      }
       complete_survey: {
         Args: { p_answers: Json; p_token: string }
         Returns: undefined

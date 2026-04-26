@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
-  Bell,
   BookOpen,
   CalendarClock,
   FileText,
@@ -19,6 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/v2/theme-toggle";
 import { AgentChatDrawer } from "@/components/admin-v2/agent-chat-drawer";
+import { NotificationsBell } from "@/components/network-v2/notifications-bell";
 
 type NavItem = {
   href: string;
@@ -219,18 +219,7 @@ export function V2Sidebar({
               {member.ragione_sociale}
             </div>
           </div>
-          <button
-            type="button"
-            className="v2-btn v2-btn--ghost relative"
-            aria-label="Notifiche"
-            style={{ padding: "6px 8px" }}
-          >
-            <Bell className="w-3.5 h-3.5" />
-            <span
-              className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-              style={{ background: "hsl(var(--v2-warn))" }}
-            />
-          </button>
+          <NotificationsBell />
           <LogoutButton />
         </div>
       </div>
