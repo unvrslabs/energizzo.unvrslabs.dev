@@ -93,9 +93,11 @@ function brandFooter(extra?: string) {
 }
 
 function gridPattern() {
-  // Satori non supporta hex 8-digit con alpha (es. #4fd1a108) dentro
-  // linear-gradient color stops — usare rgba() esplicita.
-  const grid = "rgba(79, 209, 161, 0.03)";
+  // Satori NON supporta né hex 8-digit (#RRGGBBAA) né rgba()/hsl() dentro
+  // linear-gradient color stops — usare hex 6-digit puro (RRGGBB).
+  // #0a2823 = emerald molto scuro che simula visivamente ~3% opacity
+  // di #4fd1a1 sopra il bg dark #061a17.
+  const grid = "#0a2823";
   return (
     <div
       style={{
