@@ -18,14 +18,18 @@ export async function GET(req: Request) {
   const cutoffIso = cutoff.toISOString().slice(0, 10);
 
   const supabase = await createClient();
+  // data_pubblicazione è quasi sempre null nel DB → usiamo scraped_data_pubblicazione
+  // come fonte primaria della data, con fallback sul campo originale.
   const { data, error } = await supabase
     .from("delibere_cache")
     .select(
       "id,numero,titolo,ai_summary,ai_importanza,ai_categoria_impatto,data_pubblicazione,scraped_data_pubblicazione,url_riferimento",
     )
     .in("numero_suffix", ["eel", "gas", "com"])
-    .gte("data_pubblicazione", cutoffIso)
-    .order("data_pubblicazione", { ascending: false, nullsFirst: false })
+    .or(
+      `data_pubblicazione.gte.${cutoffIso},scraped_data_pubblicazione.gte.${cutoffIso}`,
+    )
+    .order("scraped_data_pubblicazione", { ascending: false, nullsFirst: false })
     .limit(limit * 3);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
