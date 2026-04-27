@@ -48,10 +48,11 @@ export async function GET(req: Request) {
     const latest = await getLatestPun();
     stats.latest_day_in_db = latest?.price_day ?? null;
 
-    // Vai da ultimo giorno+1 a ieri (dato ENTSO-E del giorno corrente incompleto)
-    const yesterday = new Date();
-    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-    const endIso = yesterday.toISOString().slice(0, 10);
+    // Sync da ultimo+1 a ieri; aggiungi anche oggi se siamo dopo le 11:00 UTC (= 13:00 IT, ENTSO-E day-ahead già pubblicato alle 12:42 IT)
+    const nowUtc = new Date();
+    const endDate = new Date(nowUtc);
+    if (nowUtc.getUTCHours() < 11) endDate.setUTCDate(endDate.getUTCDate() - 1);
+    const endIso = endDate.toISOString().slice(0, 10);
 
     const startDate = latest
       ? (() => {
