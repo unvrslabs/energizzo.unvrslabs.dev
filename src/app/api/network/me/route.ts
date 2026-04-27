@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
-import { getNetworkMember } from "@/lib/network/session";
+import { NextResponse, type NextRequest } from "next/server";
+import { getNetworkMemberFromRequest } from "@/lib/network/session";
 import { maskPhone } from "@/lib/network/phone";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const member = await getNetworkMember();
+export async function GET(req: NextRequest) {
+  const member = await getNetworkMemberFromRequest(req);
   if (!member) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
