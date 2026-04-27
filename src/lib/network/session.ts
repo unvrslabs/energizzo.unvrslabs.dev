@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import type { NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hashSessionToken } from "@/lib/network/crypto";
 
@@ -15,9 +16,13 @@ export type NetworkMember = {
   last_login_at: string | null;
 };
 
-export async function getNetworkMember(): Promise<NetworkMember | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(NETWORK_COOKIE_NAME)?.value;
+/**
+ * Core: data il raw session token, ritorna il member valido o null.
+ * Usato sia dal cookie (web) sia dall'header Authorization (mobile).
+ */
+export async function getNetworkMemberByToken(
+  token: string | null | undefined,
+): Promise<NetworkMember | null> {
   if (!token) return null;
 
   const tokenHash = hashSessionToken(token);
@@ -53,6 +58,32 @@ export async function getNetworkMember(): Promise<NetworkMember | null> {
   };
 }
 
+export async function getNetworkMember(): Promise<NetworkMember | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(NETWORK_COOKIE_NAME)?.value;
+  return getNetworkMemberByToken(token);
+}
+
+/**
+ * Estrae il token dal request: prima `Authorization: Bearer <token>` (mobile),
+ * altrimenti dal cookie httpOnly (web). Permette alle API route di servire entrambi.
+ */
+export function extractNetworkToken(req: NextRequest): string | null {
+  const auth = req.headers.get("authorization") ?? req.headers.get("Authorization");
+  if (auth) {
+    const match = auth.match(/^Bearer\s+(.+)$/i);
+    if (match) return match[1].trim();
+  }
+  const cookie = req.cookies.get(NETWORK_COOKIE_NAME)?.value;
+  return cookie ?? null;
+}
+
+export async function getNetworkMemberFromRequest(
+  req: NextRequest,
+): Promise<NetworkMember | null> {
+  return getNetworkMemberByToken(extractNetworkToken(req));
+}
+
 /**
  * Guard per API route/server action che richiedono network member autenticato.
  */
@@ -60,6 +91,16 @@ export async function requireNetwork(): Promise<
   { ok: true; member: NetworkMember } | { ok: false; error: string }
 > {
   const member = await getNetworkMember();
+  if (!member) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
+  return { ok: true, member };
+}
+
+export async function requireNetworkFromRequest(
+  req: NextRequest,
+): Promise<
+  { ok: true; member: NetworkMember } | { ok: false; error: string }
+> {
+  const member = await getNetworkMemberFromRequest(req);
   if (!member) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
   return { ok: true, member };
 }
