@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
     limit,
     offset,
     items: slice.map(({ d, sectors }) => ({
+      id: d.id,
       code: d.numero,
       title: d.titolo,
       date:

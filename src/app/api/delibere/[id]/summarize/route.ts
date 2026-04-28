@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminMember } from "@/lib/admin/session";
-import { getNetworkMember } from "@/lib/network/session";
+import { getNetworkMember, getNetworkMemberFromRequest } from "@/lib/network/session";
 import {
   generateDeliberaSummary,
   recordSummaryError,
@@ -10,14 +10,16 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 180;
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const [admin, member] = await Promise.all([
+  // Auth: cookie (web admin/network) OR Bearer (mobile network).
+  const [admin, memberCookie, memberBearer] = await Promise.all([
     getAdminMember(),
     getNetworkMember(),
+    getNetworkMemberFromRequest(request),
   ]);
-  if (!admin && !member) {
+  if (!admin && !memberCookie && !memberBearer) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
