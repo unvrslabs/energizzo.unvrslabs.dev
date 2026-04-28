@@ -264,7 +264,6 @@ function DataCard({
     : isNegative
       ? ACCENT
       : MUTE;
-  const arrow = isPositive ? "▲" : isNegative ? "▼" : "—";
   const scale = width > 1100 ? 1 : 0.7;
 
   return frameShell(
@@ -341,7 +340,21 @@ function DataCard({
               marginTop: 8,
             }}
           >
-            <div style={{ fontSize: 32 * scale, color: deltaColor }}>{arrow}</div>
+            {/* CSS triangle (no glyph) — evita Satori dynamic-font fetch su U+25B2/U+25BC */}
+            {(isPositive || isNegative) && (
+              <div
+                style={{
+                  display: "flex",
+                  width: 0,
+                  height: 0,
+                  borderLeft: `${10 * scale}px solid transparent`,
+                  borderRight: `${10 * scale}px solid transparent`,
+                  ...(isPositive
+                    ? { borderBottom: `${14 * scale}px solid ${deltaColor}` }
+                    : { borderTop: `${14 * scale}px solid ${deltaColor}` }),
+                }}
+              />
+            )}
             <div
               style={{
                 fontSize: 42 * scale,
