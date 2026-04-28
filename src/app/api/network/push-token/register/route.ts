@@ -41,7 +41,10 @@ export async function POST(req: NextRequest) {
 
   // Upsert per token: se esiste già, aggiorna member + last_used_at.
   // Permette migrazione token tra account sullo stesso device.
-  const { error } = await supabase
+  // Cast as any: i tipi Supabase generati non includono ancora la
+  // tabella network_push_tokens (creata con migration recente).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
     .from("network_push_tokens")
     .upsert(
       {
