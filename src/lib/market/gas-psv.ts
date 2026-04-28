@@ -24,8 +24,14 @@ export type PsvFetchResult = {
   source: string;
 };
 
+// URL pagina pubblica esiti MGP-Gas (post refactor 2025 a SPA Angular).
+// Vecchio URL /It/MercatiGas/MPGAS/EsitiMPGAS.aspx ora ritorna 404.
 const GME_PUBLIC_URL =
-  "https://www.mercatoelettrico.org/It/MercatiGas/MPGAS/EsitiMPGAS.aspx";
+  "https://www.mercatoelettrico.org/it-it/Home/Esiti-Gas/MGP-Gas";
+
+// API interna AJAX (Angular HttpClient): GET /DesktopModules/GmeCardTabellaGrafico/API/item/GetMGASGraficoHP
+// Richiede XSRF-TOKEN cookie impostato solo via runtime JS → impossibile da
+// curl plain. Con browser headless (Apify) il fetch funziona.
 
 // ─────────────────── PARSER comune ───────────────────
 
@@ -129,6 +135,9 @@ async function fetchViaApify(): Promise<PsvFetchResult | null> {
         maxResults: 1,
         scrapingTool: "browser-playwright",
         outputFormats: ["markdown"],
+        // La SPA Angular fa AJAX per i dati: serve aspettare che le tabelle
+        // siano popolate prima di estrarre il markdown.
+        dynamicContentWaitSecs: 5,
       }),
       signal: AbortSignal.timeout(60000),
     });
