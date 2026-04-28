@@ -23,8 +23,8 @@ function PsvSparkline({ history }: { history: PsvRow[] }) {
     points.map((p) => `L ${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(" ") +
     ` L ${w} ${h} Z`;
   const last = points[points.length - 1];
-  // Colore PSV: arancio caldo (gas-thermal), distinto dal warn-PUN
-  const color = "hsl(28 92% 56%)";
+  // Colore PSV: azzurro info (gas blue convention IT)
+  const color = "hsl(var(--v2-info))";
   return (
     <svg
       viewBox={`0 0 ${w} ${h}`}
@@ -69,8 +69,8 @@ export function PsvCard({
   weekAgo?: PsvRow | null;
   history?: PsvRow[];
 }) {
-  // Colore PSV
-  const color = "hsl(28 92% 56%)"; // arancio caldo
+  // Colore PSV: azzurro info (gas blue convention IT)
+  const color = "hsl(var(--v2-info))";
 
   if (!latest) {
     return (
