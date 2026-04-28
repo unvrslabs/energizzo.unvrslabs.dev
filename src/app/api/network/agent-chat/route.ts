@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
-import { getNetworkMember } from "@/lib/network/session";
+import { getNetworkMemberFromRequest } from "@/lib/network/session";
 import { generateDeliberaSummary } from "@/actions/delibere-summary";
 
 export const dynamic = "force-dynamic";
@@ -350,7 +350,7 @@ async function runTool(
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export async function POST(req: NextRequest) {
-  const member = await getNetworkMember();
+  const member = await getNetworkMemberFromRequest(req);
   if (!member) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
