@@ -6,6 +6,7 @@ import { listScadenzeFuture, SCADENZA_LABEL } from "@/lib/delibere/scadenze";
 import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { getLatestGasStorage } from "@/lib/market/storage-db";
+import { getLatestEntsoe } from "@/lib/market/entsoe-db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,6 +34,8 @@ export async function GET(req: NextRequest) {
     punLatest,
     punHistory14,
     gasLatest,
+    loadRow,
+    renewRow,
   ] = await Promise.all([
     supabase
       .from("delibere_cache")
@@ -53,7 +56,32 @@ export async function GET(req: NextRequest) {
     getLatestPun(),
     listPunHistory(14),
     getLatestGasStorage(),
+    getLatestEntsoe("load_forecast"),
+    getLatestEntsoe("renewable_forecast"),
   ]);
+
+  type LoadPayload = {
+    reference_day: string;
+    hourly_mw: number[];
+    peak_mw: number;
+    peak_hour: number;
+    min_mw: number;
+    min_hour: number;
+    avg_mw: number;
+    total_mwh: number;
+  };
+  type RenewablePayload = {
+    reference_day: string;
+    solar_hourly_mw: number[];
+    wind_hourly_mw: number[];
+    solar_peak_mw: number;
+    wind_peak_mw: number;
+    solar_total_mwh: number;
+    wind_total_mwh: number;
+    combined_total_mwh: number;
+  };
+  const loadPayload = (loadRow?.payload as LoadPayload | undefined) ?? null;
+  const renewPayload = (renewRow?.payload as RenewablePayload | undefined) ?? null;
 
   // PUN delta vs 7gg fa
   let punDeltaPct: number | null = null;
@@ -116,6 +144,30 @@ export async function GET(req: NextRequest) {
       importanza: d.ai_importanza,
       summary: d.ai_summary,
     })),
+    loadForecast: loadPayload
+      ? {
+          referenceDay: loadPayload.reference_day,
+          hourlyMw: loadPayload.hourly_mw,
+          peakMw: loadPayload.peak_mw,
+          peakHour: loadPayload.peak_hour,
+          minMw: loadPayload.min_mw,
+          minHour: loadPayload.min_hour,
+          avgMw: loadPayload.avg_mw,
+          totalMwh: loadPayload.total_mwh,
+        }
+      : null,
+    renewableForecast: renewPayload
+      ? {
+          referenceDay: renewPayload.reference_day,
+          solarHourlyMw: renewPayload.solar_hourly_mw,
+          windHourlyMw: renewPayload.wind_hourly_mw,
+          solarPeakMw: renewPayload.solar_peak_mw,
+          windPeakMw: renewPayload.wind_peak_mw,
+          solarTotalMwh: renewPayload.solar_total_mwh,
+          windTotalMwh: renewPayload.wind_total_mwh,
+          combinedTotalMwh: renewPayload.combined_total_mwh,
+        }
+      : null,
     nextScadenze: scadenze.slice(0, 5).map((s) => ({
       date: s.date,
       label: s.label,
