@@ -763,19 +763,20 @@ function SparklineMini({
 }
 
 export function LoadForecastMini({ payload }: { payload: LoadPayload | null }) {
+  // Convenzione: domanda elettrica = giallo/arancio (energia)
   return (
     <div className="v2-card v2-col-6 flex flex-col">
       <div className="v2-card-head flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Zap className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-info))" }} />
+          <Zap className="w-3.5 h-3.5" style={{ color: "hsl(var(--v2-warn))" }} />
           <span className="v2-card-title">Domanda elettrica · oggi</span>
         </div>
         <span
           className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded"
           style={{
-            color: "hsl(var(--v2-info))",
-            background: "hsl(var(--v2-info) / 0.08)",
-            border: "1px solid hsl(var(--v2-info) / 0.28)",
+            color: "hsl(var(--v2-warn))",
+            background: "hsl(var(--v2-warn) / 0.08)",
+            border: "1px solid hsl(var(--v2-warn) / 0.28)",
           }}
         >
           FORECAST
@@ -792,7 +793,7 @@ export function LoadForecastMini({ payload }: { payload: LoadPayload | null }) {
           <div className="v2-mono text-[11.5px]" style={{ color: "hsl(var(--v2-text-mute))" }}>
             alle {String(payload.peak_hour).padStart(2, "0")}:00 · giornata {(payload.total_mwh / 1000).toFixed(0)} GWh
           </div>
-          <MiniBars values={payload.hourly_mw} color="hsl(var(--v2-info))" peakColor="hsl(var(--v2-warn))" />
+          <MiniBars values={payload.hourly_mw} color="hsl(var(--v2-warn) / 0.55)" peakColor="hsl(var(--v2-warn))" />
           <div className="text-[11.5px]" style={{ color: "hsl(var(--v2-text-dim))" }}>
             Media {(payload.avg_mw / 1000).toFixed(1)} GW · Min {(payload.min_mw / 1000).toFixed(1)} GW
           </div>

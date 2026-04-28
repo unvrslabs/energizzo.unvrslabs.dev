@@ -64,17 +64,20 @@ export function PsvCard({
   latest,
   weekAgo,
   history,
+  cols = 6,
 }: {
   latest: PsvRow | null;
   weekAgo?: PsvRow | null;
   history?: PsvRow[];
+  cols?: 6 | 8 | 12;
 }) {
   // Colore PSV: azzurro info (gas blue convention IT)
   const color = "hsl(var(--v2-info))";
+  const colClass = cols === 12 ? "v2-col-12" : cols === 8 ? "v2-col-8" : "v2-col-6";
 
   if (!latest) {
     return (
-      <div className="v2-card v2-col-6 flex flex-col">
+      <div className={`v2-card ${colClass} flex flex-col`}>
         <div className="v2-card-head flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="w-3.5 h-3.5" style={{ color }} />
@@ -108,7 +111,7 @@ export function PsvCard({
   const trendDown = delta != null && delta < 0;
 
   return (
-    <div className="v2-card v2-col-6 flex flex-col">
+    <div className={`v2-card ${colClass} flex flex-col`}>
       <div className="v2-card-head flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Flame className="w-3.5 h-3.5" style={{ color }} />
