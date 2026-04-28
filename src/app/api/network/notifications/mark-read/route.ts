@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server";
-import { getNetworkMember } from "@/lib/network/session";
+import { NextResponse, type NextRequest } from "next/server";
+import { getNetworkMember, getNetworkMemberFromRequest } from "@/lib/network/session";
 import { markRead } from "@/lib/network/notifications";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
-  const member = await getNetworkMember();
+export async function POST(req: NextRequest) {
+  const [memberCookie, memberBearer] = await Promise.all([
+    getNetworkMember(),
+    getNetworkMemberFromRequest(req),
+  ]);
+  const member = memberBearer ?? memberCookie;
   if (!member) return new NextResponse("Unauthorized", { status: 401 });
 
   let body: { ids?: string[]; all?: boolean } = {};
