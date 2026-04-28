@@ -9,12 +9,10 @@ import { SAVED_DELIBERE_MOCK } from "@/lib/delibere/mock";
 import { listDelibere } from "@/lib/delibere/db";
 import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { listScadenzeFuture } from "@/lib/delibere/scadenze";
-import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { V2SectorChip } from "@/components/network-v2/sector-chip";
 import { DeliberaRowRich } from "@/components/network-v2/delibera-row-rich";
 import { ScadenzaCountdown } from "@/components/network-v2/scadenza-countdown";
-import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
 import { PsvCard } from "@/components/network-v2/psv-card";
 import { getLatestPsv, listPsvHistory } from "@/lib/market/gas-psv-db";
@@ -57,8 +55,6 @@ export default async function V2HomePage() {
     member,
     allDelibere,
     allScadenze,
-    gasLatest,
-    gasHistory,
     punLatest,
     punHistory,
     loadRow,
@@ -69,8 +65,6 @@ export default async function V2HomePage() {
     getNetworkMember(),
     listDelibere({ limit: 200 }),
     listScadenzeFuture(),
-    getLatestGasStorage(),
-    listGasStorageHistory(60),
     getLatestPun(),
     listPunHistory(14),
     getLatestEntsoe("load_forecast"),
@@ -230,10 +224,9 @@ export default async function V2HomePage() {
           </ul>
         </div>
 
-        {/* Cockpit mercato — 6 card v2-col-6 (3x2 grid) */}
+        {/* Cockpit mercato — 4 card v2-col-6 (2x2): elettrico+gas mercato sopra, ENTSO-E sotto */}
         <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} history={punHistory} />
         <PsvCard latest={psvLatest} weekAgo={psvWeekAgo} history={psvHistory} />
-        <GasStorageCard latest={gasLatest} history={gasHistory} />
         <LoadForecastMini payload={loadRow?.payload as never} />
         <RenewableForecastMini payload={renewRow?.payload as never} />
 
