@@ -76,10 +76,10 @@ const PAGE_FUNCTION = `async function pageFunction(ctx) {
   };
   const parseVolume = (s) => {
     if (!s || s === "-") return null;
-    // Volumi in formato europeo "16.804" (migliaia con punto) o "403.296" → numeri grezzi
-    // Apify renderizza con la stessa convenzione tabella: "." separatore migliaia
-    const cleaned = s.replace(/\\./g, "").replace(",", ".");
-    const n = Number(cleaned);
+    // Volumi GME formato US-like: "." e' decimale (NON migliaia).
+    // Esempio reale: 16.804 MW (potenza media) × 24h = 403.296 MWh (energia daily).
+    // Il rapporto verifica: i punti sono decimali, non migliaia.
+    const n = Number(s);
     return Number.isFinite(n) ? n : null;
   };
 
