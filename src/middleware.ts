@@ -56,6 +56,16 @@ function isNetworkProtectedRoute(pathname: string): boolean {
   );
 }
 
+/**
+ * Mobile usa Authorization: Bearer invece di cookie. Il middleware deve
+ * lasciare passare le richieste con Bearer alle route handlers, che poi
+ * validano il token via getNetworkMemberFromRequest().
+ */
+function hasBearerAuth(request: NextRequest): boolean {
+  const auth = request.headers.get("authorization");
+  return !!auth && auth.toLowerCase().startsWith("bearer ");
+}
+
 function handleAdmin(request: NextRequest, pathname: string) {
   const cookie = request.cookies.get(ADMIN_COOKIE_NAME);
   const hasCookie = !!cookie?.value;
@@ -125,7 +135,7 @@ export async function middleware(request: NextRequest) {
     }
     if (isNetworkProtectedRoute(pathname)) {
       const cookie = request.cookies.get(NETWORK_COOKIE_NAME);
-      if (!cookie?.value) {
+      if (!cookie?.value && !hasBearerAuth(request)) {
         const url = new URL("/network/login", request.url);
         if (pathname !== "/network") {
           url.searchParams.set("next", pathname);
@@ -143,7 +153,7 @@ export async function middleware(request: NextRequest) {
   }
   if (isNetworkProtectedRoute(pathname)) {
     const cookie = request.cookies.get(NETWORK_COOKIE_NAME);
-    if (!cookie?.value) {
+    if (!cookie?.value && !hasBearerAuth(request)) {
       const url = new URL("/network/login", request.url);
       if (pathname !== "/network") {
         url.searchParams.set("next", pathname);
