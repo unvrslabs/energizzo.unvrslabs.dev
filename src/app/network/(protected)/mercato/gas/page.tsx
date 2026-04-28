@@ -1,6 +1,8 @@
 import { Flame, Info, ArrowUpRight, TrendingUp, TrendingDown } from "lucide-react";
 import { getLatestGasStorage, listGasStorageHistory } from "@/lib/market/storage-db";
 import { GasHistoryChart } from "@/components/network-v2/gas-history-chart";
+import { getLatestPsv, listPsvHistory } from "@/lib/market/gas-psv-db";
+import { PsvCard } from "@/components/network-v2/psv-card";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -21,10 +23,22 @@ function fmtDateShort(iso: string): string {
 }
 
 export default async function MercatoGasPage() {
-  const [latest, history] = await Promise.all([
+  const [latest, history, psvLatest, psvHistory] = await Promise.all([
     getLatestGasStorage(),
     listGasStorageHistory(365),
+    getLatestPsv(),
+    listPsvHistory(14),
   ]);
+
+  const psvWeekAgo = psvLatest
+    ? psvHistory.find((row) => {
+        const diff =
+          (new Date(psvLatest.price_day).getTime() -
+            new Date(row.price_day).getTime()) /
+          86400000;
+        return diff >= 6.5 && diff <= 8;
+      }) ?? null
+    : null;
 
   if (!latest) {
     return (
@@ -53,7 +67,12 @@ export default async function MercatoGasPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* HERO gauge + chart */}
+      {/* PSV HERO: prezzo mercato gas — primario per reseller */}
+      <section className="v2-bento">
+        <PsvCard latest={psvLatest} weekAgo={psvWeekAgo} history={psvHistory} cols={12} />
+      </section>
+
+      {/* HERO gauge + chart STORAGE (contesto operatori) */}
       <section className="v2-bento">
         {/* Gauge — 4 cols */}
         <div className="v2-card v2-col-4 p-5 flex flex-col gap-4">
