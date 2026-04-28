@@ -16,6 +16,8 @@ import { DeliberaRowRich } from "@/components/network-v2/delibera-row-rich";
 import { ScadenzaCountdown } from "@/components/network-v2/scadenza-countdown";
 import { GasStorageCard } from "@/components/network-v2/gas-storage-card";
 import { ElectricityCard } from "@/components/network-v2/electricity-card";
+import { PsvCard } from "@/components/network-v2/psv-card";
+import { getLatestPsv, listPsvHistory } from "@/lib/market/gas-psv-db";
 import { PodcastPreviewCard } from "@/components/network-v2/podcast-preview-card";
 import { LoadForecastMini, RenewableForecastMini } from "@/components/network-v2/entsoe-cards";
 import { getLatestEntsoe } from "@/lib/market/entsoe-db";
@@ -61,6 +63,8 @@ export default async function V2HomePage() {
     punHistory,
     loadRow,
     renewRow,
+    psvLatest,
+    psvHistory,
   ] = await Promise.all([
     getNetworkMember(),
     listDelibere({ limit: 200 }),
@@ -71,7 +75,19 @@ export default async function V2HomePage() {
     listPunHistory(14),
     getLatestEntsoe("load_forecast"),
     getLatestEntsoe("renewable_forecast"),
+    getLatestPsv(),
+    listPsvHistory(14),
   ]);
+
+  const psvWeekAgo = psvLatest
+    ? psvHistory.find((row) => {
+        const diff =
+          (new Date(psvLatest.price_day).getTime() -
+            new Date(row.price_day).getTime()) /
+          86400000;
+        return diff >= 6.5 && diff <= 8;
+      }) ?? null
+    : null;
 
   const punWeekAgo = punLatest
     ? punHistory.find((row) => {
@@ -214,8 +230,9 @@ export default async function V2HomePage() {
           </ul>
         </div>
 
-        {/* Cockpit mercato — 4 card v2-col-6 (2x2 grid) */}
+        {/* Cockpit mercato — 6 card v2-col-6 (3x2 grid) */}
         <ElectricityCard latest={punLatest} weekAgo={punWeekAgo} history={punHistory} />
+        <PsvCard latest={psvLatest} weekAgo={psvWeekAgo} history={psvHistory} />
         <GasStorageCard latest={gasLatest} history={gasHistory} />
         <LoadForecastMini payload={loadRow?.payload as never} />
         <RenewableForecastMini payload={renewRow?.payload as never} />
