@@ -1,19 +1,25 @@
 /**
  * Fetcher PSV (Punto di Scambio Virtuale) — prezzo gas all'ingrosso Italia.
  *
- * Fonte primaria: GME MGP-Gas
- *   https://www.mercatoelettrico.org/It/MercatiGas/MPGAS/EsitiMPGAS.aspx
+ * Fonte: GME MGP-Gas pagina Negoziazione Continua "Prezzo".
+ *   https://www.mercatoelettrico.org/it-it/Home/Esiti/Gas/MGP-GAS/Esiti/NegoziazioneContinua/Prezzo
  *
- * GME pubblica gli esiti d'asta del Mercato del Giorno Prima per il gas (MGP-Gas).
- * La pagina e' un Web Form ASP.NET con ViewState, NON ha API pubblica REST.
+ * GME serve la pagina come SPA Angular: il widget tabella esiti viene
+ * popolato via AJAX dopo il render. Curl plain non funziona (XSRF cookie
+ * impostato solo lato browser → API interna 401).
  *
- * STRATEGIA 3-LIVELLI (best-effort, gracefully nullable):
- *  1. fetch+regex pubblico GME (gratis, primo tentativo, fragile)
- *  2. Fallback Firecrawl (se FIRECRAWL_API_KEY): rendering JS + bypass anti-bot
- *  3. (futuro) CSV ufficiale GME autenticato dopo registrazione account
+ * Soluzione: Apify web-scraper actor con pageFunction custom che:
+ *  1. Carica la pagina dentro browser headless
+ *  2. Clicca "CONTINUA" sul modal di accettazione condizioni
+ *  3. Aspetta che Angular popoli la tabella (~9s)
+ *  4. Legge la prima riga MGP-YYYY-MM-DD ed estrae prezzo "Rifer."
  *
- * Tutti i livelli ritornano `null` su errore: la UI gestisce gracefully
- * mostrando "in sync" finche' non arriva il primo dato valido.
+ * Output tabella attuale (esempio reale 2026-04-28):
+ *   MGP-2026-04-28 | First 45,500 | Last 44,950 | Min 44,200 | Max 45,850 |
+ *   Rifer. 44,917 | Controllo 45,080 | MW 16.804 | MWh 403.296
+ *
+ * "Rifer." = media ponderata dei prezzi su contratti conclusi → equivale
+ * al PSV come riferimento di mercato per il giorno.
  */
 
 export type PsvFetchResult = {
@@ -24,171 +30,142 @@ export type PsvFetchResult = {
   source: string;
 };
 
-// URL pagina pubblica esiti MGP-Gas (post refactor 2025 a SPA Angular).
-// Vecchio URL /It/MercatiGas/MPGAS/EsitiMPGAS.aspx ora ritorna 404.
-const GME_PUBLIC_URL =
-  "https://www.mercatoelettrico.org/it-it/Home/Esiti-Gas/MGP-Gas";
+const GME_GAS_URL =
+  "https://www.mercatoelettrico.org/it-it/Home/Esiti/Gas/MGP-GAS/Esiti/NegoziazioneContinua/Prezzo";
 
-// API interna AJAX (Angular HttpClient): GET /DesktopModules/GmeCardTabellaGrafico/API/item/GetMGASGraficoHP
-// Richiede XSRF-TOKEN cookie impostato solo via runtime JS → impossibile da
-// curl plain. Con browser headless (Apify) il fetch funziona.
+const APIFY_ACTOR = "apify~web-scraper";
 
-// ─────────────────── PARSER comune ───────────────────
+// pageFunction eseguita dentro browser headless di Apify.
+// Estrae la prima riga MGP-YYYY-MM-DD dalla tabella esiti e ritorna un oggetto
+// con date e prezzi gia' parsati (numero IT con virgola).
+const PAGE_FUNCTION = `async function pageFunction(ctx) {
+  // 1. Click modal "CONTINUA" se presente (accettazione condizioni)
+  try {
+    const accept = Array.from(document.querySelectorAll("a, button"))
+      .find(el => /CONTINUA|ACCETTO/i.test(el.innerText || ""));
+    if (accept) accept.click();
+  } catch {}
 
-/**
- * Estrae data + prezzo dal markup grezzo (HTML o Markdown).
- * Heuristica: prima data dd/mm/yyyy + primo prezzo decimale italiano entro 800 char.
- */
-function parsePsvFromText(text: string, source: string): PsvFetchResult | null {
-  const dateRe = /(\d{2})\/(\d{2})\/(\d{4})/;
-  const dateMatch = text.match(dateRe);
-  if (!dateMatch) {
-    console.warn(`[psv:${source}] no date found`);
-    return null;
+  // 2. Wait Angular hydration + AJAX populate tabella
+  await new Promise(r => setTimeout(r, 9000));
+
+  // 3. Parsing tabella: cerca prima riga "MGP-YYYY-MM-DD"
+  const text = document.body.innerText || "";
+  // Pattern riga: codice prodotto seguito da 6-8 numeri decimali italiani separati da tab/newline
+  // Esempio: "MGP-2026-04-28\\t45,500\\t44,950\\t44,200\\t45,850\\t44,917\\t45,080\\t16.804\\t403.296"
+  const rowRegex = /MGP-(\\d{4})-(\\d{2})-(\\d{2})[\\s\\t\\n]+([0-9.,\\-\\s\\t\\n]+)/;
+  const m = text.match(rowRegex);
+  if (!m) {
+    return { ok: false, reason: "no row matched", textPreview: text.slice(0, 2000) };
   }
-  const [, dd, mm, yyyy] = dateMatch;
-  const price_day = `${yyyy}-${mm}-${dd}`;
+  const price_day = m[1] + "-" + m[2] + "-" + m[3];
+  // Splitta i campi numerici della riga (whitespace separator, tiene "-" come placeholder)
+  const fields = m[4]
+    .split(/[\\s\\t\\n]+/)
+    .filter(s => s.length > 0)
+    .slice(0, 8);
 
-  const afterDate = text.slice(dateMatch.index! + dateMatch[0].length);
-  // Prezzo decimale italiano: "32,450" / "1.234,56" / "32.45"
-  const priceMatch = afterDate
-    .slice(0, 800)
-    .match(/(\d{1,3}(?:\.\d{3})*,\d{2,4}|\d+,\d{2,4}|\d{1,3}\.\d{2,4})/);
-  if (!priceMatch) {
-    console.warn(`[psv:${source}] no price after date`);
-    return null;
-  }
-  let priceStr = priceMatch[1];
-  if (priceStr.includes(",")) {
-    priceStr = priceStr.replace(/\./g, "").replace(",", ".");
-  }
-  const price = Number(priceStr);
-  if (!Number.isFinite(price) || price <= 0 || price > 1000) {
-    console.warn(`[psv:${source}] invalid price parsed: ${priceMatch[1]}`);
-    return null;
+  // Conversione numero IT: "45,500" -> 45.500 ; "16.804" (tabular) -> 16.804 (volume MW intero)
+  // I prezzi hanno formato XX,YYY (virgola decimale) ; i volumi possono avere "." come migliaia
+  const parsePrice = (s) => {
+    if (!s || s === "-") return null;
+    // Normalizza: rimuovi punti migliaia se presenti, sostituisci virgola con punto
+    const normalized = s.replace(/\\./g, "").replace(",", ".");
+    const n = Number(normalized);
+    return Number.isFinite(n) ? n : null;
+  };
+  const parseVolume = (s) => {
+    if (!s || s === "-") return null;
+    // Volumi in formato europeo "16.804" (migliaia con punto) o "403.296" → numeri grezzi
+    // Apify renderizza con la stessa convenzione tabella: "." separatore migliaia
+    const cleaned = s.replace(/\\./g, "").replace(",", ".");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const [first, last, min, max, rifer, controllo, mw, mwh] = fields;
+  const price = parsePrice(rifer); // "Rifer." = media ponderata
+  if (price === null || price <= 0) {
+    return { ok: false, reason: "rifer not parseable", fields };
   }
 
   return {
+    ok: true,
     price_day,
     price_eur_mwh: price,
-    volume_mwh: null,
-    trades_count: null,
-    source,
+    first: parsePrice(first),
+    last: parsePrice(last),
+    min: parsePrice(min),
+    max: parsePrice(max),
+    controllo: parsePrice(controllo),
+    volume_mw: parseVolume(mw),
+    volume_mwh: parseVolume(mwh),
   };
-}
-
-// ─────────────────── LIVELLO 1: fetch+regex pubblico ───────────────────
-
-async function fetchViaPublicHttp(): Promise<PsvFetchResult | null> {
-  try {
-    const res = await fetch(GME_PUBLIC_URL, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-        Accept: "text/html,application/xhtml+xml",
-        "Accept-Language": "it-IT,it;q=0.9",
-      },
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (!res.ok) {
-      console.warn(`[psv:public] GME ${res.status} ${res.statusText}`);
-      return null;
-    }
-    const html = await res.text();
-    return parsePsvFromText(html, "gme_public");
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`[psv:public] fetch error: ${msg}`);
-    return null;
-  }
-}
-
-// ─────────────────── LIVELLO 2: Apify ───────────────────
+}`;
 
 /**
- * Apify rag-web-browser actor: rendering JS + bypass anti-bot.
- * Richiede env APIFY_API_TOKEN (apify_api_*).
- *
- * Endpoint sync: lancia run, attende completion, scarica dataset items.
- * Cost: ~$0.0005 per page run, free tier $5/month → ~10k pagine/mese.
- *
- * Input actor (rag-web-browser): { query: <url>, maxResults: 1 }
- * Output: [{ url, query, crawl: { httpStatusCode, ... },
- *            metadata: { title, ... }, text, markdown }]
+ * Apify web-scraper run-sync. Free tier $5/mese → ~10k page run.
+ * Una run/giorno = ~30/mese ≪ tier.
  */
-async function fetchViaApify(): Promise<PsvFetchResult | null> {
+export async function fetchLatestPsvBestEffort(): Promise<PsvFetchResult | null> {
   const token = process.env.APIFY_API_TOKEN;
-  if (!token) return null;
+  if (!token) {
+    console.warn("[psv] APIFY_API_TOKEN missing");
+    return null;
+  }
 
   try {
-    const url =
-      `https://api.apify.com/v2/acts/apify~rag-web-browser/run-sync-get-dataset-items?token=${encodeURIComponent(
-        token,
-      )}`;
-
+    const url = `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${encodeURIComponent(token)}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        query: GME_PUBLIC_URL,
-        maxResults: 1,
-        scrapingTool: "browser-playwright",
-        outputFormats: ["markdown"],
-        // La SPA Angular fa AJAX per i dati: serve aspettare che le tabelle
-        // siano popolate prima di estrarre il markdown.
-        dynamicContentWaitSecs: 5,
+        startUrls: [{ url: GME_GAS_URL }],
+        pageFunction: PAGE_FUNCTION,
+        proxyConfiguration: { useApifyProxy: true },
+        maxRequestsPerCrawl: 1,
       }),
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(90000),
     });
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      console.warn(`[psv:apify] ${res.status} ${res.statusText} ${body.slice(0, 200)}`);
+      console.warn(`[psv] apify ${res.status} ${res.statusText} ${body.slice(0, 200)}`);
       return null;
     }
 
     const items = (await res.json()) as Array<{
-      url?: string;
-      text?: string;
-      markdown?: string;
-      content?: { markdown?: string; text?: string };
+      ok?: boolean;
+      reason?: string;
+      price_day?: string;
+      price_eur_mwh?: number;
+      volume_mwh?: number | null;
+      fields?: unknown;
+      textPreview?: string;
     }>;
+
     if (!Array.isArray(items) || items.length === 0) {
-      console.warn(`[psv:apify] empty items`);
+      console.warn("[psv] apify empty items");
       return null;
     }
     const item = items[0];
-    const text =
-      item.markdown ?? item.content?.markdown ?? item.text ?? item.content?.text ?? "";
-    if (!text) {
-      console.warn(`[psv:apify] empty content in item`);
+    if (!item.ok || !item.price_day || typeof item.price_eur_mwh !== "number") {
+      console.warn(
+        `[psv] apify pageFunction reported not-ok: ${item.reason ?? "unknown"}`,
+      );
       return null;
     }
-    return parsePsvFromText(text, "gme_apify");
+
+    return {
+      price_day: item.price_day,
+      price_eur_mwh: item.price_eur_mwh,
+      volume_mwh: typeof item.volume_mwh === "number" ? item.volume_mwh : null,
+      trades_count: null,
+      source: "gme_apify",
+    };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`[psv:apify] error: ${msg}`);
+    console.warn(`[psv] fetch error: ${msg}`);
     return null;
   }
-}
-
-// ─────────────────── ENTRY POINT ───────────────────
-
-/**
- * Best-effort multi-source PSV fetcher. Prova in ordine:
- *  1. fetch+regex pubblico GME (gratis, primo)
- *  2. Apify rag-web-browser (se APIFY_API_TOKEN, browser headless)
- * Ritorna null se entrambi falliscono.
- */
-export async function fetchLatestPsvBestEffort(): Promise<PsvFetchResult | null> {
-  // Livello 1
-  const direct = await fetchViaPublicHttp();
-  if (direct) return direct;
-
-  // Livello 2
-  const apify = await fetchViaApify();
-  if (apify) return apify;
-
-  return null;
 }
