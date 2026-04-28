@@ -8,6 +8,8 @@ import {
   fetchCrossBorderFlows,
 } from "@/lib/market/entsoe-fetchers";
 import { getLatestEntsoe, upsertEntsoe } from "@/lib/market/entsoe-db";
+import { fetchLatestPsvBestEffort } from "@/lib/market/gas-psv";
+import { getLatestPsv, upsertPsv } from "@/lib/market/gas-psv-db";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
@@ -34,6 +36,8 @@ export async function GET(req: Request) {
   const stats = {
     pun_synced: 0,
     pun_skipped: 0,
+    psv_synced: 0,
+    psv_skipped: 0,
     generation_mix_synced: 0,
     load_forecast_synced: 0,
     renewable_forecast_synced: 0,
@@ -137,6 +141,22 @@ export async function GET(req: Request) {
     );
     // Cross-border flows: physical flows giorno passato (finalizzati)
     await syncMetric("cross_border_flows", fetchCrossBorderFlows, "cross_border_synced");
+
+    // PSV gas: scrape pubblico GME (best-effort, gracefully nullable).
+    // Pubblicato dopo le 14:30 IT (chiusura asta MGP-Gas).
+    // Fallback Apify rag-web-browser se fetch diretto fallisce.
+    try {
+      const latestPsv = await getLatestPsv();
+      const psv = await fetchLatestPsvBestEffort();
+      if (psv && (!latestPsv || psv.price_day > latestPsv.price_day)) {
+        await upsertPsv(psv);
+        stats.psv_synced++;
+      } else {
+        stats.psv_skipped++;
+      }
+    } catch (err) {
+      stats.errors.push(`psv: ${err instanceof Error ? err.message : String(err)}`);
+    }
   } catch (err) {
     stats.errors.push(
       `top-level: ${err instanceof Error ? err.message : String(err)}`,
