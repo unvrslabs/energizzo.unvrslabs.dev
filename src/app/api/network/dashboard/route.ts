@@ -7,6 +7,7 @@ import { deriveSectorsFromNumero } from "@/lib/delibere/api";
 import { getLatestPun, listPunHistory } from "@/lib/market/power-pun-db";
 import { getLatestGasStorage } from "@/lib/market/storage-db";
 import { getLatestEntsoe } from "@/lib/market/entsoe-db";
+import { getLatestPsv, listPsvHistory } from "@/lib/market/gas-psv-db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,6 +37,8 @@ export async function GET(req: NextRequest) {
     gasLatest,
     loadRow,
     renewRow,
+    psvLatest,
+    psvHistory14,
   ] = await Promise.all([
     supabase
       .from("delibere_cache")
@@ -58,6 +61,8 @@ export async function GET(req: NextRequest) {
     getLatestGasStorage(),
     getLatestEntsoe("load_forecast"),
     getLatestEntsoe("renewable_forecast"),
+    getLatestPsv(),
+    listPsvHistory(14),
   ]);
 
   type LoadPayload = {
@@ -93,6 +98,21 @@ export async function GET(req: NextRequest) {
     if (weekAgoRow && weekAgoRow.price_eur_mwh > 0) {
       punDeltaPct =
         ((punLatest.price_eur_mwh - weekAgoRow.price_eur_mwh) /
+          weekAgoRow.price_eur_mwh) *
+        100;
+    }
+  }
+
+  // PSV delta vs 7gg fa
+  let psvDeltaPct: number | null = null;
+  if (psvLatest && psvHistory14.length > 1) {
+    const sevenIso = sevenDaysAgo.slice(0, 10);
+    const weekAgoRow =
+      psvHistory14.find((row) => row.price_day <= sevenIso) ??
+      psvHistory14[psvHistory14.length - 1];
+    if (weekAgoRow && weekAgoRow.price_eur_mwh > 0) {
+      psvDeltaPct =
+        ((psvLatest.price_eur_mwh - weekAgoRow.price_eur_mwh) /
           weekAgoRow.price_eur_mwh) *
         100;
     }
@@ -136,6 +156,21 @@ export async function GET(req: NextRequest) {
                 : null,
           }
         : null,
+    psv: psvLatest
+      ? {
+          eurPerMwh: Number(psvLatest.price_eur_mwh.toFixed(2)),
+          day: psvLatest.price_day,
+          deltaPct: psvDeltaPct !== null ? Number(psvDeltaPct.toFixed(2)) : null,
+          source: psvLatest.source,
+          history: psvHistory14
+            .slice()
+            .sort((a, b) => (a.price_day < b.price_day ? -1 : 1))
+            .map((row) => ({
+              day: row.price_day,
+              value: Number(row.price_eur_mwh.toFixed(2)),
+            })),
+        }
+      : null,
     recentDelibere: recentDelibere.map((d) => ({
       code: d.numero,
       title: d.titolo,
