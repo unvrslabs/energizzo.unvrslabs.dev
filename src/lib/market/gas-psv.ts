@@ -98,56 +98,68 @@ async function fetchViaPublicHttp(): Promise<PsvFetchResult | null> {
   }
 }
 
-// ─────────────────── LIVELLO 2: Firecrawl ───────────────────
+// ─────────────────── LIVELLO 2: Apify ───────────────────
 
 /**
- * Firecrawl scrape API: rendering JS + anti-bot bypass.
- * Free tier 500 page/mese (sufficiente per 1 run daily = ~30/mese).
- * Richiede env FIRECRAWL_API_KEY (https://firecrawl.dev/dashboard).
+ * Apify rag-web-browser actor: rendering JS + bypass anti-bot.
+ * Richiede env APIFY_API_TOKEN (apify_api_*).
+ *
+ * Endpoint sync: lancia run, attende completion, scarica dataset items.
+ * Cost: ~$0.0005 per page run, free tier $5/month → ~10k pagine/mese.
+ *
+ * Input actor (rag-web-browser): { query: <url>, maxResults: 1 }
+ * Output: [{ url, query, crawl: { httpStatusCode, ... },
+ *            metadata: { title, ... }, text, markdown }]
  */
-async function fetchViaFirecrawl(): Promise<PsvFetchResult | null> {
-  const apiKey = process.env.FIRECRAWL_API_KEY;
-  if (!apiKey) return null;
+async function fetchViaApify(): Promise<PsvFetchResult | null> {
+  const token = process.env.APIFY_API_TOKEN;
+  if (!token) return null;
 
   try {
-    const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
+    const url =
+      `https://api.apify.com/v2/acts/apify~rag-web-browser/run-sync-get-dataset-items?token=${encodeURIComponent(
+        token,
+      )}`;
+
+    const res = await fetch(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        url: GME_PUBLIC_URL,
-        formats: ["markdown"],
-        onlyMainContent: true,
-        // Aspetta che la pagina ASP.NET completi il rendering
-        waitFor: 1500,
+        query: GME_PUBLIC_URL,
+        maxResults: 1,
+        scrapingTool: "browser-playwright",
+        outputFormats: ["markdown"],
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(60000),
     });
 
     if (!res.ok) {
-      console.warn(`[psv:firecrawl] ${res.status} ${res.statusText}`);
+      const body = await res.text().catch(() => "");
+      console.warn(`[psv:apify] ${res.status} ${res.statusText} ${body.slice(0, 200)}`);
       return null;
     }
 
-    const json = (await res.json()) as {
-      success?: boolean;
-      data?: { markdown?: string; html?: string };
-    };
-    if (!json.success) {
-      console.warn(`[psv:firecrawl] success=false`);
+    const items = (await res.json()) as Array<{
+      url?: string;
+      text?: string;
+      markdown?: string;
+      content?: { markdown?: string; text?: string };
+    }>;
+    if (!Array.isArray(items) || items.length === 0) {
+      console.warn(`[psv:apify] empty items`);
       return null;
     }
-    const text = json.data?.markdown ?? json.data?.html ?? "";
+    const item = items[0];
+    const text =
+      item.markdown ?? item.content?.markdown ?? item.text ?? item.content?.text ?? "";
     if (!text) {
-      console.warn(`[psv:firecrawl] empty content`);
+      console.warn(`[psv:apify] empty content in item`);
       return null;
     }
-    return parsePsvFromText(text, "gme_firecrawl");
+    return parsePsvFromText(text, "gme_apify");
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`[psv:firecrawl] error: ${msg}`);
+    console.warn(`[psv:apify] error: ${msg}`);
     return null;
   }
 }
@@ -157,7 +169,7 @@ async function fetchViaFirecrawl(): Promise<PsvFetchResult | null> {
 /**
  * Best-effort multi-source PSV fetcher. Prova in ordine:
  *  1. fetch+regex pubblico GME (gratis, primo)
- *  2. Firecrawl scrape (se FIRECRAWL_API_KEY)
+ *  2. Apify rag-web-browser (se APIFY_API_TOKEN, browser headless)
  * Ritorna null se entrambi falliscono.
  */
 export async function fetchLatestPsvBestEffort(): Promise<PsvFetchResult | null> {
@@ -166,8 +178,8 @@ export async function fetchLatestPsvBestEffort(): Promise<PsvFetchResult | null>
   if (direct) return direct;
 
   // Livello 2
-  const firecrawl = await fetchViaFirecrawl();
-  if (firecrawl) return firecrawl;
+  const apify = await fetchViaApify();
+  if (apify) return apify;
 
   return null;
 }
