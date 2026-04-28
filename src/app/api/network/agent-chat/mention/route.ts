@@ -20,34 +20,50 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const q = (url.searchParams.get("q") ?? "").trim();
+  const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "30")));
+  const offset = Math.max(0, Number(url.searchParams.get("offset") ?? "0"));
   const supabase = await createClient();
 
   let query = supabase
     .from("delibere_cache")
     .select(
-      "id,numero,titolo,data_pubblicazione,settore,ai_importanza,ai_summary",
+      "id,numero,titolo,data_pubblicazione,scraped_data_pubblicazione,data_delibera,settore,ai_importanza,ai_summary",
     )
     .order("data_pubblicazione", { ascending: false, nullsFirst: false });
 
   if (q.length > 0) {
     query = query.or(`numero.ilike.%${q}%,titolo.ilike.%${q}%`);
   }
-  query = query.limit(10);
+  query = query.range(offset, offset + limit - 1);
 
   const { data, error } = await query;
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   }
 
-  const items = (data ?? []).map((d) => ({
-    id: d.id,
-    numero: d.numero,
-    titolo: (d.titolo ?? "").slice(0, 120),
-    data: d.data_pubblicazione?.slice(0, 10) ?? null,
-    settore: d.settore,
-    importanza: d.ai_importanza,
-    has_analysis: Boolean(d.ai_summary),
-  }));
+  const items = (data ?? []).map((d) => {
+    // Fallback chain per date come list endpoint
+    const rawDate =
+      d.scraped_data_pubblicazione ??
+      d.data_pubblicazione ??
+      d.data_delibera ??
+      null;
+    return {
+      id: d.id,
+      numero: d.numero,
+      titolo: (d.titolo ?? "").slice(0, 120),
+      data: rawDate ? String(rawDate).slice(0, 10) : null,
+      settore: d.settore,
+      importanza: d.ai_importanza,
+      has_analysis: Boolean(d.ai_summary),
+    };
+  });
 
-  return NextResponse.json({ ok: true, items });
+  return NextResponse.json({
+    ok: true,
+    items,
+    limit,
+    offset,
+    hasMore: items.length === limit,
+  });
 }
