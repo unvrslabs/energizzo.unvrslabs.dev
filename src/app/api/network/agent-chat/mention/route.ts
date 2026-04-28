@@ -1,17 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getNetworkMember } from "@/lib/network/session";
+import { getNetworkMember, getNetworkMemberFromRequest } from "@/lib/network/session";
 
 export const dynamic = "force-dynamic";
 
 /**
  * GET /api/network/agent-chat/mention?q=<query>
  * Autocomplete delibere per menu @ nel drawer chat.
- * Ritorna max 10 risultati con id, numero, titolo, data, flag analisi presente.
+ * Auth: cookie (web) OR Bearer (mobile).
  */
 export async function GET(req: NextRequest) {
-  const member = await getNetworkMember();
-  if (!member) {
+  const [memberCookie, memberBearer] = await Promise.all([
+    getNetworkMember(),
+    getNetworkMemberFromRequest(req),
+  ]);
+  if (!memberCookie && !memberBearer) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
