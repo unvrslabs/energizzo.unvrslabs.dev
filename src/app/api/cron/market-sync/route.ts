@@ -52,11 +52,13 @@ export async function GET(req: Request) {
     const latest = await getLatestPun();
     stats.latest_day_in_db = latest?.price_day ?? null;
 
-    // Sync da ultimo+1 a ieri; aggiungi anche oggi se siamo dopo le 11:00 UTC (= 13:00 IT, ENTSO-E day-ahead già pubblicato alle 12:42 IT)
+    // Sync da ultimo+1 a oggi UTC. ENTSO-E rilascia il day-ahead di X+1 alle 10:42 UTC del giorno X,
+    // quindi il PUN del giorno corrente è disponibile praticamente sempre tranne nelle prime ore notturne.
+    // Se non lo è ancora, `fetchPunForDay` ritorna null → la riga viene skippata e ritentata al cron successivo.
+    // Niente più gating sulle ore: lasciamo che sia il fetcher a decidere.
     const nowUtc = new Date();
-    const endDate = new Date(nowUtc);
-    if (nowUtc.getUTCHours() < 11) endDate.setUTCDate(endDate.getUTCDate() - 1);
-    const endIso = endDate.toISOString().slice(0, 10);
+    const endIso = nowUtc.toISOString().slice(0, 10);
+    const endDate = new Date(endIso);
 
     const startDate = latest
       ? (() => {
@@ -96,8 +98,10 @@ export async function GET(req: Request) {
 
     // ─── Sync ENTSO-E extra indicators ──────────────────
     // Per ciascuno: sync solo l'ultimo giorno mancante (non backfill completo)
-    const yesterdayIso = endIso;
-    const todayIso = new Date().toISOString().slice(0, 10);
+    const todayIso = endIso; // = nowUtc YYYY-MM-DD
+    const yesterdayDate = new Date(endIso);
+    yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1);
+    const yesterdayIso = yesterdayDate.toISOString().slice(0, 10);
 
     const syncMetric = async (
       metric:
