@@ -93,6 +93,25 @@ export async function GET(req: Request) {
     .limit(1);
   const storage = storageData?.[0] ?? null;
 
+  // Storico ultimi 14 giorni (sempre, indipendentemente dal range richiesto):
+  // serve al renderer dashboard PSV per disegnare il candlestick reale.
+  const { data: historyData } = await (supabase as unknown as {
+    from: (t: string) => {
+      select: (s: string) => {
+        order: (c: string, o: { ascending: boolean }) => {
+          limit: (n: number) => Promise<{
+            data: Array<{ price_day: string; price_eur_mwh: number }> | null;
+          }>;
+        };
+      };
+    };
+  })
+    .from("market_gas_psv")
+    .select("price_day,price_eur_mwh")
+    .order("price_day", { ascending: false })
+    .limit(14);
+  const history = (historyData ?? []).slice().reverse(); // ascending per chart
+
   let summary = "Nessun dato PSV disponibile";
   const todayIso = todayIsoRome();
 
@@ -148,6 +167,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     items,
     storage,
+    history,
     summary,
     preview,
     fetched_at: new Date().toISOString(),
