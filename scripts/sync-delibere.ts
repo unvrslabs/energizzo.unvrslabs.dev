@@ -2,8 +2,15 @@
  * Sync delibere from Energizzo public API into Supabase delibere_cache.
  *
  * Usage (from repo root):
- *   npx tsx scripts/sync-delibere.ts            # full sync, no AI
- *   npx tsx scripts/sync-delibere.ts --ai 30    # sync + generate first 30 AI summaries
+ *   npx tsx scripts/sync-delibere.ts                  # full sync + auto-AI per nuove
+ *   npx tsx scripts/sync-delibere.ts --no-ai          # full sync, niente AI
+ *   npx tsx scripts/sync-delibere.ts --ai 30          # sync + backfill 30 vecchie senza summary
+ *   npx tsx scripts/sync-delibere.ts --ai-since 2026-04-29  # AI per missing con api_created_at >= data
+ *
+ * Auto-AI default: dopo l'upsert, identifica gli id appena inseriti (diff vs DB)
+ * e genera summary solo per quelli. Le delibere già esistenti senza summary
+ * restano on-demand (utente click → genera). Trigger PG su ai_importanza
+ * fan-out su network_notifications per delibere alta/critica.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -148,6 +155,23 @@ async function main() {
     synced_at: new Date().toISOString(),
   }));
 
+  // Diff: identifica id che NON esistono ancora in DB → newIds
+  const incomingIds = rows.map((r) => r.id);
+  const existingIds = new Set<number>();
+  for (let i = 0; i < incomingIds.length; i += 500) {
+    const slice = incomingIds.slice(i, i + 500);
+    const { data: existing, error: existErr } = await supabase
+      .from("delibere_cache")
+      .select("id")
+      .in("id", slice);
+    if (existErr) {
+      console.error(`   diff query failed: ${existErr.message}`);
+      process.exit(1);
+    }
+    for (const r of existing ?? []) existingIds.add(r.id as number);
+  }
+  const newIds = incomingIds.filter((id) => !existingIds.has(id));
+
   // Upsert in chunks of 100
   for (let i = 0; i < rows.length; i += 100) {
     const chunk = rows.slice(i, i + 100);
@@ -159,20 +183,114 @@ async function main() {
       process.exit(1);
     }
   }
-  console.log(`   ${rows.length} rows upserted`);
+  console.log(`   ${rows.length} rows upserted (${newIds.length} new)`);
 
-  // AI summaries
-  const aiArgIdx = process.argv.indexOf("--ai");
-  if (aiArgIdx >= 0) {
-    const n = Number(process.argv[aiArgIdx + 1] ?? "10");
-    if (!ANTHROPIC_KEY) {
-      console.error("Missing ANTHROPIC_API_KEY — skip AI");
-      return;
-    }
-    await generateAiBatch(supabase, n);
+  const args = process.argv.slice(2);
+  const noAi = args.includes("--no-ai");
+  const aiArgIdx = args.indexOf("--ai");
+  const aiBatchN = aiArgIdx >= 0 ? Number(args[aiArgIdx + 1] ?? "0") : 0;
+  const aiSinceIdx = args.indexOf("--ai-since");
+  const aiSinceDate = aiSinceIdx >= 0 ? args[aiSinceIdx + 1] : null;
+
+  if (!ANTHROPIC_KEY && (!noAi || aiBatchN > 0 || aiSinceDate)) {
+    console.error("Missing ANTHROPIC_API_KEY — skip AI");
+    console.log("✅ Done");
+    return;
+  }
+
+  // 1) Auto-AI per le nuove appena inserite (default, opt-out con --no-ai)
+  if (!noAi && newIds.length > 0) {
+    console.log(`⏳ Auto-AI per ${newIds.length} nuove delibere…`);
+    await generateAiForIds(supabase, newIds);
+  }
+
+  // 2) Backfill window: AI per missing summary con api_created_at >= aiSinceDate
+  if (aiSinceDate) {
+    await generateAiSince(supabase, aiSinceDate);
+  }
+
+  // 3) Backfill batch: --ai N (legacy, top N per data_delibera desc)
+  if (aiBatchN > 0) {
+    await generateAiBatch(supabase, aiBatchN);
   }
 
   console.log("✅ Done");
+}
+
+async function generateAiForIds(supabase: any, ids: number[]) {
+  if (ids.length === 0) return;
+  const { data, error } = await supabase
+    .from("delibere_cache")
+    .select("id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento, ai_generated_at, ai_error")
+    .in("id", ids);
+  if (error) {
+    console.error(`   list failed: ${error.message}`);
+    return;
+  }
+  const targets = (data ?? []).filter((r: any) => !r.ai_generated_at && !r.ai_error);
+  if (targets.length === 0) {
+    console.log("   nothing to generate (already covered)");
+    return;
+  }
+  await runAiOnRows(supabase, targets);
+}
+
+async function generateAiSince(supabase: any, sinceDate: string) {
+  console.log(`⏳ Backfill AI per missing con api_created_at >= ${sinceDate}…`);
+  const { data, error } = await supabase
+    .from("delibere_cache")
+    .select("id, numero, titolo, descrizione, tipo, settore, documento_url, url_riferimento")
+    .gte("api_created_at", sinceDate)
+    .is("ai_generated_at", null)
+    .is("ai_error", null)
+    .order("api_created_at", { ascending: false, nullsFirst: false });
+  if (error) {
+    console.error(`   list failed: ${error.message}`);
+    return;
+  }
+  if (!data || data.length === 0) {
+    console.log("   nothing to generate");
+    return;
+  }
+  await runAiOnRows(supabase, data);
+}
+
+async function runAiOnRows(supabase: any, rows: any[]) {
+  const anthropic = new Anthropic({ apiKey: ANTHROPIC_KEY! });
+  let ok = 0;
+  let fail = 0;
+  for (const row of rows) {
+    process.stdout.write(`   [${ok + fail + 1}/${rows.length}] ${row.numero}… `);
+    try {
+      const result = await summarizeOne(anthropic, row);
+      await supabase
+        .from("delibere_cache")
+        .update({
+          ai_summary: result.summary,
+          ai_bullets: result.bullets,
+          ai_sectors: result.sectors,
+          ai_scadenze: result.scadenze,
+          ai_importanza: result.importanza,
+          ai_categoria_impatto: result.categoria_impatto,
+          ai_generated_at: new Date().toISOString(),
+          ai_model: MODEL,
+          ai_source: result.source,
+          ai_error: null,
+        })
+        .eq("id", row.id);
+      console.log(`ok (${result.source}, ${result.importanza}, ${result.scadenze.length} scad.)`);
+      ok++;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.log(`FAIL — ${msg}`);
+      await supabase
+        .from("delibere_cache")
+        .update({ ai_error: msg.slice(0, 500) })
+        .eq("id", row.id);
+      fail++;
+    }
+  }
+  console.log(`   → ${ok} ok, ${fail} fail`);
 }
 
 async function generateAiBatch(supabase: any, n: number) {
