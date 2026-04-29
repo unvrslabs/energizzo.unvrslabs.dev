@@ -60,8 +60,20 @@ export async function GET(req: Request) {
 
   const supabase = await createClient();
 
-  // PSV price (prezzo gas all'ingrosso Italia, fonte GME MGP-Gas via Apify scraper)
-  const { data: priceData, error: priceErr } = await supabase
+  // PSV price (prezzo gas all'ingrosso Italia, fonte GME MGP-Gas via Apify scraper).
+  // `market_gas_psv` non è nei generated types Supabase, cast esplicito (allineato a gas-psv-db.ts).
+  const { data: priceData, error: priceErr } = await (supabase as unknown as {
+    from: (t: string) => {
+      select: (s: string) => {
+        order: (c: string, o: { ascending: boolean }) => {
+          limit: (n: number) => Promise<{
+            data: Array<{ price_day: string; price_eur_mwh: number; source: string }> | null;
+            error: { message: string } | null;
+          }>;
+        };
+      };
+    };
+  })
     .from("market_gas_psv")
     .select("price_day,price_eur_mwh,source")
     .order("price_day", { ascending: false })
